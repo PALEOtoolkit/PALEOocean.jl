@@ -1,0 +1,67 @@
+############################################
+# (Ocean) transport matrix examples
+############################################
+
+
+
+example_advect:
+    domains:
+        oceansurface:
+
+        oceanfloor:
+
+        ocean:
+
+            reactions:
+                grid_2column:
+                    class: ReactionOceanColumnGrid
+                    parameters:
+                        area:     [2e14, 2e13]     # m^2  ~half Earth surface
+                        depth:    2000.0   # m
+                        nlayers:   [100, 100]
+
+                transport_advect:
+                    class: ReactionTransportAdvectExample
+                    parameters:
+                        T:    20.0e6     # m^3 s-1 volume advective flux
+
+                reservoir_T:
+                    class: ReactionReservoirTotal
+                    variable_links:
+
+                        R*: T*      # passive tracer T
+                    variable_attributes:
+
+                        R:initial_value:    0.0
+                        R:norm_value:       1.0
+
+example_diffuse:
+    domains:
+        oceansurface:
+
+        oceanfloor:
+
+        ocean:
+
+            reactions:
+                grid_2column:
+                    class: ReactionOceanColumnGrid
+                    parameters:
+                        area:     [2e14, 2e14]     # m^2  ~half Earth surface
+                        depth:    2000.0   # m
+                        nlayers:   [100, 10]
+
+                transport_diffuse:
+                    class: ReactionTransportDiffuseExample
+                    parameters:
+                        Kz:    1e-5     # m^2 s-1 eddy diffusivity
+
+                reservoir_T:
+                    class: ReactionReservoirTotal
+                    variable_links:
+
+                        R*: T*      # passive tracer T
+                    variable_attributes:
+
+                        R:initial_value:    0.0
+                        R:norm_value:       1.0
