@@ -1,12 +1,11 @@
 # PALEOocean Reactions
 
-## Ocean
 ```@meta
-CurrentModule = PALEOocean
+CurrentModule = PALEOocean.Ocean
 ```
 
-### Ocean geometry and transport
+## Ocean geometry and transport
 ```@docs
-add_loop!
 OceanNoTransport.ReactionOceanNoTransport
 ```
+

@@ -31,7 +31,8 @@ makedocs(bib, sitename="PALEOocean Documentation",
         # ],
         # no HOWTO docs yes
         "Reference" => [
-            "PALEOocean.md",
+            "PALEOocean Reactions.md",
+            "PALEOocean functions.md",
         ],
         "References.md",
         "indexpage.md",

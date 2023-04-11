@@ -57,7 +57,7 @@ function PB.set_model_geometry(rj::ReactionOceanNoTransport, model::PB.Model)
     floorgrid = PB.Grids.UnstructuredVectorGrid(ncells=length(ifloor))
     PB.Grids.set_subdomain!(floorgrid, "ocean", PB.Grids.InteriorSubdomain(ocean_cells, ifloor), true)
 
-    PALEOocean.set_model_domains(model, oceangrid, surfacegrid, floorgrid)    
+    PALEOocean.Ocean.set_model_domains(model, oceangrid, surfacegrid, floorgrid)    
     
     return nothing
 end
@@ -70,7 +70,7 @@ function PB.register_methods!(rj::ReactionOceanNoTransport)
         rj, 
         do_setup_grid,
         (   
-            PB.VarList_namedtuple(PALEOreactions.Ocean.grid_vars_all), 
+            PB.VarList_namedtuple(PALEOocean.Ocean.grid_vars_all), 
         ),
     )
 
