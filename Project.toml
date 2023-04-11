@@ -1,7 +1,7 @@
 name = "PALEOocean"
 uuid = "41de04b1-2efd-44ae-92ae-39d71a4fd99b"
 authors = ["sd336 "]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"

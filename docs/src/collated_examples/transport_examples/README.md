@@ -1,7 +1,7 @@
 # Transport examples
 
 `PALEOocean/examples/transport_examples` contains two examples showing the construction of (ocean) transport matrices,
-using [`PALEOocean.add_loop!`](@ref) to construct a transport matrix by adding circulation around closed loops.
+using [`PALEOocean.Ocean.add_loop!`](@ref) to construct a transport matrix by adding circulation around closed loops.
 
 ## Advection
 
