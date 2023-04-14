@@ -6,3 +6,4 @@ import Pkg
 Pkg.activate(".") # use the PALEOocean/examples environment
 Pkg.develop(path="../")   # use the local version of PALEOocean packages to allow local modifications
 Pkg.instantiate()
+Pkg.update()
