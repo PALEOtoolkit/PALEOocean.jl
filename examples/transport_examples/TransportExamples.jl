@@ -40,7 +40,7 @@ function PB.register_methods!(rj::ReactionTransportAdvectExample)
         rj, 
         do_setup_advect,
         (   
-            PB.VarList_namedtuple(PB.VarDep.(PALEOocean.grid_vars_ocean)),
+            PB.VarList_namedtuple(PB.VarDep.(PALEOocean.Ocean.grid_vars_ocean)),
         ),
     )
 
@@ -65,7 +65,7 @@ function do_setup_advect(m::PB.ReactionMethod, pars, (grid_vars, ), cellrange::P
     # advection in a loop down column 1, up column 2
     loopindices = vcat(rj.domain.grid.Icolumns[1], reverse(rj.domain.grid.Icolumns[2]), [first(rj.domain.grid.Icolumns[1])])
     @info "do_setup_advect: $(PB.fullname(rj)) adding advective flux $(pars.T[]) (m^3 s-1) around loop $loopindices"
-    PALEOocean.add_loop!(A, grid_vars.volume, pars.T[], loopindices)
+    PALEOocean.Ocean.add_loop!(A, grid_vars.volume, pars.T[], loopindices)
 
     # store the transpose as a sparse matrix for computational efficiency
     #  yr-1           s yr-1                    s-1
@@ -77,18 +77,18 @@ end
 function PB.register_dynamic_methods!(rj::ReactionTransportAdvectExample)
 
     (transport_conc_vars, transport_sms_vars, transport_input_vars) =
-        PALEOocean.find_transport_vars(rj.domain, add_transport_input_vars=true)
+        PALEOocean.Ocean.find_transport_vars(rj.domain, add_transport_input_vars=true)
 
     PB.add_method_do!(
         rj, 
         do_advect,
         (   
-            PB.VarList_namedtuple(PB.VarDep.(PALEOocean.grid_vars_ocean)),
+            PB.VarList_namedtuple(PB.VarDep.(PALEOocean.Ocean.grid_vars_ocean)),
             PB.VarList_components(transport_conc_vars),
             PB.VarList_components(transport_sms_vars),
             PB.VarList_components(transport_input_vars),
         ),
-        preparefn=PALEOocean.prepare_transport
+        preparefn=PALEOocean.Ocean.prepare_transport
     )
 
     return nothing
@@ -103,7 +103,7 @@ function do_advect(
 )
     rj = m.reaction
 
-    PALEOocean.do_transport_tr(
+    PALEOocean.Ocean.do_transport_tr(
         grid_vars, transport_conc_components, transport_sms_components, transport_input_components, buffer,
         rj.trspt_dtm_tr,
         cellrange
@@ -144,7 +144,7 @@ function PB.register_methods!(rj::ReactionTransportDiffuseExample)
         rj, 
         do_setup_diffuse,
         (   
-            PB.VarList_namedtuple(PB.VarDep.(PALEOocean.grid_vars_ocean)),
+            PB.VarList_namedtuple(PB.VarDep.(PALEOocean.Ocean.grid_vars_ocean)),
         ),
     )
 
@@ -186,7 +186,7 @@ function do_setup_diffuse(m::PB.ReactionMethod, pars, (grid_vars, ), cellrange::
             # m^3 s-1   = m^2    / m                                                   * m^2 s-1
             F           = Aintf/(grid_vars.zmid[icell_top] - grid_vars.zmid[icell_bot])*pars.Kz[]
             loopindices = (icell_top, icell_bot, icell_top)
-            PALEOocean.add_loop!(A, grid_vars.volume, F, loopindices)
+            PALEOocean.Ocean.add_loop!(A, grid_vars.volume, F, loopindices)
         end
     end
 
@@ -200,18 +200,18 @@ end
 function PB.register_dynamic_methods!(rj::ReactionTransportDiffuseExample)
 
     (transport_conc_vars, transport_sms_vars, transport_input_vars) =
-        PALEOocean.find_transport_vars(rj.domain, add_transport_input_vars=true)
+        PALEOocean.Ocean.find_transport_vars(rj.domain, add_transport_input_vars=true)
 
     PB.add_method_do!(
         rj, 
         do_diffuse,
         (   
-            PB.VarList_namedtuple(PB.VarDep.(PALEOocean.grid_vars_ocean)),
+            PB.VarList_namedtuple(PB.VarDep.(PALEOocean.Ocean.grid_vars_ocean)),
             PB.VarList_components(transport_conc_vars),
             PB.VarList_components(transport_sms_vars),
             PB.VarList_components(transport_input_vars),
         ),
-        preparefn=PALEOocean.prepare_transport
+        preparefn=PALEOocean.Ocean.prepare_transport
     )
 
     return nothing
@@ -226,7 +226,7 @@ function do_diffuse(
 )
     rj = m.reaction
 
-    PALEOocean.do_transport_tr(
+    PALEOocean.Ocean.do_transport_tr(
         grid_vars, transport_conc_components, transport_sms_components, transport_input_components, buffer,
         rj.trspt_dtm_tr,
         cellrange
@@ -313,7 +313,7 @@ function PB.set_model_geometry(rj::ReactionOceanColumnGrid, model::PB.Model)
         cellnames=Dict(name=>i for (i, name) in enumerate(rj.grid_ocean.columnnames)))
     PB.Grids.set_subdomain!(rj.grid_oceanfloor, "ocean", PB.Grids.InteriorSubdomain(ocean_cells, ifloor), true)
 
-    PALEOocean.set_model_domains(model, rj.grid_ocean, rj.grid_oceansurface, rj.grid_oceanfloor)
+    PALEOocean.Ocean.set_model_domains(model, rj.grid_ocean, rj.grid_oceansurface, rj.grid_oceanfloor)
 
     return nothing
 end
@@ -326,7 +326,7 @@ function PB.register_methods!(rj::ReactionOceanColumnGrid)
         rj, 
         do_setup_grid,
         (   
-            PB.VarList_namedtuple(PALEOocean.grid_vars_all), 
+            PB.VarList_namedtuple(PALEOocean.Ocean.grid_vars_all), 
         ),
     )
 
