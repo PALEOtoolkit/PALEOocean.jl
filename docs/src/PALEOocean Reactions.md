@@ -7,6 +7,22 @@ CurrentModule = PALEOocean.Ocean
 
 ```@docs
 OceanNoTransport.ReactionOceanNoTransport
+OceanTransport3box.ReactionOceanTransport3box
+OceanTransport6box.ReactionOceanTransport6box
+OceanTransportTMM.ReactionOceanTransportTMM
+```
+
+### Vertical Transport
+```@docs
+VerticalTransport.ReactionExportDirect
+VerticalTransport.ReactionExportDirectColumn
+VerticalTransport.ReactionSinkFloat
+```
+
+### Production
+```@docs
+BioProd.ReactionBioProdPrest
+BioProd.ReactionBioProdMMPop
 ```
 
 ## Ocean surface
