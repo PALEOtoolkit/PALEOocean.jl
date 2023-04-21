@@ -35,10 +35,10 @@ initial_state = PALEOmodel.get_statevar(modeldata.solver_view_all)
 ############################
 tspan=(0.0, 5e3)
 
-run = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
+paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
 PALEOmodel.ODE.integrateForwardDiff(
-    run, initial_state, modeldata, tspan,
+    paleorun, initial_state, modeldata, tspan,
     solvekwargs=(reltol=1e-5,),
 )
 
@@ -56,14 +56,14 @@ gr(size=(1200, 900))
 pager=PALEOmodel.PlotPager((2, 3), (legend_background_color=nothing, ))
 
 # total
-pager(plot(title="Total T", run.output, ["ocean.T_total"]; ylabel="T (mol)",))
+pager(plot(title="Total T", paleorun.output, ["ocean.T_total"]; ylabel="T (mol)",))
 
 # line plots at specified times
 columns = [:a, :b]
 tcol = collect(0.0:100.0:1000)  # times at which to plot columns
 for col in columns
     pager(
-        plot(title="Ocean T_conc column :$col", run.output, "ocean.T_conc", ( tmodel=tcol, column=col);
+        plot(title="Ocean T_conc column :$col", paleorun.output, "ocean.T_conc", ( tmodel=tcol, column=col);
             swap_xy=true, xaxis=:log10, xlim=10 .^(-2.5, 0), labelattribute=:filter_records)
     )
 end
@@ -72,7 +72,7 @@ pager(:newpage)
 # heatmaps vs time
 pager=PALEOmodel.PlotPager((2, 1), (legend_background_color=nothing, ))
 for col in columns
-    d = PALEOmodel.get_array(run.output, "ocean.T_conc"; column=col)
+    d = PALEOmodel.get_array(paleorun.output, "ocean.T_conc"; column=col)
     d.values .= log10.(d.values)
     pager(
         heatmap(title="Ocean T_conc column :$col", d; clims=(-2.5, 0), xlim=(0, 1000)) # set scale for visibility

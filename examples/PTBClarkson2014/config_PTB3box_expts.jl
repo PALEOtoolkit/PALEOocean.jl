@@ -1,15 +1,9 @@
+include("../atmreservoirreaction.jl") # temporary solution to make ReactionReservoirAtm available
 
 "test cases and examples for 3 box ocean"
 function config_PTB3box_expts(baseconfig, expts)
 
-    if  baseconfig=="oaopencarb"
-        # Open atmosphere-ocean with silicate carbonate weathering input and carbonate burial
-
-        model = PB.create_model_from_config(
-            joinpath(@__DIR__, "PALEO_examples_ocean3box_cfg.yaml"), "ocean3box_oaopencarb_base"
-        )
-            
-    elseif  baseconfig=="Co2HOmLWCpp"
+    if  baseconfig=="Co2HOmLWCpp"
         # Clarkson (2014) CO2Hi
 
         model = PB.create_model_from_config(

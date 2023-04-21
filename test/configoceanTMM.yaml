@@ -1,0 +1,109 @@
+test_trspt_read:
+    parameters:
+ 
+    domains:
+        global:
+            
+
+        ocean:
+            reactions:
+                force_temperature:
+                    class: ReactionForceGrid
+                    parameters:
+                        matlab_file: $TMMDir$/MITgcm_2.8deg/GCM/Theta_gcm.mat
+                        data_var: Tgcm
+                        time_var: ""
+                        tidx_start: 1
+                        tidx_end:   12
+                        cycle_time: 1.0
+                        constant_offset: 273.15  # convert C -> Kelvin
+                    variable_links:
+                        F: temp
+
+                force_salinity:
+                    class: ReactionForceGrid
+                    parameters:
+                        matlab_file: $TMMDir$/MITgcm_2.8deg/GCM/Salt_gcm.mat
+                        data_var: Sgcm
+                        time_var: ""
+                        tidx_start: 1
+                        tidx_end:   12
+                        cycle_time: 1.0                        
+                    variable_links:
+                        F: sal
+
+                reservoir_tracer:
+                    class: ReactionReservoirTotal                
+                    variable_links:
+                        R*: Tracer*
+                    variable_attributes:                      
+                        R:initial_value:        1.0  # concentration m-3
+
+                # reservoir_tracer2:
+                #     class: ReactionReservoirTotal                
+                #     variable_links:
+                #         R*: Tracer2*
+                #     variable_attributes:                      
+                #         R:initial_value:        1.0  # concentration m-3
+
+                # reservoir_tracer3:
+                #     class: ReactionReservoirTotal                
+                #     variable_links:
+                #         R*: Tracer3*
+                #     variable_attributes:                      
+                #         R:initial_value:        1.0  # concentration m-3
+
+                # reservoir_tracer4:
+                #     class: ReactionReservoirTotal                
+                #     variable_links:
+                #         R*: Tracer4*
+                #     variable_attributes:                      
+                #         R:initial_value:        1.0  # concentration m-3
+
+
+                transportMITgcm:
+                    class: ReactionOceanTransportTMM
+                    parameters:
+                        base_path:  $TMMDir$/MITgcm_2.8deg
+                        pack_chunk_width: 4             
+               
+               
+        oceansurface:
+            reactions:
+                force_par:
+                    class: ReactionForceInsolation
+                    
+                    variable_links:
+                        insolation: surface_downwelling_photosynthetic_radiative_flux
+
+                force_wind_speed:
+                    class: ReactionForceGrid
+                    parameters:
+                        matlab_file: $TMMDir$/MITgcm_2.8deg/BiogeochemData/wind_speed.mat
+                        data_var: windspeed
+                        time_var: ""
+                        tidx_start: 1
+                        tidx_end:   12
+                        cycle_time: 1.0
+                    variable_links:
+                        F: wind_speed
+
+
+                force_open_area_fraction:
+                    class: ReactionForceGrid
+                    parameters:
+                        matlab_file: $TMMDir$/MITgcm_2.8deg/BiogeochemData/ice_fraction.mat
+                        data_var: Fice
+                        time_var: ""
+                        tidx_start: 1
+                        tidx_end:   12
+                        cycle_time: 1.0
+                        scale:              -1.0  # convert sea ice fraction to open area (0 - 1)
+                        constant_offset:    1.0
+                    variable_links:
+                        F: open_area_fraction
+                
+
+        oceanfloor:               
+            reactions:
+

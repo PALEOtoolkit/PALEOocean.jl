@@ -6,7 +6,7 @@
 Ocean components for the PALEO biogeochemical model. 
 
 
-**NB: work-in-progress - this repo contains an initial minimal example only to test infrastructure.**
+**NB: work-in-progress - this repo contains initial minimal examples only to test infrastructure.**
 
 ## Installation and running a minimal example
 

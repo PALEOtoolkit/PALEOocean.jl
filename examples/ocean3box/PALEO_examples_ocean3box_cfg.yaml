@@ -1,6 +1,6 @@
 
 
-
+# Abiotic atmosphere-ocean with atmospheric CO2, ocean DIC and TAlk
 ocean3box_oaonly_abiotic_base:
     parameters:
         CIsotope:  IsotopeLinear
@@ -115,7 +115,7 @@ ocean3box_oaonly_abiotic_base:
         oceanfloor:               
             reactions:    
 
-
+# Biotic atmosphere-ocean with atmosphere O2, CO2, ocean P, O2, SO4/H2S, CH4, DIC, TAlk
 ocean3box_oaonly_base:
     parameters:
         CIsotope: IsotopeLinear
@@ -373,8 +373,9 @@ ocean3box_oaonly_base:
         oceanfloor:               
             reactions:    
 
-# Open atm-ocean carbonate system, with weathering input and burial output
-# Closed organic carbon, ocean sulphur systems (no burial)
+# Atmosphere O2, CO2, ocean P, O2, SO4/H2S, CH4, DIC, TAlk
+# Open atm-ocean carbonate system, with carbonate/silicate weathering input, degassing input, and carbonate burial output
+# Closed ocean organic carbon, sulphur systems (no burial)
 ocean3box_oaopencarb_base:
     parameters:
         CIsotope:   IsotopeLinear
@@ -442,6 +443,14 @@ ocean3box_oaopencarb_base:
             # scalar domain
           
             reactions:
+                # set forcings to steady-state at time tforce_constant
+                tforce_constant:
+                    class: ReactionScalarConst
+                    parameters:
+                        constnames: ["tforce_constant"]
+                    variable_attributes:
+                        tforce_constant%initial_value: 0.0
+
                 force_enable_bioprod:
                     class: ReactionForceInterp
                     parameters:
@@ -452,12 +461,18 @@ ocean3box_oaopencarb_base:
 
                 force_solar:
                     class: ReactionForce_CK_Solar
+                    variable_links:
+                        tforce: tforce_constant
 
                 force_UDWE:
-                    class: ReactionForce_UDWEbergman2004                
+                    class: ReactionForce_UDWEbergman2004
+                    variable_links:
+                        tforce: tforce_constant
 
                 force_CPlandrel:
                     class: ReactionForce_CPlandrelbergman2004
+                    variable_links:
+                        tforce: tforce_constant
 
                 temp_CK_1992:
                     class: ReactionGlobalTemperatureCK1992

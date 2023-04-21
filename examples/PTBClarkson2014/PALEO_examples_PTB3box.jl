@@ -14,7 +14,7 @@ import PALEOcopse
 global_logger(ConsoleLogger(stderr,Logging.Info))
 
 include("config_PTB3box_expts.jl")
-include("../plot_ocean_3box.jl")
+include("../ocean3box/plot_ocean_3box.jl")
 
 # model = config_PTB3box_expts("Co2HOmLWCpp", ["baseline"]); tspan=(-260e6,-240e6) # tspan=(-10e6,10e6) 
 # model = config_PTB3box_expts("Co2LOmHWC4pp", ["baseline"]); tspan=(-260e6,-240e6) # tspan=(-10e6,10e6) 
@@ -34,14 +34,14 @@ PALEOmodel.SolverFunctions.ModelODE(modeldata)(initial_deriv, initial_state , no
 println("initial_state", initial_state)
 println("initial_deriv", initial_deriv)
 
-run = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
+paleorun = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
 
 # With `killbio` H2S goes to zero, so this provides a test case for solvers `abstol` handling
 # (without this option, solver will fail or take excessive steps as it attempts to solve H2S for noise) 
 
 # Solve as DAE with sparse Jacobian
 PALEOmodel.ODE.integrateDAEForwardDiff(
-   run, initial_state, modeldata, tspan, 
+   paleorun, initial_state, modeldata, tspan, 
    alg=IDA(linear_solver=:KLU),
    solvekwargs=(
       abstol=1e-6*PALEOmodel.get_statevar_norm(modeldata.solver_view_all),
@@ -65,14 +65,14 @@ gr(size=(1200, 900))
 
 pager=PALEOmodel.PlotPager((2, 3), (xlim=(-252.15e6, -251.80e6), xflip=true, legend_background_color=nothing, ))
 
-plot_totals(run.output; species=["C", "TAlk", "TAlkerror", "S", "P"], pager=pager)
+plot_totals(paleorun.output; species=["C", "TAlk", "TAlkerror", "S", "P"], pager=pager)
 plot_ocean_tracers(
-    run.output; 
+    paleorun.output; 
     tracers=["TAlk_conc", "DIC_conc", "temp", "pHtot", "O2_conc", "SO4_conc", "H2S_conc", "P_conc", 
         "SO4_delta", "H2S_delta", "OmegaAR", "DIC_delta", "pHtot", "BOH4_delta"],
     pager=pager
 )
-plot_oaonly_abiotic(run.output; pager=pager)
-plot_PTB3box(run.output; pager=pager)
-plot_carb_open(run.output; pager=pager)
+plot_oaonly_abiotic(paleorun.output; pager=pager)
+plot_PTB3box(paleorun.output; pager=pager)
+plot_carb_open(paleorun.output; pager=pager)
 pager(:newpage) # flush output

@@ -17,9 +17,17 @@ global_logger(ConsoleLogger(stderr, Logging.Info))
 include("config_ocean3box_expts.jl")
 include("plot_ocean_3box.jl")
 
-model = config_ocean3box_expts("oaonly_abiotic", ["baseline"]); tspan=(0,1e4)
-# model = config_ocean3box_expts("oaonly_abiotic", ["fastexchange"]); tspan=(0,1e4)
-# model = config_ocean3box_expts("oaonly_abiotic", ["slowexchange"]); tspan=(0,1e4)
+# Ocean-atmosphere only, test case cf Sarmiento & Toggweiler (2007) book, Fig 10.4, p436-7
+# This tests the effect of air-sea exchange rate for an abiotic model.
+
+# set k_piston below to show effect of default/fast/slow air-sea exchange rates
+      
+model = PB.create_model_from_config(
+   joinpath(@__DIR__, "PALEO_examples_ocean3box_cfg.yaml"), "ocean3box_oaonly_abiotic_base")
+
+config_ocean3box_expts(model, ["baseline"]); tspan=(0,1e4)
+# config_ocean3box_expts(model, ["fastexchange"]); tspan=(0,1e4)
+# config_ocean3box_expts(model, ["slowexchange"]); tspan=(0,1e4)
 
 
 initial_state, modeldata = PALEOmodel.initialize!(model)
@@ -32,14 +40,14 @@ initial_deriv = similar(initial_state)
 PALEOmodel.SolverFunctions.ModelODE(modeldata)(initial_deriv, initial_state , nothing, 0.0)
 println("initial_deriv", initial_deriv)
 
-run = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
+paleorun = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
 
 # With `killbio` H2S goes to zero, so this provides a test case for solvers `abstol` handling
 # (without this option, solver will fail or take excessive steps as it attempts to solve H2S for noise) 
 
 # Solve as DAE with sparse Jacobian
 PALEOmodel.ODE.integrateDAEForwardDiff(
-   run, initial_state, modeldata, tspan,
+   paleorun, initial_state, modeldata, tspan,
    alg=IDA(linear_solver=:KLU),
    solvekwargs=(
       abstol=1e-6*PALEOmodel.get_statevar_norm(modeldata.solver_view_all),
@@ -48,7 +56,7 @@ PALEOmodel.ODE.integrateDAEForwardDiff(
 )
 
 # Solve as ODE with Jacobian (OK if no carbonate chem or global temperature)
-# sol = PALEOmodel.ODE.integrateForwardDiff(run, initial_state, modeldata, tspan, alg=CVODE_BDF(linear_solver=:KLU))
+# sol = PALEOmodel.ODE.integrateForwardDiff(paleorun, initial_state, modeldata, tspan, alg=CVODE_BDF(linear_solver=:KLU))
 #    solvekwargs=(abstol=1e-6*PALEOmodel.get_statevar_norm(modeldata.solver_view_all),))
 
 
@@ -64,9 +72,9 @@ PALEOmodel.ODE.integrateDAEForwardDiff(
 gr(size=(1200, 900))
 pager=PALEOmodel.PlotPager((2, 3), (legend_background_color=nothing, ))
 
-plot_totals(run.output; species=["C", "TAlk", "TAlkerror"], pager=pager)
-plot_ocean_tracers(run.output; tracers=["TAlk_conc", "DIC_conc", "temp", "pHtot"], pager=pager)
-plot_oaonly_abiotic(run.output; pager=pager)
+plot_totals(paleorun.output; species=["C", "TAlk", "TAlkerror"], pager=pager)
+plot_ocean_tracers(paleorun.output; tracers=["TAlk_conc", "DIC_conc", "temp", "pHtot"], pager=pager)
+plot_oaonly_abiotic(paleorun.output; pager=pager)
 pager(:newpage) # flush output
 
 #####################################
@@ -74,5 +82,5 @@ pager(:newpage) # flush output
 ########################################
 
 # Solve as DAE without Jacobian
-# PALEOmodel.ODE.integrateDAE(run, initial_state, modeldata, tspan, alg=IDA(),
+# PALEOmodel.ODE.integrateDAE(paleorun, initial_state, modeldata, tspan, alg=IDA(),
 #    solvekwargs=(abstol=1e-6*PALEOmodel.get_statevar_norm(modeldata.solver_view_all), save_start=false))

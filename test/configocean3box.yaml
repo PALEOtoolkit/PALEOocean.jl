@@ -1,0 +1,444 @@
+test_airsea_O2:
+    parameters:
+        # CIsotope: ScalarData
+    domains:
+        global:
+            # scalar domain
+            
+            reactions:
+                total_O2:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.O, ocean.O2]
+                    variable_links:
+                        sum: total_O2
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2"]
+   
+        atm:
+            
+
+            reactions:
+                reservoir_O:
+                    class: ReactionReservoirAtm
+                   
+                    variable_links:
+                        R*: O*
+                        pRatm: pO2atm
+                        pRnorm: pO2PAL
+                    variable_attributes:
+                        R:norm_value:           3.7e19  # present-day atmospheric level
+                        R:initial_value:        3.7e19
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms
+                    variable_links:
+                        output_O2:      O_sms  # rename O2 -> O
+        ocean:
+            reactions:
+                transport3box:
+                    class: ReactionOceanTransport3box
+
+                reservoir_scalar:
+                    class: ReactionReservoirScalar
+                    variable_links:
+                        R*: Scalar*
+                    variable_attributes:                      
+                        R:initial_value:        1.0  # moles
+
+                reservoir_tracer:
+                    class: ReactionReservoirTotal                
+                    variable_links:
+                        R*: Tracer*
+                    variable_attributes:                      
+                        R:initial_value:        1.0  # concentration m-3
+
+                reservoir_O2:
+                    class: ReactionReservoir               
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        1.0e-3  # concentration m-3
+
+               
+        oceansurface:
+            reactions:
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston: 3.0 # m d-1
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        # output_CO2:           ocean.oceansurface.DIC_sms
+
+
+        oceanfloor:               
+            reactions:
+
+test_bioprodPrest:
+    parameters:
+        CIsotope: ScalarData
+    domains:
+        global:
+            # scalar domain
+
+        ocean:
+            reactions:
+                transport3box:
+                    class: ReactionOceanTransport3box
+
+                reservoir_P:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:       2.208e-3  # concentration mol m-3 = 2.15e-6 mol/kg * 1027 kg m-3
+
+                bioprod:
+                    class: ReactionBioProdPrest
+
+                    parameters:
+                        #               restore, frac,  none
+                        bioprod:        [1,     2,      0]
+                        bioprodval:     [0.0,   0.18,   .NaN]
+                    variable_links:
+                        prod_*: export_*
+
+                export:
+                    class: ReactionExportDirect
+
+                    parameters:
+                        fluxlist: ["P"]
+                        transportocean: [[0.0,0.0,0.0], 
+                                         [0.0,0.0,0.0], 
+                                         [1.0, 1.0, 1.0]]  #dump everything into bottom cell
+
+                    variable_links:
+                        remin_P:   P_sms   # link export P back to state variable sms for testing
+
+
+        oceansurface:
+
+
+        oceanfloor:               
+            reactions:    
+
+
+test_reminPonly:
+    parameters:
+        CIsotope: ScalarData
+    domains:
+        global:
+            # scalar domain
+
+        ocean:
+            reactions:
+                transport3box:
+                    class: ReactionOceanTransport3box
+
+                reservoir_P:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:       2.208e-3  # concentration mol m-3 = 2.15e-6 mol/kg * 1027 kg m-3
+
+                bioprod:
+                    class: ReactionBioProdPrest
+
+                    parameters:
+                        #               restore, frac,  none
+                        bioprod:        [1,     2,      0]
+                        bioprodval:     [0.0,   0.18,   .NaN]
+                    variable_links:
+                        prod_*: export_*
+
+                export:
+                    class: ReactionExportDirect
+
+                    parameters:
+                        fluxlist: ["P"]
+                        transportocean: [[0.0,0.0,0.0], 
+                                         [0.0,0.0,0.0], 
+                                         [1.0, 1.0, 1.0]]  #dump everything into bottom cell
+
+                    variable_links:
+                        # remin_P:        # default is OK 
+
+                remin:
+                    class: ReactionReminPonly
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+        oceansurface:
+
+
+        oceanfloor:               
+            reactions:    
+
+test_reminO2:
+    parameters:
+        CIsotope: IsotopeLinear
+    domains:
+        global:
+            
+
+        ocean:
+            reactions:
+                transport3box:
+                    class: ReactionOceanTransport3box
+
+                reservoir_P:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:       2.208e-3  # concentration mol m-3 = 2.15e-6 mol/kg * 1027 kg m-3
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:       300.0e-3   # concentration mol m-3 ~ 300e-6 mol/kg * 1027 kg m-3
+
+                reservoir_DIC:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%CIsotope
+                    variable_links:
+                        R*: DIC*
+                    variable_attributes:                      
+                        R:initial_value:       2000.0e-3
+                        R:initial_delta:       -1.0
+
+                reservoir_TAlk:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: TAlk*
+                    variable_attributes:                      
+                        R:initial_value:       2000.0e-3  
+                
+                const_cisotopes:
+                    class: ReactionScalarConst
+                    parameters:
+                        constnames: ["D_mccb_DIC", "D_B_mccb_mocb"]
+                    variable_attributes:
+                        D_mccb_DIC:initial_value:       0.0
+                        D_B_mccb_mocb:initial_value:    25.0
+                        
+                bioprod:
+                    class: ReactionBioProdPrest
+
+                    parameters:
+                    
+                        rCcarbCorg:   0.2
+                        #               restore, frac,  none
+                        bioprod:        [1,     2,      0]
+                        bioprodval:     [0.0,   0.18,   .NaN]
+                    variable_links:
+                        prod_*: export_*
+
+                export:
+                    class: ReactionExportDirect
+
+                    parameters:
+                        
+                        fluxlist: ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"]
+                        transportocean: [[0.0,0.0,0.0], 
+                                         [0.0,0.0,0.0], 
+                                         [1.0, 1.0, 1.0]]  #dump everything into bottom cell
+
+                    variable_links:
+                        # remin_P:        # default is OK 
+
+                remin:
+                    class: ReactionReminO2
+
+                    parameters:                       
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+        oceansurface:
+
+
+        oceanfloor:               
+            reactions:    
+        
+test_carbchem:
+    parameters:
+        solve_pH: solve
+        CIsotope: IsotopeLinear
+    domains:
+        global:
+                        
+
+        ocean:
+            reactions:
+                transport3box:
+                    class: ReactionOceanTransport3box               
+                
+                reservoir_DIC:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%CIsotope
+                    variable_links:
+                        R*: DIC*
+                    variable_attributes:                      
+                        R:initial_value:       2000.0e-3
+                        R:initial_delta:       -1.0
+
+                reservoir_TAlk:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: TAlk*
+                    variable_attributes:                      
+                        R:initial_value:       2000.0e-3  
+                
+                carbchem:
+                    class: ReactionCO2SYS
+                    parameters:
+                        components: ["Ci", "B", "S", "F", "Omega"]
+                        defaultconcs: ["TS", "TF", "TB", "Ca"]
+                        solve_pH:   external%solve_pH
+                        outputs:    ["pCO2", "xCO2dryinp", "CO3", "OmegaCA", "OmegaAR"]
+                    variable_links:
+                        TCi_conc: DIC_conc
+
+        oceansurface:
+
+
+        oceanfloor:               
+            reactions:    
+
+
+
+test_airsea_CO2:
+    parameters:
+        CIsotope: IsotopeLinear
+    domains:
+        global:
+            # scalar domain
+            
+            reactions:
+                total_C:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.CO2, ocean.DIC]
+                    variable_links:
+                        sum: total_C
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["CO2::CIsotope"]
+    
+        atm:
+            
+
+            reactions:
+                reservoir_CO2:
+                    class: ReactionReservoirAtm
+                    parameters:
+                        field_data: external%CIsotope
+                    variable_links:
+                        R*: CO2*
+                        pRatm: pCO2atm
+                        pRnorm: pCO2PAL
+                    variable_attributes:
+                        R:norm_value:           4.956e16  # pre ind 280e-6
+                        R:initial_value:        4.956e16  # pre ind 280e-6
+    
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms
+                    variable_links:                        
+
+        ocean:
+            reactions:
+                transport3box:
+                    class: ReactionOceanTransport3box               
+                
+                reservoir_DIC:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%CIsotope
+                    variable_links:
+                        R*: DIC*
+                    variable_attributes:                      
+                        R:initial_value:       2000.0e-3
+                        R:initial_delta:       -1.0
+
+                reservoir_TAlk:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: TAlk*
+                    variable_attributes:                      
+                        R:initial_value:       2000.0e-3  
+                
+                carbchem:
+                    class: ReactionCO2SYS
+                    parameters:
+                        components: ["Ci", "B", "S", "F", "Omega"]
+                        defaultconcs: ["TS", "TF", "TB", "Ca"]
+                        solve_pH:   constraint # Hfree as DAE variable
+                        outputs:    ["pCO2", "xCO2dryinp", "CO2", "CO3", "OmegaCA", "OmegaAR"]
+                    variable_links:
+                        TCi_conc: DIC_conc
+                        CO2:    CO2_conc
+                        pCO2:   pCO2
+                        OmegaAR: OmegaAR
+                        Ca_conc:     Ca_conc
+
+
+        oceansurface:
+            reactions:
+                airsea_CO2:
+                    class: ReactionAirSeaCO2
+                    parameters:
+                      
+                        piston: 3.0 # m d-1
+
+                    variable_links:
+                        Xatm_delta: atm.CO2_delta
+                        Xocean_delta: ocean.oceansurface.DIC_delta
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        output_CO2:           ocean.oceansurface.DIC_sms
+
+        oceanfloor:               
+            reactions:    

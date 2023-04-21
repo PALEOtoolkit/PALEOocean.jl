@@ -258,7 +258,7 @@ PB.create_reaction(::Type{ReactionAirSeaO2}, base::PB.ReactionBase) =
     create_ReactionAirSea(base, ScO2, solO2Wann92, false, nothing, "O2", "")
 
 """
-    ReactionAirSeaO2
+    ReactionAirSeaCO2
 
 See [`ReactionAirSea`](@ref)
 

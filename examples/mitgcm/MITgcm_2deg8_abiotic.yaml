@@ -1,0 +1,157 @@
+# MITgcm 2.8deg O2-only atmosphere-ocean test configuration
+abiotic_O2:
+    parameters:
+        CIsotope: ScalarData  
+    domains:
+        global:
+            # scalar domain
+            
+            reactions:
+                total_O2:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.O2, ocean.O2_total]
+                    variable_links:
+                        sum: total_O2
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2"]
+                        
+                        
+        atm:
+            
+
+            reactions:
+                reservoir_O2:
+                    class: ReactionReservoirAtm
+                   
+                    variable_links:
+                        R*: O2*
+                        pRatm: pO2atm
+                        pRnorm: pO2PAL
+                    variable_attributes:
+                        R:norm_value:           3.7e19  # present-day atmospheric level
+                        R:initial_value:        3.7e19
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms
+        ocean:
+            reactions:
+                force_temperature:
+                    class: ReactionForceGrid
+                    parameters:
+                        matlab_file: $TMMDir$/MITgcm_2.8deg/GCM/Theta_gcm.mat
+                        data_var: Tgcm
+                        time_var: ""
+                        tidx_start: 1
+                        tidx_end:   12
+                        cycle_time: 1.0
+                        constant_offset: 273.15  # convert C -> Kelvin
+                    variable_links:
+                        F: temp
+
+                force_salinity:
+                    class: ReactionForceGrid
+                    parameters:
+                        matlab_file: $TMMDir$/MITgcm_2.8deg/GCM/Salt_gcm.mat
+                        data_var: Sgcm
+                        time_var: ""
+                        tidx_start: 1
+                        tidx_end:   12
+                        cycle_time: 1.0                        
+                    variable_links:
+                        F: sal
+
+                reservoir_tracer:
+                    class: ReactionReservoirTotal                
+                    variable_links:
+                        R*: Tracer*
+                    variable_attributes:                      
+                        R:initial_value:        1.0  # concentration m-3
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+
+
+                transportMITgcm:
+                    class: ReactionOceanTransportTMM
+                    parameters:
+                        base_path:  $TMMDir$/MITgcm_2.8deg
+                        TMfpsize: 64
+                        pack_chunk_width: 0 # 4       
+               
+                light:
+                    class: ReactionLightColumn
+                    parameters:
+                        background_opacity: 0.04 
+               
+        oceansurface:
+            reactions:
+                force_par:
+                    class: ReactionForceInsolation
+                    
+                    variable_links:
+                        insolation: surface_insol
+                        
+                force_wind_speed:
+                    class: ReactionForceGrid
+                    parameters:
+                        matlab_file: $TMMDir$/MITgcm_2.8deg/BiogeochemData/wind_speed.mat
+                        data_var: windspeed
+                        time_var: ""
+                        tidx_start: 1
+                        tidx_end:   12
+                        cycle_time: 1.0
+                    variable_links:
+                        F: wind_speed
+
+
+                force_open_area_fraction:
+                    class: ReactionForceGrid
+                    parameters:
+                        matlab_file: $TMMDir$/MITgcm_2.8deg/BiogeochemData/ice_fraction.mat
+                        data_var: Fice
+                        time_var: ""
+                        tidx_start: 1
+                        tidx_end:   12
+                        cycle_time: 1.0
+                        scale:              -1.0  # convert sea ice fraction to open area (0 - 1)
+                        constant_offset:    1.0
+                    variable_links:
+                        F: open_area_fraction
+                
+
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston_fixed: false
+
+                transfer_fluxAtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        # output_CO2:           ocean.oceansurface.DIC_sms    
+
+        oceanfloor:               
+            reactions:
+
+

@@ -1,39 +1,7 @@
+include("../atmreservoirreaction.jl") # temporary solution to make ReactionReservoirAtm available
 
 "test cases and examples for 3 box ocean"
-function config_ocean3box_expts(baseconfig, expts)
-
-    if baseconfig == "oaonly_abiotic"
-        # Ocean-atmosphere only, test case cf Sarmiento & Toggweiler (2007) book, Fig 10.4, p436-7
-        # This tests the effect of air-sea exchange rate for an abiotic model.
- 
-        # set k_piston below to show effect of default/fast/slow air-sea exchange rates
-               
-        model = PB.create_model_from_config(
-            joinpath(@__DIR__, "PALEO_examples_ocean3box_cfg.yaml"), "ocean3box_oaonly_abiotic_base")
-            
-    elseif baseconfig == "oaonly"
-        # Ocean-atmosphere only (no weathering or burial)
-        # Use in conjunction with expt='killbio' (disables production at t=0 yr) to
-        # demonstrate effect of biological pump.
-                
-        model = PB.create_model_from_config(
-            joinpath(@__DIR__, "PALEO_examples_ocean3box_cfg.yaml"), "ocean3box_oaonly_base")
-
-    elseif baseconfig=="oaopencarb"
-        # Open atmosphere-ocean with silicate carbonate weathering input and carbonate burial
-
-        model = PB.create_model_from_config(
-            joinpath(@__DIR__, "PALEO_examples_ocean3box_cfg.yaml"), "ocean3box_oaopencarb_base")
- 
-    elseif baseconfig=="oaopencorg"
-        # Semi-open atmosphere-ocean with organic carbon and sulphur burial
-
-        model = PB.create_model_from_config(
-            joinpath(@__DIR__, "PALEO_examples_ocean3box_cfg.yaml"), "ocean3box_oaopencorg_base")
-
-    else
-        error("unrecognized baseconfig='$(baseconfig)'")
-    end
+function config_ocean3box_expts(model, expts)
 
     ###########################
     # configure expt
@@ -65,5 +33,5 @@ function config_ocean3box_expts(baseconfig, expts)
         end
     end
 
-    return model
+    return nothing
 end

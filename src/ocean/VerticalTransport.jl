@@ -14,7 +14,7 @@ using PALEOboxes.DocStrings
 
 Calculate light availability `insol` in ocean interior, given surface insolation `surface_insol`.
 
-Includes: (i) a `background_opacity`; (ii) contributions from any Variables representing concentrations with non-initialize_to_zero
+Includes: (i) a `background_opacity`; (ii) contributions from any Variables representing concentrations with non-zero
 `specific_light_extinction` attribute; (iii) any other opacity contributions added to the Target Variable `opacity`.
 
 # Parameters
