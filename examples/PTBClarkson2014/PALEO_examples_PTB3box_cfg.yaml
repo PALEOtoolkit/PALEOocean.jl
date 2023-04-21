@@ -1,0 +1,633 @@
+
+
+
+
+
+
+
+# Open atm-ocean carbonate system, with weathering input and burial output
+# Closed organic carbon, ocean sulphur systems (no burial)
+ocean3box_oaopencarb_base:
+    parameters:
+        CIsotope:   IsotopeLinear
+        SIsotope:   IsotopeLinear
+        BIsotope:   IsotopeLinear
+        Senabled:   false
+    domains:
+        fluxAtoLand:
+            
+            reactions:               
+                target:
+                    class: ReactionFluxTarget
+                    parameters:
+                        fluxlist: ["O2", "CO2::CIsotope"]                     
+                            
+
+        fluxRtoOcean:
+            
+            reactions:
+                target:
+                    class: ReactionFluxTarget                   
+                    parameters:                        
+                        fluxlist: ["DIC::CIsotope", "TAlk", "Ca", "P", "SO4::SIsotope"] #, "U::UIsotope"]
+               
+
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2", "CO2::CIsotope"]
+    
+        fluxOceanfloor:
+            reactions:
+                particulatetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: ["Corg::CIsotope", "N", "P", "Ccarb::CIsotope"]
+                    
+                solutetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: ["DIC::CIsotope", "TAlk", "O2", "P", "SO4::SIsotope", "H2S::SIsotope", "CH4::CIsotope"] #, "U::UIsotope"]
+        
+
+        fluxOceanBurial:
+            reactions:
+                transfer:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["Corg::CIsotope", "Ccarb::CIsotope", "GYP::SIsotope", "PYR::SIsotope", "P", "Pauth", "PFe", "Porg"]
+
+        # fluxSedCrusttoAOcean:
+        #     
+        #     reactions:
+        #         target:
+        #             class: ReactionFluxTarget
+                    
+        #             parameters:
+        #                 fluxlist: ["C::CIsotope", "S::SIsotope", "Redox"]
+                        
+
+        fluxLandtoSedCrust:
+            
+            reactions:
+                target:
+                    class: ReactionFluxTarget
+                    parameters:
+                        fluxlist: ["Ccarb::CIsotope", "Corg::CIsotope", "PYR::SIsotope", "GYP::SIsotope"]                    
+
+        global:
+            # scalar domain
+          
+            reactions:
+                constant_tforce:
+                    class: ReactionScalarConst
+                    variable_links:
+                        constvar: constant_tforce
+                    variable_attributes:
+                        constvar:initial_value: -250e6 # end Permian
+
+                force_enable_bioprod:
+                    class: ReactionForceInterp
+                    parameters:
+                        force_times:   [-1e30, 1e30]
+                        force_values:  [1.0, 1.0]
+                    variable_links:
+                        F:      enable_bioprod
+
+                shelfarea_force:
+                    class: ReactionForceInterp
+                    parameters:
+                        force_times:   [-1e30, 1e30]
+                        force_values:  [1.0, 1.0]
+                    variable_links:
+                        F:      shelfarea_force
+
+                force_solar:
+                    class: ReactionForce_CK_Solar
+                    variable_links:
+                        tforce: constant_tforce
+
+                # force_UDWE:
+                #     class: ReactionForce_UDWEbergman2004   
+
+                force_UPLIFT:
+                    class: ReactionForceInterp
+                    parameters:
+                        force_times:   [-1e30, 1e30]
+                        force_values:  [1.0, 1.0]
+                    variable_links:
+                        F:      UPLIFT
+                
+                force_W:
+                    class: ReactionForceInterp
+                    parameters:
+                        force_times:   [-1e30, 1e30]
+                        force_values:  [1.0, 1.0]
+                    variable_links:
+                        F:      W
+
+                force_VEG:
+                    class: ReactionForceInterp
+                    parameters:
+                        force_times:   [-1e30, 1e30]
+                        force_values:  [1.0, 1.0]
+                    variable_links:
+                        F:      VEG
+
+                force_locbpert:   # land organic carbon burial forcing
+                    class: ReactionForceInterp
+                    parameters:
+                        force_times:   [-1e30, 1e30]
+                        force_values:  [1.0, 1.0]
+                    variable_links:
+                        F:      locbpert
+
+                Ppulse:
+                    class: ReactionFluxPerturb
+                    parameters:
+                        field_data: ScalarData
+                        perturb_times: [-1e30, 1e30]
+                        perturb_totals: [0.0, 0.0]
+                        perturb_deltas: [0.0, 0.0] 
+                    variable_links:
+                        F: fluxRtoOcean.flux_P
+                        FApplied: Ppulse
+                        tforce: global.tforce
+
+                temp_CK_1992:
+                    class: ReactionGlobalTemperatureCK1992
+        
+                    parameters:
+                        temp_DAE: true
+                    variable_links:
+                        pCO2atm: atm.pCO2atm
+
+                # CIsotopes:
+                #     class: ReactionCIsotopes
+                #     parameters:
+                #         do_D_mccb_DIC:    false
+                #         do_D_B_mccb_mocb: false
+                #         do_D_P_CO2_locb:  false
+                #         f_cisotopefrac:   copse_base
+
+                total_C:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.CO2, ocean.DIC]
+                    variable_links:
+                        sum: total_C
+
+
+                total_S:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [ocean.SO4, ocean.H2S]
+                    variable_links:
+                        sum: total_S       
+    
+        atm:
+            
+
+            reactions:
+                reservoir_CO2:
+                    class: ReactionReservoirAtm
+                    parameters:
+                        field_data: external%CIsotope
+
+                    variable_links:
+                        R*: CO2*
+                        pRatm: pCO2atm
+                        pRnorm: pCO2PAL
+                    variable_attributes:
+                        R:norm_value:           4.956e16  # pre ind 280e-6
+                        R:initial_value:        4.956e16  # pre ind 280e-6
+
+                constant_pO2:
+                    class: ReactionScalarConst
+                    parameters:
+                        constnames: ["pO2PAL", "pO2atm"]
+                    variable_attributes:
+                        pO2PAL:initial_value: 1.0
+                        pO2atm:initial_value: 0.21
+
+                constant_degassing:
+                    class: ReactionFluxPerturb
+                    parameters:
+                        field_data: external%CIsotope
+                        perturb_times: [-1e30, 1e30]
+                        perturb_totals: [11.8e12, 11.8e12]
+                        perturb_deltas: [-4.9, -4.9] 
+                    variable_links:
+                        F: CO2_sms
+                        FApplied: ccdeg
+                        tforce: global.tforce
+
+                CO2pulse_Cia:
+                    class: ReactionFluxPerturb
+                    parameters:
+                        field_data: external%CIsotope
+                        perturb_times: [-1e30, 1e30]
+                        perturb_totals: [0.0, 0.0]
+                        perturb_deltas: [0.0, 0.0] 
+                    variable_links:
+                        F: CO2_sms
+                        FApplied: Cia
+                        tforce: global.tforce
+
+                CO2pulse_Cib:
+                    class: ReactionFluxPerturb
+                    parameters:
+                        field_data: external%CIsotope
+                        perturb_times: [-1e30, 1e30]
+                        perturb_totals: [0.0, 0.0]
+                        perturb_deltas: [0.0, 0.0] 
+                    variable_links:
+                        F: CO2_sms
+                        FApplied: Cib
+                        tforce: global.tforce
+
+                transfer_AtoLand:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        input_fluxes:         fluxAtoLand.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms
+                        transfer_multiplier:  -1.0
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms      
+
+                # transfer_SedCrusttoAOcean:
+                #     class: ReactionFluxTransfer
+                #     parameters:
+                #         transfer_multiplier:  1.0  
+                #         input_fluxes:         fluxSedCrusttoAOcean.flux_$fluxname$
+                #         output_fluxes:        $fluxname$_sms
+                #     variable_links:
+                #         # S to oceansurface            
+                #         output_C:             CO2_sms                                                      
+                #         output_Redox:         O2_sms
+
+
+        land:
+            
+
+            reactions:
+                constant_D_P_CO2_locb:
+                    class: ReactionScalarConst
+                    parameters:
+                        constnames: ["D_P_CO2_locb"]
+                    variable_attributes:
+                        D_P_CO2_locb:initial_value: 19.0           
+
+                land_Bergman2004:
+                    class: ReactionLandBergman2004
+
+                    parameters:   # disable everything except carbonate and silicate weathering
+                        f_landbiota: Prescribed
+                        f_locb:     Prescribed
+
+                        k5_locb: 5.0e12
+                        k_silw: 6.6e12    # balance constant degassing
+                        k14_carbw: 13.3e12 
+                        k10_phosw: 0.0
+                        k17_oxidw: 0.0
+                       
+                        enableS:  external%Senabled # no S weathering
+
+        sedcrust:
+
+            
+
+            reactions:
+
+                reservoir_C:
+                    class: ReactionReservoirScalar
+                    parameters:
+                        field_data: external%CIsotope
+                        const: true
+                    variable_links:
+                        R*: C*
+                    variable_attributes:
+                        R:norm_value:           5e21
+                        R:initial_value:        5e21
+                        R:initial_delta:        2.65 # per mil 
+
+                reservoir_G:
+                    class: ReactionReservoirScalar
+                    parameters:
+                        field_data: external%CIsotope
+                        const: true
+                    variable_links:
+                        R*: G*
+                    variable_attributes:
+                        R:norm_value:           1.25e21
+                        R:initial_value:        1.25e21
+                        R:initial_delta:        -25.0 # per mil
+
+                # transfer_OceanBurial:
+                #     class: ReactionFluxTransfer
+                #     parameters:
+                #         input_fluxes:         fluxOceanBurial.flux_$fluxname$
+                #         output_fluxes:        $fluxname$_sms
+                #         transfer_matrix:      Distribute                                
+                #     variable_links:
+                #         output_Corg:          G_sms            # fix naming Corg = G                        
+                #         output_Ccarb:         C_sms            # fix naming Ccarb = C  
+                #         # output_Sr:            Sr_sed_sms            # fix naming
+
+                # transfer_LandtoSedCrust:
+                #     class: ReactionFluxTransfer
+                #     parameters:
+                #         input_fluxes:         fluxLandtoSedCrust.flux_$fluxname$
+                #         output_fluxes:        $fluxname$_sms
+                #     variable_links:
+                #         output_Corg:            G_sms            # fix naming Corg = G                        
+                #         output_Ccarb:           C_sms            # fix naming Ccarb = C
+                #         # output_Sr:              Sr_sed_sms            # fix naming           
+        ocean:
+            reactions:
+                transport3box:
+                    class: ReactionOceanTransport3box 
+                    parameters:
+                        temp:             [21.5, 2.0, 2.0]
+                        temp_trackglobal: true 
+                    
+                reservoir_P:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:       2.208e-3  # concentration mol m-3 = 2.15e-6 mol/kg * 1027 kg m-3
+                        R:norm_value:          1.0e-3 # for scaling only
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:       300.0e-3   # concentration mol m-3 ~ 300e-6 mol/kg * 1027 kg m-3
+                        R:norm_value:          100.0e-3 # for scaling only
+                
+                reservoir_SO4:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%SIsotope
+                    variable_links:
+                        R*: SO4*
+                    variable_attributes:                      
+                        R:initial_value:       28756.0e-3   # concentration mol m-3 ~ 28e-3 mol/kg * 1027 kg m-3
+                        R:initial_delta:       0.0
+                        R:norm_value:          1000.0e-3 # for scaling only
+
+                reservoir_H2S:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%SIsotope
+                    variable_links:
+                        R*: H2S*
+                    variable_attributes:                      
+                        R:initial_value:       1e-6   # concentration mol m-3 ~ 1e-9 mol/kg * 1027 kg m-3
+                        R:initial_delta:       0.0
+                        R:norm_value:          1.0e-3 # for scaling only
+
+                reservoir_DIC:
+                    class: ReactionReservoirTotal              
+                    parameters:
+                        field_data: external%CIsotope
+                    variable_links:
+                        R*: DIC*
+                    variable_attributes:                      
+                        R:initial_value:       2208.1e-3 # 2150e-6 mol kg-1 * 1027 kg m-3
+                        R:initial_delta:       -1.0
+                        R:norm_value:          1000.0e-3 # for scaling only
+
+                reservoir_TAlk:
+                    class: ReactionReservoirTotal              
+                    variable_links:
+                        R*: TAlk*
+                    variable_attributes:                      
+                        R:initial_value:       2403.2e-3   # 2340e-6 mol kg-1 * 1027 kg m-3
+                        R:norm_value:          1000.0e-3 # for scaling only
+
+                reservoir_B:
+                    class: ReactionReservoirConst
+                    parameters:
+                        field_data: external%BIsotope
+                    variable_links:
+                        R*: B*
+                    variable_attributes:                      
+                        R_conc:initial_value:       0.4269239 # contemporary value
+                        R_conc:initial_delta:       34.0
+                        # R_conc:norm_value:          0.4269239 # for scaling only
+
+                B_isotope:
+                    class: ReactionBoronIsotope
+                    variable_links:
+                        # defaults OK for B_conc, BOH4_conc, B_delta, BOH4_delta
+                
+                carbchem:
+                    class: ReactionCO2SYS
+                    parameters:
+                        components: ["Ci", "B", "S", "F", "Omega", "H2S"]
+                        defaultconcs: ["TF", "Ca"]
+                        solve_pH:   constraint # Hfree as DAE variable
+                        outputs:    ["pCO2", "xCO2dryinp", "CO2", "CO3", "OmegaCA", "OmegaAR", "BAlk", "TB"]
+                    variable_links:
+                        TCi_conc: DIC_conc
+                        TS_conc: SO4_conc
+                        TB_conc: B_conc
+                        # TB: TB_out  # should be identical to TB_conc
+                        BAlk: BOH4_conc
+                        CO2:    CO2_conc
+                        CO3:    CO3_conc
+                        TH2S_conc: H2S_conc
+                        pCO2:   pCO2
+                        OmegaAR: OmegaAR  
+                        OmegaCA: OmegaCA       
+
+                const_cisotopes:
+                    class: ReactionScalarConst
+                    parameters:
+                        constnames: ["D_mccb_DIC", "D_B_mccb_mocb"]
+                    variable_attributes:
+                        D_mccb_DIC:initial_value:       0.0
+                        D_B_mccb_mocb:initial_value:    25.0    
+
+                bioprod:
+                    class: ReactionBioProdPrest
+
+                    parameters:
+                        rCcarbCorg:   0.0
+                        rCorgPO4:     161.0
+                        rNPO4:        16.0
+                        #               restore, frac,  none
+                        bioprod:        [1,     2,      0]
+                        bioprodval:     [0.0,   0.18,   .NaN]
+                    variable_links:
+                        prod_*: export_*
+
+                exportOrg:
+                    class: ReactionExportDirect
+
+                    parameters:
+                        fluxlist: ["P", "N", "Corg::CIsotope"]
+                        transportocean: [[0.0,0.0,0.0], 
+                                         [0.0,0.0,0.0], 
+                                         [0.0, 1.0, 1.0]]  #dump everything from 2 into 3 (deep box)
+                        transportfloor: [[0.0,0.0,0.0], 
+                                         [0.0,0.0,0.0], 
+                                         [1.0, 0.0, 0.0]]  #dump everything from 1 onto 3 (deep ocean floor)
+
+                    variable_links:
+                        # remin_P:        # default is OK 
+
+                exportCarb:
+                    class: ReactionExportDirect
+                
+                    parameters:                     
+                        fluxlist: ["Ccarb::CIsotope"]
+                        transportfloor: [[0.0,0.0,0.0], 
+                                         [0.0,0.0,0.0], 
+                                         [1.0, 1.0, 1.0]]  #dump everything onto ocean floor
+                
+                    variable_links:
+                        # remin_Ccarb:   fluxOceanfloor.particulateflux_Ccarb  # default should be OK
+
+                remin:
+                    class: ReactionReminO2_SO4
+
+                    parameters:
+                                        
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+                redox_H2S_O2:
+                    class: ReactionRedoxH2S_O2
+
+                    parameters:
+                      
+                        R_H2S_O2: 3.65e3 # (mol m-3) yr-1
+
+
+        oceansurface:
+            reactions:
+                airsea_CO2:
+                    class: ReactionAirSeaCO2
+                    parameters:
+                     
+                        piston: 3.0 # m d-1 
+                        moistair:  false   # no sat H2O correction
+
+                    variable_links:
+                        Xatm_delta: atm.CO2_delta
+                        Xocean_delta: ocean.oceansurface.DIC_delta
+
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:                        
+                        piston: 3.0 # m d-1 
+                        moistair:  false   # no sat H2O correction
+
+                    variable_links:
+
+                transfer_RtoOcean:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:        Distribute
+                        input_fluxes:         fluxRtoOcean.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms
+                    variable_links:
+                        # output_U:   ocean.oceansurface.U_vec_sms
+
+                # transfer_SedCrusttoAOcean:
+                #     class: ReactionFluxTransfer
+                #     parameters:
+                #         transfer_matrix:      Distribute
+                #         transfer_multiplier:  1.0  
+                #         input_fluxes:         fluxSedCrusttoAOcean.flux_$fluxname$
+                #         output_fluxes:        $fluxname$_sms
+                #     variable_links:
+                #         # C, Redox to atm
+                #         output_S:             ocean.oceansurface.SO4_sms                        
+
+                transfer_fluxAtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        output_CO2:           ocean.oceansurface.DIC_sms  
+
+                        
+
+        oceanfloor:               
+            reactions:
+                shelfcarb:
+                    class: ReactionShelfCarb
+                    parameters:
+                        shelfareanorm: [1.0, 0.0, 0.0]  # only low lat surface box
+                        carbsedshallow: 1.4355e12
+                deepcarb:
+                    class: ReactionBurialEffCarb
+                    parameters:
+                        hascarbseddeep: [false, false, true]  # only deep box
+                    variable_links:
+                        particulateflux_Ccarb: particulateflux_Ccarb
+
+                sedBEcorgP:
+                    class: ReactionBurialEffCorgP
+                    parameters:
+                        burial_eff_function: ConstantBurialRate
+                        
+                        BECorgNorm:   5e12   # mol C yr-1
+                       
+                        BECorg:     [0.0, 0.0, 1.0] # all Corg burial from box 3
+                     
+                        BPorgCorg:     [0.0]     # prescribed P:Corg, COPSE Bergman (2004)
+                        BPFeCorg:      [0.0]    # prescribed P:Corg, COPSE Bergman (2004)
+                        BPauthCorg:    [0.0]    # prescribed P:Corg, COPSE Bergman (2004)
+                    variable_links:
+                        reminflux_Corg: remin_Corg
+                        reminflux_N:    remin_N
+                        reminflux_P:    remin_P
+
+                remin:
+                    class: ReactionReminO2_SO4
+
+                    parameters:
+                                
+                    variable_links:
+                        O2_conc:          ocean.oceanfloor.O2_conc
+                        SO4_delta:        ocean.oceanfloor.SO4_delta                       
+                        soluteflux_*:     fluxOceanfloor.soluteflux_*
+
+                transferparticulate_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$
+
+                transfersolute_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms
+                    variable_links:
+                        # output_U:            ocean.oceanfloor.U_vec_sms

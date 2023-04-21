@@ -1,6 +1,6 @@
 # PALEOocean.jl documentation
 
-## Installation and running the model
+## Installation and running the examples
 
 ### Installation
 

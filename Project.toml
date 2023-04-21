@@ -1,33 +1,52 @@
 name = "PALEOocean"
 uuid = "41de04b1-2efd-44ae-92ae-39d71a4fd99b"
 authors = ["sd336 "]
-version = "0.3.0"
+version = "0.4.0"
 
 [deps]
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
+PALEOaqchem = "673cec3b-17d1-411f-9fcd-71c01c593120"
 PALEOboxes = "804b410e-d900-4b2a-9ecd-f5a06d4c1fd4"
+Preferences = "21216c6a-2e73-6563-6e65-726566657250"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 SIMD = "fdea26ae-647d-5447-a871-4b548cad5224"
 SnoopPrecompile = "66db9d55-30c0-4569-8b51-7e840670fc0c"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 TestEnv = "1e6cf692-eddd-4d53-88a5-2d735e33781b"
 
 [compat]
+DataFrames = "1.0"
+DiffEqBase = "6.0"
 Documenter = "0.27"
 Interpolations = "0.13, 0.14"
+MAT = "0.10.4"
+PALEOaqchem = "0.3.1"
 PALEOboxes = "0.20.4, 0.21"
+PALEOcopse = "0.4.5"
 PALEOmodel = "0.15.8"
+Plots = "1.38"
+Preferences = "1.3"
 SIMD = "3.4"
 SnoopPrecompile = "1.0"
+SpecialFunctions = "1.0, 2.0"
+Sundials = "4.0"
 TestEnv = "1.0"
 julia = "1.6"
 
 [extras]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+PALEOcopse = "4a6ed817-0e58-48c6-8452-9e9afc8cb508"
 PALEOmodel = "bf7b4fbe-ccb1-42c5-83c2-e6e9378b660c"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Sundials = "c3572dad-4567-51f8-b174-8c6c989267f4"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Documenter", "Logging", "PALEOmodel", "Test"]
+test = ["DataFrames", "DiffEqBase", "Documenter", "Logging", "PALEOcopse", "PALEOmodel", "Plots", "Sundials", "Test"]
