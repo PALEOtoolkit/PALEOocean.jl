@@ -10,13 +10,14 @@ global_logger(ConsoleLogger(stderr,Logging.Info))
 include("config_mitgcm_expts.jl")
 include("plot_mitgcm.jl")
 
-use_threads = false
+use_threads = true
 
 model = PB.create_model_from_config(
     joinpath(@__DIR__, "MITgcm_2deg8_COPDOM.yaml"), "PO4MMcarbSCH4"
 )
 
-toutputs = [0, 1.0, 10.0] # , 100.0, 1000.0, 1999.5, 2000.0, 2999.5, 3000.0]
+# toutputs = [0, 1.0, 10.0] # , 100.0, 1000.0, 1999.5, 2000.0, 2999.5, 3000.0]
+toutputs = [0, 1.0, 10.0, 100.0, 1000.0, 1999.5, 2000.0,]
 
 # start with low oxygen to test marine sulphur system
 PB.set_variable_attribute!(model, "atm", "O2", :initial_value, 0.1*3.71e19)
@@ -27,7 +28,8 @@ tstep = transportMITgcm.pars.Aimp_deltat[]/PB.Constants.k_secpyr
 @info "using tstep=$tstep yr"
 
 # output_filename = "MITgcm_PO4MMcarbSCH42deg8FP64_3000yr_20210210"
-output_filename = ""
+output_filename = "MITgcm_PO4MMcarbSCH42deg8FP64_2000yr_20230422"
+# output_filename = ""
 
 pickup_output = nothing
 initial_state, modeldata = PALEOmodel.initialize!(model, threadsafe=use_threads, pickup_output=pickup_output)  

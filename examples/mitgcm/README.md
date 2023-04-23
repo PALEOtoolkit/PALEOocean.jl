@@ -32,8 +32,21 @@ Wallclock time: 10.0 s core-1 (model yr)-1  with default timestep = 86400 s (1 d
 
 Minimal test case for a biotic ocean with carbonate chemistry, SO4/H2S and CH4.
 
-Tracers: atmosphere O2, CO2(x2), ocean O2, P, DOC(x2), H2S(x2), SO4(x2), CH4(x2), DIC(x2), TAlk (13 ocean tracers)
+Modern Earth configuration with O2 set to 0.1 PAL with to provide an anoxic ocean test case.
+
+Tracers: atmosphere O2, CO2(x2), ocean O2, P, DOC(x2), H2S(x2), SO4(x2), CH4(x2), DIC(x2), TAlk (13 ocean tracers, including d13C and d34S isotopes)
 
     julia> include("MITgcm_2deg8_PO4MMcarbSCH4.jl")
 
 Wallclock time: 27.2 s core-1 (model yr)-1  with default timestep = 86400 s (1 day)
+
+
+![Surface P](images/surface_P_2deg8_PO4MMcarbSCH4_2000yr.svg)
+###### Figure 1
+*Surface P concentration at 2000yr. Red lines indicate longitudinal sections*
+
+
+![H2S sections 2](images/H2S_lon1_2deg8_PO4MMcarbSCH4_2000yr.svg) ![H2S sections 1](images/H2S_lon2_2deg8_PO4MMcarbSCH4_2000yr.svg)
+###### Figure 2
+*H2S concentration at 2000yr, sections at longitudes corresponding to red lines in Figure 1*
+
