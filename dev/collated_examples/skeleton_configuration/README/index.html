@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Skeleton ocean-atmosphere configuration · PALEOocean Documentation</title><script data-outdated-warner src="../../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">PALEOocean Documentation</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">PALEOocean.jl documentation</a></li><li><span class="tocitem">Examples and Tutorials</span><ul><li><input class="collapse-toggle" id="menuitem-2-1" type="checkbox"/><label class="tocitem" for="menuitem-2-1"><span class="docs-label">PTBClarkson2014</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../PTBClarkson2014/README/">PTB land-atmosphere-ocean model (Clarkson 2015)</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">mitgcm</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../mitgcm/README/">MITgcm transport matrix ocean-only examples</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">ocean3box</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../ocean3box/README/">3 Box Ocean Examples</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-4" type="checkbox" checked/><label class="tocitem" for="menuitem-2-4"><span class="docs-label">skeleton_configuration</span><i class="docs-chevron"></i></label><ul class="collapsed"><li class="is-active"><a class="tocitem" href>Skeleton ocean-atmosphere configuration</a><ul class="internal"><li><a class="tocitem" href="#yaml-configuration-file"><span>yaml configuration file</span></a></li><li><a class="tocitem" href="#Variables-defined"><span>Variables defined</span></a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-5" type="checkbox"/><label class="tocitem" for="menuitem-2-5"><span class="docs-label">transport_examples</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../transport_examples/README/">Transport examples</a></li></ul></li></ul></li><li><span class="tocitem">Design</span><ul><li><a class="tocitem" href="../../../PALEOocean_Domains/">PALEOocean Domains, fluxes, and standard Variables</a></li></ul></li><li><span class="tocitem">Reference</span><ul><li><a class="tocitem" href="../../../PALEOocean_Reactions/">PALEOocean Reactions</a></li><li><a class="tocitem" href="../../../PALEOocean_functions/">PALEOocean functions</a></li></ul></li><li><a class="tocitem" href="../../../References/">References</a></li><li><a class="tocitem" href="../../../indexpage/">Index</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples and Tutorials</a></li><li><a class="is-disabled">skeleton_configuration</a></li><li class="is-active"><a href>Skeleton ocean-atmosphere configuration</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Skeleton ocean-atmosphere configuration</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/PALEOtoolkit/PALEOocean.jl/blob/main/docs/src/collated_examples/skeleton_configuration/README.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Skeleton-ocean-atmosphere-configuration"><a class="docs-heading-anchor" href="#Skeleton-ocean-atmosphere-configuration">Skeleton ocean-atmosphere configuration</a><a id="Skeleton-ocean-atmosphere-configuration-1"></a><a class="docs-heading-anchor-permalink" href="#Skeleton-ocean-atmosphere-configuration" title="Permalink"></a></h1><p>A &quot;skeleton&quot; ocean-atmosphere configuration, defining Domains and fluxes but no biogeochemistry. Illustrative fluxes are configured for a C, O, P model.</p><h2 id="yaml-configuration-file"><a class="docs-heading-anchor" href="#yaml-configuration-file">yaml configuration file</a><a id="yaml-configuration-file-1"></a><a class="docs-heading-anchor-permalink" href="#yaml-configuration-file" title="Permalink"></a></h2><p>The model configuration (file <code>examples/skeleton_configuration/PALEO_examples_oceanskeleton_cfg.yaml</code>) contains:</p><pre><code class="language-julia hljs">
+
+
+# skeleton atmosphere-ocean configuration
+# This defines Domains and fluxes, with no state variables or biogeochemistry
+# Illustrative fluxes are defined for a carbon, oxygen, phosphorus model.
+ocean_skeleton_COP:
+    parameters:
+        CIsotope:   IsotopeLinear
+    domains:
+        
+        global:
+            # scalar domain used for budgets and forcings
+            reactions:
+                
+        atm:
+            # scalar domain for atmospheric reservoirs and chemistry            
+            reactions:
+
+                # apply air-sea flux to atmosphere                
+                transfer_fluxAtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms
+
+        fluxAtmtoOceansurface:
+            # air-sea exchange fluxes
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget                    
+                    parameters:
+                        flux_totals: true
+                        fluxlist: [&quot;CO2::CIsotope&quot;, &quot;O2&quot;]
+
+        oceansurface:
+            # air-sea exchange reactions
+            reactions:
+
+                # apply air-sea flux to ocean surface
+                transfer_fluxAtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        output_CO2:           ocean.oceansurface.DIC_sms           
+
+        ocean:
+            reactions:
+                # transport reaction defines geometry and implements ocean transport
+                transport3box:
+                    class: ReactionOceanTransport3box 
+                    parameters:
+                        temp:             [21.5, 2.0, 2.0]
+                        temp_trackglobal: false
+                        
+        fluxOceanfloor:
+            # particulate and solute ocean floor fluxes
+            reactions:
+                particulatefluxtarget:
+                    class: ReactionFluxTarget                    
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: [&quot;P&quot;, &quot;N&quot;, &quot;Corg::CIsotope&quot;, &quot;Ccarb::CIsotope&quot;] # particulate organic matter is defined by Corg, N, P, Ccarb components
+
+                solutefluxtarget:
+                    class: ReactionFluxTarget                    
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: [&quot;DIC::CIsotope&quot;, &quot;TAlk&quot;, &quot;P&quot;, &quot;O2&quot;] # , &quot;Ca&quot;  # solute fluxes should match ocean reservoirs
+
+        oceanfloor:
+            # reactions that remineralize or bury particulate fluxes
+            reactions:
+
+                # apply particulate fluxes to oceanfloor
+                transfer_particulatefluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$                       
+                    variable_links:                        
+
+                # apply solute fluxes to ocean
+                transfer_solutefluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms                       
+                    variable_links:      
+
+        fluxOceanBurial:
+            # burial fluxes
+            reactions:
+                target:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true                        
+                        fluxlist: [&quot;Ccarb::CIsotope&quot;, &quot;Corg::CIsotope&quot;, &quot;P&quot;, &quot;Pauth&quot;, &quot;PFe&quot;, &quot;Porg&quot;, ]              
+</code></pre><h2 id="Variables-defined"><a class="docs-heading-anchor" href="#Variables-defined">Variables defined</a><a id="Variables-defined-1"></a><a class="docs-heading-anchor-permalink" href="#Variables-defined" title="Permalink"></a></h2><pre><code class="nohighlight hljs">julia&gt; include(&quot;PALEO_examples_oceanskeleton.jl&quot;)</code></pre><pre><code class="language-julia hljs">show(PB.show_variables(model); allrows=true, allcols=true, eltypes=false, show_row_number=false)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">48×7 DataFrame
+ domain                 name                         units     vfunction     space        field_data     description
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ fluxAtmtoOceansurface  flux_CO2                     mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxAtmtoOceansurface  flux_O2                      mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxAtmtoOceansurface  flux_total_CO2               mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxAtmtoOceansurface  flux_total_O2                mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanBurial        flux_Ccarb                   mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanBurial        flux_Corg                    mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanBurial        flux_P                       mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanBurial        flux_PFe                     mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanBurial        flux_Pauth                   mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanBurial        flux_Porg                    mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanBurial        flux_total_Ccarb             mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanBurial        flux_total_Corg              mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanBurial        flux_total_P                 mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanBurial        flux_total_PFe               mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanBurial        flux_total_Pauth             mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanBurial        flux_total_Porg              mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         particulateflux_Ccarb        mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanfloor         particulateflux_Corg         mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanfloor         particulateflux_N            mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         particulateflux_P            mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         particulateflux_total_Ccarb  mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanfloor         particulateflux_total_Corg   mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanfloor         particulateflux_total_N      mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         particulateflux_total_P      mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         soluteflux_DIC               mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanfloor         soluteflux_O2                mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         soluteflux_P                 mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         soluteflux_TAlk              mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         soluteflux_total_DIC         mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanfloor         soluteflux_total_O2          mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         soluteflux_total_P           mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         soluteflux_total_TAlk        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ ocean                  Abox                         m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of box
+ ocean                  pressure                     dbar      VF_Undefined  CellSpace    ScalarData     Ocean pressure
+ ocean                  rho                          kg m^-3   VF_Undefined  CellSpace    ScalarData     physical ocean density
+ ocean                  rho_ref                      kg m^-3   VF_Undefined  CellSpace    ScalarData     Ocean transport model density co…
+ ocean                  sal                          psu       VF_Undefined  CellSpace    ScalarData     Ocean salinity
+ ocean                  temp                         Kelvin    VF_Undefined  CellSpace    ScalarData     Ocean temperature
+ ocean                  volume                       m^3       VF_Undefined  CellSpace    ScalarData     volume of ocean cells
+ ocean                  volume_total                 m^3       VF_Undefined  ScalarSpace  ScalarData     total volume of ocean cells
+ ocean                  zlower                       m         VF_Undefined  CellSpace    ScalarData     depth of lower surface of box (m)
+ ocean                  zmid                         m         VF_Undefined  CellSpace    ScalarData     mean depth of box
+ ocean                  zupper                       m         VF_Undefined  CellSpace    ScalarData     depth of upper surface of box (m…
+ oceanfloor             Afloor                       m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of seafloor at b…
+ oceanfloor             Afloor_total                 m^2       VF_Undefined  ScalarSpace  ScalarData     total area of seafloor
+ oceanfloor             zfloor                       m         VF_Undefined  CellSpace    ScalarData     depth of ocean floor (m, -ve)
+ oceansurface           Asurf                        m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of oceansurface
+ oceansurface           open_area_fraction                     VF_Undefined  CellSpace    ScalarData     fraction of area open to atmosph…</code></pre><p>ocean, oceansurface, and oceanfloor Variables are standard grid variables, provided by the ocean transport Reaction (a <code>ReactionOceanTransport3box</code> in this case).</p><p>Flux target Variables to accumulate exchange fluxes are provided by <code>ReactionFluxTarget</code> Reactions, the illustrative configuration here defines fluxes for a C, O, P model with atmospheric state variables CO2, O2, and ocean state variables including DIC, TAlk, O2 and P.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../ocean3box/README/">« 3 Box Ocean Examples</a><a class="docs-footer-nextpage" href="../../transport_examples/README/">Transport examples »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Sunday 23 April 2023 16:46">Sunday 23 April 2023</span>. Using Julia version 1.6.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

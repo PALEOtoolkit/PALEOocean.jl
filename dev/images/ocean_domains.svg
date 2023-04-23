@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="200mm"
+   height="128mm"
+   viewBox="0 0 199.18713 127.47996"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   sodipodi:docname="ocean_domains.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="true"
+     inkscape:zoom="1.1893044"
+     inkscape:cx="287.56305"
+     inkscape:cy="216.51311"
+     inkscape:window-width="1693"
+     inkscape:window-height="994"
+     inkscape:window-x="2096"
+     inkscape:window-y="19"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1"
+     showguides="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid10431"
+       units="mm"
+       spacingx="0.99593735"
+       spacingy="0.99593735"
+       empspacing="1"
+       color="#00e529"
+       opacity="0.14901961"
+       originx="0"
+       originy="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2">
+    <marker
+       markerWidth="179.4998"
+       markerHeight="31.093729"
+       refX="89.749901"
+       refY="15.546865"
+       orient="auto"
+       id="marker10437">
+      <rect
+         style="fill:none;fill-opacity:1;stroke:#5eaf5e;stroke-width:0.823936;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect10435"
+         width="178.67587"
+         height="30.269793"
+         x="0.41196784"
+         y="0.41196784" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(43.952959,-26.836233)">
+    <path
+       style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m -130.53037,-175.6233 v 7.9675"
+       id="path11089-93-6-5" />
+    <g
+       id="g7749"
+       transform="matrix(0.77748275,0,0,0.77748275,-10.700331,7.1692573)">
+      <path
+         style="fill:none;stroke:#808080;stroke-width:0.497968;stroke-dasharray:none;stroke-opacity:1"
+         d="M 36.717965,117.46653 H 194.07607"
+         id="path7299" />
+      <path
+         style="fill:none;stroke:#808080;stroke-width:0.497968;stroke-dasharray:none;stroke-opacity:1"
+         d="M 36.717965,124.43809 H 194.07607"
+         id="path7299-5" />
+      <path
+         style="fill:none;stroke:#808080;stroke-width:0.497968;stroke-dasharray:none;stroke-opacity:1"
+         d="M 36.717965,134.39746 H 194.07607"
+         id="path7299-1" />
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.549941;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect111"
+         width="245.22346"
+         height="150.38654"
+         x="-36.981396"
+         y="31.81592" />
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.623712;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect791"
+         width="221.80827"
+         height="37.845615"
+         x="-28.017962"
+         y="42.771229" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+         x="-25.280952"
+         y="48.230938"
+         id="text1069"><tspan
+           sodipodi:role="line"
+           id="tspan1067"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;stroke:none;stroke-width:0.5"
+           x="-25.280952"
+           y="48.230938">atm</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.9389px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+         x="-34.254036"
+         y="37.5602"
+         id="text1301"><tspan
+           sodipodi:role="line"
+           id="tspan1299"
+           style="stroke-width:0.5"
+           x="-34.254036"
+           y="37.5602">global</tspan></text>
+      <g
+         id="g7230">
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 104.4417,108.5031 v 34.85781"
+           id="path11089-93-2-6" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 154.23856,108.5031 v 34.85781"
+           id="path11089-93-2-6-8" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497849;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 133.32388,108.5031 v 15.96573"
+           id="path11089-93-2-6-8-3" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497849;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 174.15731,108.5031 v 15.96573"
+           id="path11089-93-2-6-8-3-7" />
+        <rect
+           style="fill:none;stroke:#000000;stroke-width:0.503805;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-4"
+           width="157.44118"
+           height="34.788219"
+           x="36.717968"
+           y="108.5031" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+           x="39.471298"
+           y="114.25938"
+           id="text1281"><tspan
+             sodipodi:role="line"
+             id="tspan1279"
+             style="font-size:4.93889px;fill:#000000;stroke-width:0.5"
+             x="39.471298"
+             y="114.25938">ocean</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.9389px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+           x="142.21774"
+           y="115.26743"
+           id="text2085"><tspan
+             sodipodi:role="line"
+             id="tspan2083"
+             style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';fill:#000000;stroke-width:0.5"
+             x="142.21774"
+             y="115.26743">ocean.oceansurface</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.9389px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+           x="148.58188"
+           y="141.1618"
+           id="text2139"><tspan
+             sodipodi:role="line"
+             id="tspan2137"
+             style="stroke-width:0.5"
+             x="148.58188"
+             y="141.1618">ocean.oceanfloor</tspan></text>
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.516136;stroke-dasharray:1.54841, 1.54841;stroke-dashoffset:0;stroke-opacity:1"
+           id="rect2465"
+           width="155.36621"
+           height="6.9715652"
+           x="37.713905"
+           y="109.49903" />
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.516136;stroke-dasharray:1.54842, 1.54842;stroke-dashoffset:0;stroke-opacity:1"
+           id="rect2465-7"
+           width="155.36621"
+           height="6.9715714"
+           x="37.713905"
+           y="135.3934" />
+      </g>
+      <g
+         id="g5549">
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+           x="39.450153"
+           y="100.32836"
+           id="text1277"><tspan
+             sodipodi:role="line"
+             id="tspan1275"
+             style="font-size:4.93889px;stroke-width:0.5"
+             x="39.450153"
+             y="100.32836">oceansurface</tspan></text>
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 133.32389,94.55997 v 9.95938"
+           id="path11089" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 154.23857,94.559969 v 9.959381"
+           id="path11089-9" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 174.15732,94.559969 v 9.959381"
+           id="path11089-3" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 104.44171,94.55997 v 9.95938"
+           id="path11089-93" />
+        <rect
+           style="fill:none;stroke:#000000;stroke-width:0.532888;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-8"
+           width="157.35811"
+           height="9.9593744"
+           x="36.717968"
+           y="94.559975" />
+      </g>
+      <g
+         id="g7239">
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0"
+           x="39.450146"
+           y="161.08054"
+           id="text1277-1"><tspan
+             sodipodi:role="line"
+             id="tspan1275-2"
+             style="font-size:4.93889px;stroke-width:0.497969;stroke-dasharray:none"
+             x="39.450146"
+             y="161.08054">oceanfloor</tspan></text>
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 154.23856,155.31214 v 9.95939"
+           id="path11089-9-9" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#808080;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 104.4417,155.31215 v 9.95938"
+           id="path11089-93-2" />
+        <rect
+           style="fill:none;stroke:#000000;stroke-width:0.497969;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-8-6"
+           width="157.35811"
+           height="9.9593744"
+           x="36.71796"
+           y="155.31215" />
+      </g>
+      <g
+         id="g5540">
+        <rect
+           style="fill:#cde6ce;fill-opacity:1;stroke:none;stroke-width:0.476627;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-8-0"
+           width="157.35809"
+           height="7.9674973"
+           x="36.717968"
+           y="83.60466" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#008000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+           x="39.54179"
+           y="89.373055"
+           id="text1289"><tspan
+             sodipodi:role="line"
+             id="tspan1287"
+             style="font-size:4.93889px;fill:#008000;stroke-width:0.5"
+             x="39.54179"
+             y="89.373055">fluxAtmtoOceansurface</tspan></text>
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 104.44171,83.604661 v 7.9675"
+           id="path11089-93-6" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 133.32389,83.60466 v 7.967504"
+           id="path11089-93-6-4" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 154.23858,83.604659 v 7.967504"
+           id="path11089-93-6-4-3" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 174.15732,83.604659 v 7.967504"
+           id="path11089-93-6-4-5" />
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#008000;stroke-width:0.476627;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-8-0-1"
+           width="157.35809"
+           height="7.9674973"
+           x="36.717968"
+           y="83.60466" />
+      </g>
+      <g
+         id="g5540-7"
+         transform="translate(-3.8500006e-6,61.748116)">
+        <rect
+           style="fill:#cde6ce;fill-opacity:1;stroke:none;stroke-width:0.476627;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-8-0-7"
+           width="157.35809"
+           height="7.9674973"
+           x="36.717968"
+           y="83.60466" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#008000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+           x="39.54179"
+           y="89.373055"
+           id="text1289-9"><tspan
+             sodipodi:role="line"
+             id="tspan1287-9"
+             style="font-size:4.93889px;fill:#008000;stroke-width:0.5"
+             x="39.54179"
+             y="89.373055">fluxOceanfloor</tspan></text>
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 104.44171,83.604661 v 7.9675"
+           id="path11089-93-6-7" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 154.23858,83.604659 v 7.967504"
+           id="path11089-93-6-4-3-9" />
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#008000;stroke-width:0.476627;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-8-0-1-4"
+           width="157.35809"
+           height="7.9674973"
+           x="36.717968"
+           y="83.60466" />
+      </g>
+      <g
+         id="g5540-7-6"
+         transform="translate(4.7473163e-7,83.658739)">
+        <rect
+           style="fill:#cde6ce;fill-opacity:1;stroke:none;stroke-width:0.476627;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-8-0-7-2"
+           width="157.35809"
+           height="7.9674973"
+           x="36.717968"
+           y="83.60466" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;font-family:sans-serif;-inkscape-font-specification:sans-serif;fill:#008000;fill-opacity:1;stroke:none;stroke-width:0.499999;stroke-dasharray:none;stroke-dashoffset:0"
+           x="39.54179"
+           y="89.373055"
+           id="text1289-9-5"><tspan
+             sodipodi:role="line"
+             id="tspan1287-9-3"
+             style="font-size:4.93889px;fill:#008000;stroke-width:0.5"
+             x="39.54179"
+             y="89.373055">fluxOceanBurial</tspan></text>
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 104.44171,83.604661 v 7.9675"
+           id="path11089-93-6-7-0" />
+        <path
+           style="fill:none;fill-opacity:1;stroke:#7cc17c;stroke-width:0.445397;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           d="m 154.23858,83.604659 v 7.967504"
+           id="path11089-93-6-4-3-9-5" />
+        <rect
+           style="fill:none;fill-opacity:1;stroke:#008000;stroke-width:0.476627;stroke-dasharray:none;stroke-dashoffset:0"
+           id="rect791-8-0-1-4-4"
+           width="157.35809"
+           height="7.9674973"
+           x="36.717968"
+           y="83.60466" />
+      </g>
+      <path
+         style="fill:none;stroke:none;stroke-width:0.497968;stroke-dasharray:none;stroke-opacity:1"
+         d="M 36.717965,117.46653 H 194.07607 Z"
+         id="path7295" />
+      <path
+         style="fill:none;stroke:none;stroke-width:0.497968;stroke-dasharray:none;stroke-opacity:1"
+         d="M 36.717965,117.46653 H 194.07607"
+         id="path7297" />
+    </g>
+  </g>
+</svg>
