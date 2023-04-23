@@ -2,6 +2,7 @@
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 DocumenterCitations = "daee34ce-89f3-4625-b898-19384cb65244"
 PALEOboxes = "804b410e-d900-4b2a-9ecd-f5a06d4c1fd4"
+PALEOmodel = "bf7b4fbe-ccb1-42c5-83c2-e6e9378b660c"
 PALEOocean = "41de04b1-2efd-44ae-92ae-39d71a4fd99b"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
@@ -10,6 +11,3 @@ Documenter = "0.27"
 DocumenterCitations = "0.2"
 Revise = "3.1"
 julia = "1.6"
-
-[extras]
-

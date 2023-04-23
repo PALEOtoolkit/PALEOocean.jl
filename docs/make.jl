@@ -25,14 +25,13 @@ makedocs(bib, sitename="PALEOocean Documentation",
     pages = [
         "index.md",
         "Examples and Tutorials" => examples_pages,
-        # no Design docs yet
-        # "Design" => [
-        #     "COPSE_Domains.md",
-        # ],
+        "Design" => [
+             "PALEOocean_Domains.md",
+        ],
         # no HOWTO docs yes
         "Reference" => [
-            "PALEOocean Reactions.md",
-            "PALEOocean functions.md",
+            "PALEOocean_Reactions.md",
+            "PALEOocean_functions.md",
         ],
         "References.md",
         "indexpage.md",

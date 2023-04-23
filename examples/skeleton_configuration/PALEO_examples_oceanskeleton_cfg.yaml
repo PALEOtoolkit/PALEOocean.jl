@@ -1,0 +1,107 @@
+
+
+
+# skeleton atmosphere-ocean configuration
+# This defines Domains and fluxes, with no state variables or biogeochemistry
+# Illustrative fluxes are defined for a carbon, oxygen, phosphorus model.
+ocean_skeleton_COP:
+    parameters:
+        CIsotope:   IsotopeLinear
+    domains:
+        
+        global:
+            # scalar domain used for budgets and forcings
+            reactions:
+                
+        atm:
+            # scalar domain for atmospheric reservoirs and chemistry            
+            reactions:
+
+                # apply air-sea flux to atmosphere                
+                transfer_fluxAtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms
+
+        fluxAtmtoOceansurface:
+            # air-sea exchange fluxes
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget                    
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["CO2::CIsotope", "O2"]
+
+        oceansurface:
+            # air-sea exchange reactions
+            reactions:
+
+                # apply air-sea flux to ocean surface
+                transfer_fluxAtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        output_CO2:           ocean.oceansurface.DIC_sms           
+
+        ocean:
+            reactions:
+                # transport reaction defines geometry and implements ocean transport
+                transport3box:
+                    class: ReactionOceanTransport3box 
+                    parameters:
+                        temp:             [21.5, 2.0, 2.0]
+                        temp_trackglobal: false
+                        
+        fluxOceanfloor:
+            # particulate and solute ocean floor fluxes
+            reactions:
+                particulatefluxtarget:
+                    class: ReactionFluxTarget                    
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"] # particulate organic matter is defined by Corg, N, P, Ccarb components
+
+                solutefluxtarget:
+                    class: ReactionFluxTarget                    
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: ["DIC::CIsotope", "TAlk", "P", "O2"] # , "Ca"  # solute fluxes should match ocean reservoirs
+
+        oceanfloor:
+            # reactions that remineralize or bury particulate fluxes
+            reactions:
+
+                # apply particulate fluxes to oceanfloor
+                transfer_particulatefluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$                       
+                    variable_links:                        
+
+                # apply solute fluxes to ocean
+                transfer_solutefluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms                       
+                    variable_links:      
+
+        fluxOceanBurial:
+            # burial fluxes
+            reactions:
+                target:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true                        
+                        fluxlist: ["Ccarb::CIsotope", "Corg::CIsotope", "P", "Pauth", "PFe", "Porg", ]              
