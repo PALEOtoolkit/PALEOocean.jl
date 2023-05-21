@@ -106,54 +106,54 @@ ocean_skeleton_COP:
                     parameters:
                         flux_totals: true                        
                         fluxlist: [&quot;Ccarb::CIsotope&quot;, &quot;Corg::CIsotope&quot;, &quot;P&quot;, &quot;Pauth&quot;, &quot;PFe&quot;, &quot;Porg&quot;, ]              
-</code></pre><h2 id="Variables-defined"><a class="docs-heading-anchor" href="#Variables-defined">Variables defined</a><a id="Variables-defined-1"></a><a class="docs-heading-anchor-permalink" href="#Variables-defined" title="Permalink"></a></h2><pre><code class="nohighlight hljs">julia&gt; include(&quot;PALEO_examples_oceanskeleton.jl&quot;)</code></pre><pre><code class="language-julia hljs">show(PB.show_variables(model); allrows=true, allcols=true, eltypes=false, show_row_number=false)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">48×7 DataFrame
- domain                 name                         units     vfunction     space        field_data     description
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- fluxAtmtoOceansurface  flux_CO2                     mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
- fluxAtmtoOceansurface  flux_O2                      mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxAtmtoOceansurface  flux_total_CO2               mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
- fluxAtmtoOceansurface  flux_total_O2                mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanBurial        flux_Ccarb                   mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
- fluxOceanBurial        flux_Corg                    mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
- fluxOceanBurial        flux_P                       mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanBurial        flux_PFe                     mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanBurial        flux_Pauth                   mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanBurial        flux_Porg                    mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanBurial        flux_total_Ccarb             mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
- fluxOceanBurial        flux_total_Corg              mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
- fluxOceanBurial        flux_total_P                 mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanBurial        flux_total_PFe               mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanBurial        flux_total_Pauth             mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanBurial        flux_total_Porg              mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanfloor         particulateflux_Ccarb        mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
- fluxOceanfloor         particulateflux_Corg         mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
- fluxOceanfloor         particulateflux_N            mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanfloor         particulateflux_P            mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanfloor         particulateflux_total_Ccarb  mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
- fluxOceanfloor         particulateflux_total_Corg   mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
- fluxOceanfloor         particulateflux_total_N      mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanfloor         particulateflux_total_P      mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanfloor         soluteflux_DIC               mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
- fluxOceanfloor         soluteflux_O2                mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanfloor         soluteflux_P                 mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanfloor         soluteflux_TAlk              mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
- fluxOceanfloor         soluteflux_total_DIC         mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
- fluxOceanfloor         soluteflux_total_O2          mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanfloor         soluteflux_total_P           mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- fluxOceanfloor         soluteflux_total_TAlk        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
- ocean                  Abox                         m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of box
- ocean                  pressure                     dbar      VF_Undefined  CellSpace    ScalarData     Ocean pressure
- ocean                  rho                          kg m^-3   VF_Undefined  CellSpace    ScalarData     physical ocean density
- ocean                  rho_ref                      kg m^-3   VF_Undefined  CellSpace    ScalarData     Ocean transport model density co…
- ocean                  sal                          psu       VF_Undefined  CellSpace    ScalarData     Ocean salinity
- ocean                  temp                         Kelvin    VF_Undefined  CellSpace    ScalarData     Ocean temperature
- ocean                  volume                       m^3       VF_Undefined  CellSpace    ScalarData     volume of ocean cells
- ocean                  volume_total                 m^3       VF_Undefined  ScalarSpace  ScalarData     total volume of ocean cells
- ocean                  zlower                       m         VF_Undefined  CellSpace    ScalarData     depth of lower surface of box (m)
- ocean                  zmid                         m         VF_Undefined  CellSpace    ScalarData     mean depth of box
- ocean                  zupper                       m         VF_Undefined  CellSpace    ScalarData     depth of upper surface of box (m…
- oceanfloor             Afloor                       m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of seafloor at b…
- oceanfloor             Afloor_total                 m^2       VF_Undefined  ScalarSpace  ScalarData     total area of seafloor
- oceanfloor             zfloor                       m         VF_Undefined  CellSpace    ScalarData     depth of ocean floor (m, -ve)
- oceansurface           Asurf                        m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of oceansurface
- oceansurface           open_area_fraction                     VF_Undefined  CellSpace    ScalarData     fraction of area open to atmosph…</code></pre><p>ocean, oceansurface, and oceanfloor Variables are standard grid variables, provided by the ocean transport Reaction (a <code>ReactionOceanTransport3box</code> in this case).</p><p>Flux target Variables to accumulate exchange fluxes are provided by <code>ReactionFluxTarget</code> Reactions, the illustrative configuration here defines fluxes for a C, O, P model with atmospheric state variables CO2, O2, and ocean state variables including DIC, TAlk, O2 and P.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../ocean3box/README/">« 3 Box Ocean Examples</a><a class="docs-footer-nextpage" href="../../transport_examples/README/">Transport examples »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Sunday 23 April 2023 16:47">Sunday 23 April 2023</span>. Using Julia version 1.6.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre><h2 id="Variables-defined"><a class="docs-heading-anchor" href="#Variables-defined">Variables defined</a><a id="Variables-defined-1"></a><a class="docs-heading-anchor-permalink" href="#Variables-defined" title="Permalink"></a></h2><pre><code class="nohighlight hljs">julia&gt; include(&quot;PALEO_examples_oceanskeleton.jl&quot;)</code></pre><pre><code class="language-julia hljs">show(PB.show_variables(model); allrows=true, allcols=true, eltypes=false, show_row_number=false)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">48×8 DataFrame
+ domain                 name                         type                      units     vfunction     space        field_data     description
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ fluxAtmtoOceansurface  flux_CO2                     VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxAtmtoOceansurface  flux_O2                      VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxAtmtoOceansurface  flux_total_CO2               VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxAtmtoOceansurface  flux_total_O2                VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanBurial        flux_Ccarb                   VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanBurial        flux_Corg                    VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanBurial        flux_P                       VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanBurial        flux_PFe                     VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanBurial        flux_Pauth                   VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanBurial        flux_Porg                    VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanBurial        flux_total_Ccarb             VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanBurial        flux_total_Corg              VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanBurial        flux_total_P                 VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanBurial        flux_total_PFe               VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanBurial        flux_total_Pauth             VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanBurial        flux_total_Porg              VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         particulateflux_Ccarb        VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanfloor         particulateflux_Corg         VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanfloor         particulateflux_N            VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         particulateflux_P            VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         particulateflux_total_Ccarb  VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanfloor         particulateflux_total_Corg   VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanfloor         particulateflux_total_N      VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         particulateflux_total_P      VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         soluteflux_DIC               VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    IsotopeLinear  flux input
+ fluxOceanfloor         soluteflux_O2                VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         soluteflux_P                 VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         soluteflux_TAlk              VariableDomContribTarget  mol yr-1  VF_Undefined  CellSpace    ScalarData     flux input
+ fluxOceanfloor         soluteflux_total_DIC         VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  IsotopeLinear  total flux input
+ fluxOceanfloor         soluteflux_total_O2          VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         soluteflux_total_P           VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ fluxOceanfloor         soluteflux_total_TAlk        VariableDomPropDep        mol yr-1  VF_Undefined  ScalarSpace  ScalarData     total flux input
+ ocean                  Abox                         VariableDomPropDep        m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of box
+ ocean                  pressure                     VariableDomPropDep        dbar      VF_Undefined  CellSpace    ScalarData     Ocean pressure
+ ocean                  rho                          VariableDomPropDep        kg m^-3   VF_Undefined  CellSpace    ScalarData     physical ocean density
+ ocean                  rho_ref                      VariableDomPropDep        kg m^-3   VF_Undefined  CellSpace    ScalarData     Ocean transport model density co…
+ ocean                  sal                          VariableDomPropDep        psu       VF_Undefined  CellSpace    ScalarData     Ocean salinity
+ ocean                  temp                         VariableDomPropDep        Kelvin    VF_Undefined  CellSpace    ScalarData     Ocean temperature
+ ocean                  volume                       VariableDomPropDep        m^3       VF_Undefined  CellSpace    ScalarData     volume of ocean cells
+ ocean                  volume_total                 VariableDomPropDep        m^3       VF_Undefined  ScalarSpace  ScalarData     total volume of ocean cells
+ ocean                  zlower                       VariableDomPropDep        m         VF_Undefined  CellSpace    ScalarData     depth of lower surface of box (m)
+ ocean                  zmid                         VariableDomPropDep        m         VF_Undefined  CellSpace    ScalarData     mean depth of box
+ ocean                  zupper                       VariableDomPropDep        m         VF_Undefined  CellSpace    ScalarData     depth of upper surface of box (m…
+ oceanfloor             Afloor                       VariableDomPropDep        m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of seafloor at b…
+ oceanfloor             Afloor_total                 VariableDomPropDep        m^2       VF_Undefined  ScalarSpace  ScalarData     total area of seafloor
+ oceanfloor             zfloor                       VariableDomPropDep        m         VF_Undefined  CellSpace    ScalarData     depth of ocean floor (m, -ve)
+ oceansurface           Asurf                        VariableDomPropDep        m^2       VF_Undefined  CellSpace    ScalarData     horizontal area of oceansurface
+ oceansurface           open_area_fraction           VariableDomPropDep                  VF_Undefined  CellSpace    ScalarData     fraction of area open to atmosph…</code></pre><p>ocean, oceansurface, and oceanfloor Variables are standard grid variables, provided by the ocean transport Reaction (a <code>ReactionOceanTransport3box</code> in this case).</p><p>Flux target Variables to accumulate exchange fluxes are provided by <code>ReactionFluxTarget</code> Reactions, the illustrative configuration here defines fluxes for a C, O, P model with atmospheric state variables CO2, O2, and ocean state variables including DIC, TAlk, O2 and P.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../ocean3box/README/">« 3 Box Ocean Examples</a><a class="docs-footer-nextpage" href="../../transport_examples/README/">Transport examples »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Sunday 21 May 2023 10:36">Sunday 21 May 2023</span>. Using Julia version 1.6.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
