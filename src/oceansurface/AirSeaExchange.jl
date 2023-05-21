@@ -224,6 +224,10 @@ Base.@kwdef mutable struct ReactionAirSea{P} <: PB.AbstractReaction
             description="fixed piston velocity"),
         PB.ParDouble("TempKmin",  -Inf, units="K",
             description="GENIE bug compatibility - lower limit on temperature for solubility"),
+        PB.ParBool("atm_partial_pressure_min_zero", false,
+            description="true to clamp -ve values of atmospheric partial pressure to zero when calculating flux"),
+        PB.ParBool("ocean_conc_min_zero", false,
+            description="true to clamp -ve values of ocean concentration to zero when calculating flux"),
     )
     
     gas_name::String
@@ -374,6 +378,8 @@ function PB.register_methods!(rj::ReactionAirSea)
         )
     end
 
+    atm_clamp_fn = rj.pars.atm_partial_pressure_min_zero[] ? partial_pressure->max(partial_pressure, 0.0) : identity
+    ocean_clamp_fn = rj.pars.ocean_conc_min_zero[] ? ocean_conc->max(ocean_conc, 0.0) : identity
    
     PB.add_method_do!(
         rj, 
@@ -381,7 +387,7 @@ function PB.register_methods!(rj::ReactionAirSea)
         (PB.VarList_namedtuple(vars), ),
         # add Sc_function, sol_function so these are supplied as arguments in order to maintain type stability
         # also add IsotopeType so this can be dispatched on
-        p = (IsotopeType, rj.Sc_function, rj.sol_function, rj.frac_function)
+        p = (IsotopeType, rj.Sc_function, rj.sol_function, rj.frac_function, atm_clamp_fn, ocean_clamp_fn)
     )
 
     return nothing
@@ -410,7 +416,7 @@ function do_air_sea_flux(
     cellrange::PB.AbstractCellRange,
     deltat
 )
-    (IsotopeType, Sc_function, sol_function, frac_function) = m.p
+    (IsotopeType, Sc_function, sol_function, frac_function, atm_clamp_fn, ocean_clamp_fn) = m.p
 
     @inbounds for i in cellrange.indices            
         # piston velocity 
@@ -449,19 +455,19 @@ function do_air_sea_flux(
 
         if !(IsotopeType <: PB.AbstractIsotopeScalar)
             # mol/yr          = m^3/yr * mol/l/atm* l/m^3 * atm                  mol/m^3)
-            vars.flux_X[i]  += pfac*(solconstX*1000.0*vars.pXatm[] - max(vars.X_conc[i],0))
+            vars.flux_X[i]  += pfac*(solconstX*1000.0*atm_clamp_fn(vars.pXatm[]) - ocean_clamp_fn(vars.X_conc[i]))
         else
             # isotopes - need to explicitly calculate flux in both directions to account for kinetic fractionation
             eps_k, eps_eqb = frac_function(vars.temp[i])
 
             fluxAtoOcean = PB.isotope_totaldelta(
                 IsotopeType,
-                pfac*solconstX*1000.0*vars.pXatm[], 
+                pfac*solconstX*1000.0*atm_clamp_fn(vars.pXatm[]),
                 vars.Xatm_delta[]+eps_eqb+eps_k
             )
             fluxOceantoA = PB.isotope_totaldelta(
                 IsotopeType,
-                pfac*PB.get_total(vars.X_conc[i]), 
+                pfac*ocean_clamp_fn(vars.X_conc[i]), 
                 vars.Xocean_delta[i]+eps_k
             )
             vars.flux_X[i] += fluxAtoOcean - fluxOceantoA
