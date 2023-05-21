@@ -203,10 +203,27 @@ frac_airsea_none(tempK) = (0.0, 0.0)
 
 """
     ReactionAirSea(Sc_function, sol_function, frac_function, gas_name)
+    ReactionAirSeaO2
+    ReactionAirSeaCO2
+    ReactionAirSeaCO2
+    ReactionAirSeaFixedSolubility
 
-Not called directly - use as `ReactionAirSeaO2`, `ReactionAirSeaCO2`, `ReactionAirSeaCH4`, `ReactionAirSeaFixedSolubility`
+Calculate atmosphere to ocean gas flux, mol/yr.
 
-Atmosphere to ocean gas X flux, mol/yr.
+NB: ReactionAirSea not used directly - use as `ReactionAirSeaO2` etc.
+
+Runs in `oceansurface` Domain, calculates per-oceansurface-cell atmosphere to ocean gas flux (mol yr-1) for a gas `X`
+using stagnant film model:
+
+    flux_X = Asurf * open_area_fraction * vpiston * (solX(pXatm) - X_conc)
+
+`Asurf` and `open_area_fraction` should be defined by `oceansurface` variables.
+
+Piston velocity `vpiston` and gas solutibility `solX` are defined by gas specific functions
+(eg an empirical wind-velocity dependent Schmidt factor, and temperature and salinity dependent solubility).
+
+If Parameter `moistair = true`, atmospheric partial pressure `pXatm` should be supplied as the equivalent for dry air (~ volume mixing ratio in dry air * pressure ),
+and is then corrected assuming saturated H2O at the ocean surface temperature.
 """
 Base.@kwdef mutable struct ReactionAirSea{P} <: PB.AbstractReaction
     base::PB.ReactionBase
@@ -216,19 +233,19 @@ Base.@kwdef mutable struct ReactionAirSea{P} <: PB.AbstractReaction
             description="use fixed solubility"),
         PB.ParDouble("sol_fix_henry_coeff", NaN, units="mol l-1 atm-1",
             description="Henry's law coefficient for solubility_fixed=true"),
-        PB.ParBool("moistair",    true,
+        PB.ParBool("moistair", true,
             description="apply correction for moist air"),
-        PB.ParBool("piston_fixed",true,
+        PB.ParBool("piston_fixed", true,
             description="use fixed piston velocity"),
-        PB.ParDouble("piston",    NaN, units="m d-1",
+        PB.ParDouble("piston", NaN, units="m d-1",
             description="fixed piston velocity"),
-        PB.ParDouble("TempKmin",  -Inf, units="K",
+        PB.ParDouble("TempKmin", -Inf, units="K",
             description="GENIE bug compatibility - lower limit on temperature for solubility"),
         PB.ParBool("atm_partial_pressure_min_zero", false,
             description="true to clamp -ve values of atmospheric partial pressure to zero when calculating flux"),
         PB.ParBool("ocean_conc_min_zero", false,
             description="true to clamp -ve values of ocean concentration to zero when calculating flux"),
-    )
+   )
     
     gas_name::String
 
@@ -251,6 +268,9 @@ PB.create_reaction(::Type{ReactionAirSea}, base::PB.ReactionBase) =
 
 See [`ReactionAirSea`](@ref)
 
+- Piston velocity: Schmidt factor from [SarmientoGruber2006](@cite)
+- Solubility: from [Wanninkhof1992](@cite)
+
 # Parameters
 $(PARS)
 
@@ -258,37 +278,85 @@ $(PARS)
 $(METHODS_DO)
 """
 abstract type ReactionAirSeaO2 <: PB.AbstractReaction end
-PB.create_reaction(::Type{ReactionAirSeaO2}, base::PB.ReactionBase) =
-    create_ReactionAirSea(base, ScO2, solO2Wann92, false, nothing, "O2", "")
+
+function PB.create_reaction(::Type{ReactionAirSeaO2}, base::PB.ReactionBase)
+    rj = ReactionAirSea(;
+        base,
+        Sc_function=ScO2,
+        sol_function=solO2Wann92,
+        gas_name="O2",
+    )
+
+    return rj
+end
+
 
 """
     ReactionAirSeaCO2
 
 See [`ReactionAirSea`](@ref)
 
+- Piston velocity: Schmidt factor from [Wanninkhof1992](@cite)
+- Solubility: calculated from `ocean.CO2_conc`, `ocean.pCO2atm` defined by ocean carbonate chemistry.
+- Isotope fractionation: equilibrium and kinetic fractionation from [Zhang1995](@cite)
+
 # Parameters
 $(PARS)
 """
 abstract type ReactionAirSeaCO2 <: PB.AbstractReaction end
-PB.create_reaction(::Type{ReactionAirSeaCO2}, base::PB.ReactionBase) =
-    create_ReactionAirSea(base, ScCO2, nothing, false, frac_airsea_CO2, "CO2", "CIsotope")
+
+function PB.create_reaction(::Type{ReactionAirSeaCO2}, base::PB.ReactionBase)
+
+    rj = ReactionAirSea(;
+        base,
+        Sc_function=ScCO2,
+        sol_function=nothing, # supplied by carbonate chemistry
+        frac_function=frac_airsea_CO2,
+        gas_name="CO2",
+        isotope_name="CIsotope",
+    )
+
+    return rj
+end
+
 
 """
     ReactionAirSeaCH4
 
 See [`ReactionAirSea`](@ref)
 
+- Piston velocity: Schmidt factor from [Wanninkhof1992](@cite)
+- Solubility: from [Wanninkhof1992](@cite)
+- Isotope fractionation: NB: TODO no isotope fractionation
+
 # Parameters
 $(PARS)
 """
 abstract type ReactionAirSeaCH4 <: PB.AbstractReaction end
-PB.create_reaction(::Type{ReactionAirSeaCH4}, base::PB.ReactionBase) =
-    create_ReactionAirSea(base, ScCH4, solCH4Wann92, false, frac_airsea_none, "CH4", "CIsotope")
+
+function PB.create_reaction(::Type{ReactionAirSeaCH4}, base::PB.ReactionBase)
+    rj = ReactionAirSea(;
+        base,
+        Sc_function=ScCH4,
+        sol_function=solCH4Wann92,
+        frac_function=frac_airsea_none,
+        gas_name="CH4",
+        isotope_name="CIsotope",
+    )
+
+    return rj
+end
+
 
 """
     ReactionAirSeaFixedSolubility
 
 See [`ReactionAirSea`](@ref)
+
+- Piston velocity: fixed value from `piston` Parameter
+- Solubility: fixed value from `sol_fix_henry_coeff`
+
+NB: `moistair` correction is not applied
 
 # Parameters
 $(PARS)
@@ -297,47 +365,32 @@ $(PARS)
 $(METHODS_DO)
 """
 abstract type ReactionAirSeaFixedSolubility <: PB.AbstractReaction end
-PB.create_reaction(::Type{ReactionAirSeaFixedSolubility}, base::PB.ReactionBase) =
-    create_ReactionAirSea(base, nothing, nothing, true, nothing, "X", "")
 
-
-"Create new instance of reaction, parameterised by functions for Schmidt number, solubility, and fractionation.
-Set `sol_fixed_value` to `true` to create generic Reaction with fixed solubility"
-function create_ReactionAirSea(
-    base, 
-    Sc_function, 
-    sol_function,
-    solubility_fixed::Bool,
-    frac_function, 
-    gas_name, 
-    isotope_name
-)
-    rj = ReactionAirSea(
-        base=base,
-        Sc_function=Sc_function,
-        sol_function=sol_function,
-        frac_function=frac_function,
-        gas_name=gas_name,
-        isotope_name=isotope_name
+function PB.create_reaction(::Type{ReactionAirSeaFixedSolubility}, base::PB.ReactionBase)
+    rj = ReactionAirSea(;
+        base,
+        Sc_function=nothing,
+        sol_function=nothing,
+        gas_name="X",
     )
 
-    if solubility_fixed
-        PB.setvalueanddefault!(rj.pars.solubility_fixed, true, freeze=true)
-    end
+    PB.setvalueanddefault!(rj.pars.solubility_fixed, true, freeze=true)
+    PB.setvalueanddefault!(rj.pars.piston_fixed, true, freeze=true)
+    PB.setvalueanddefault!(rj.pars.moistair, false, freeze=true)
 
     return rj
 end
 
 
 function PB.register_methods!(rj::ReactionAirSea)
-    
+
     if isempty(rj.isotope_name)
         IsotopeType = PB.ScalarData
     else
         _, IsotopeType = PB.split_nameisotope("::"*rj.isotope_name, rj.external_parameters)
         @info "$(PB.fullname(rj)) IsotopeType=$IsotopeType from isotope_name=$(rj.isotope_name) in external_parameters"
     end
-    
+
     vars = [
         PB.VarDep("Asurf",                              "m^2",      "horizontal area of oceansurface"),
         PB.VarDep("open_area_fraction",                 "",         "fracton of surface open to atmosphere (0-1.0)"),
