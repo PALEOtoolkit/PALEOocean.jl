@@ -1,7 +1,7 @@
 name = "PALEOocean"
 uuid = "41de04b1-2efd-44ae-92ae-39d71a4fd99b"
 authors = ["sd336 "]
-version = "0.4.1"
+version = "0.4.2"
 
 [deps]
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
