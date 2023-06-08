@@ -5,12 +5,12 @@ A "skeleton" ocean-atmosphere configuration, defining Domains and fluxes but no 
 ## yaml configuration file
 The model configuration (file `examples/skeleton_configuration/PALEO_examples_oceanskeleton_cfg.yaml`) contains:
 ```@eval
-str = read("../../../../examples/skeleton_configuration/PALEO_examples_oceanskeleton_cfg.yaml", String)
-str = """```julia
-      $str
-      ```"""
 import Markdown
-Markdown.parse(str)
+Markdown.parse(
+    """```julia
+    $(read(joinpath(ENV["PALEO_EXAMPLES"], "skeleton_configuration/PALEO_examples_oceanskeleton_cfg.yaml"), String))
+    ```"""
+)
 ```
 
 ## Variables defined
@@ -18,7 +18,7 @@ Markdown.parse(str)
     julia> include("PALEO_examples_oceanskeleton.jl")
 
 ```@setup oceanskeleton
-include("../../../../examples/skeleton_configuration/PALEO_examples_oceanskeleton.jl") # hide
+include(joinpath(ENV["PALEO_EXAMPLES"], "skeleton_configuration/PALEO_examples_oceanskeleton.jl")) # hide
 ```
 ```@example oceanskeleton
 show(PB.show_variables(model); allrows=true, allcols=true, eltypes=false, show_row_number=false)
