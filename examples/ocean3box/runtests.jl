@@ -35,7 +35,7 @@ skipped_testsets = [
         alg=IDA(linear_solver=:KLU),
         solvekwargs=(
             abstol=1e-6*PALEOmodel.get_statevar_norm(modeldata.solver_view_all),
-            save_start=false
+            # save_start=false, # fails with Sundials.jl 4.19.1
         )
     )
 
@@ -83,7 +83,7 @@ end
         alg=IDA(linear_solver=:KLU),
         solvekwargs=(
             abstol=1e-6*PALEOmodel.get_statevar_norm(modeldata.solver_view_all),
-            save_start=false
+            # save_start=false, # fails with Sundials.jl 4.19.1
         )
     )
 
@@ -135,7 +135,7 @@ end
         alg=IDA(linear_solver=:KLU),
         solvekwargs=(
             abstol=1e-6*PALEOmodel.get_statevar_norm(modeldata.solver_view_all),
-            save_start=false
+            # save_start=false, # fails with Sundials.jl 4.19.1
         )
     )
 
