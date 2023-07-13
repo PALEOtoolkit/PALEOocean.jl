@@ -190,7 +190,49 @@ Production is represented as a combination of limiting factors:
 `population_size x nutrient_limitation x light_limitation x temperature_limitation x electron_donor_limitation`
 
 `population_size` may be either implicit (either a constant or ∝ nutrient concentration, generating GENIE-like parameterisations of 
-export production), or represented explicitly as a state variable.
+export production), or represented explicitly as a state variable (in which case production is accumulated into a state variable `phytP_conc`,
+and `k_grazeresprate` defines a background loss rate that is exported).
+
+Export production is than partitioned into DOM flux (components `domprod_P`, `domprod_N`, `domprod_Corg`)
+and particulate flux (components `partprod_P`, `partprod_N`, `partprod_Corg`, `partprod_Ccarb`) fractions according to parameter `k_nuDOM`.
+
+See [Kriest2010](@cite) for a comparison of models of this type.
+
+## Production functional forms
+## `population_size`
+Set by `k_poptype` parameter:
+- `Constant`: `k_uPO4` (mol P / m-3 / yr) (represents export production)
+- `Nutrient`: `k_mu*P_conc` (mol P / m-3 / yr) (represents export production)
+- `Pop` : `k_mu*phytP_conc` (mol P / m-3 / yr) (represents growth of explicit population `phtyP_conc`)
+
+## `nutrient_limitation` 
+Set by `k_nuttype` parameter:
+- `PO4MM`: `P_conc / (P_conc + k_KPO4)`
+
+## `light_limitation`
+Set by `k_lightlim` parameter:
+- `fixed`: constant `k_Irel`
+- `linear`: GENIE-like form `k_Irel*insol/PB.Constants.k_solar_presentday` where `insol` (W m-2) is provided insolation in each cell
+- `MM`: MITgcm-like saturating form `zInsol/(k_Ic + zInsol)` where `zInsol = k_Irel*insol` and `insol` is provided PAR in each cell
+- `QE`: Saturating light limitation of rate vs (local) PAR `k_Irel*insol`, derived from photosynthetic QE `k_alphaQE` and chl absorption cross section `k_thetaChlC`.
+  See eg [Geider1987](@cite) for summary of notation and unit conversions.
+
+## `temperature_limitation`
+Set by `k_templim` parameter:
+- `Constant`: constant value 1.0
+- `Eppley`: Eppley curve, normalized to 1.0 at 0 deg C,  `exp(0.0633*(temp - PB.Constants.k_CtoK))`
+
+## `electron_donor_limitation`
+Set by `k_edonor` parameter:
+- `H2O`: constant 1.0, no electron-donor limitation on production
+- `H2S`: `H2S_conc / (H2S_conc + k_KH2S)` production limited by H2S concentration
+
+# Examples
+
+| `k_poptype` | `k_nuttype` | `k_lightlim` | `k_templim` | `k_edonor` | Reference                           |
+|:------------|:------------|:-------------|:------------|:-----------|:------------------------------------|
+| Constant    | PO4MM       | linear       | Constant    | H2O        | P and light limited export production, as used by GENIE [Ridgwell2007](@cite) |
+| Pop         | PO4MM       | QE           | Eppley      | H2O        | P and light limited phytoplankton population  |
 
 # Parameters
 $(PARS)
@@ -237,7 +279,7 @@ Base.@kwdef mutable struct ReactionBioProdMMPop{P} <: PB.AbstractReaction
             description="temperature limitation factor"),
 
         # Parameters for  light limitation
-        PB.ParString("k_lightlim", "linear", allowed_values=["linear","MM","fixed","QE"],
+        PB.ParString("k_lightlim", "linear", allowed_values=["linear", "MM", "fixed", "QE"],
             description="Light limitation function"),
         PB.ParDouble("k_Irel",  1.0, 
             description="multiplier for forcing-supplied insolation"),
