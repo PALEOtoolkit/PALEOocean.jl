@@ -32,7 +32,7 @@ The standard Domain configuration for an atmosphere-ocean model is shown in Figu
     julia> include("PALEO_examples_oceanskeleton.jl")
 
 ```@setup oceanskeleton
-include("../../examples/skeleton_configuration/PALEO_examples_oceanskeleton.jl") # hide
+include(joinpath(ENV["PALEO_EXAMPLES"], "skeleton_configuration/PALEO_examples_oceanskeleton.jl")) # hide
 ```
 ```@example oceanskeleton
 show(PB.show_variables(model); allrows=true, allcols=true, eltypes=false, show_row_number=false)

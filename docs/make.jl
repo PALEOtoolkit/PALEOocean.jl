@@ -5,7 +5,7 @@ import PALEOocean
 
 using DocumenterCitations
 
-bib = CitationBibliography(joinpath(@__DIR__, "src/paleo_references.bib"))
+bib = CitationBibliography(joinpath(@__DIR__, "src/paleo_references.bib"); style=:authoryear)
 
 # Collate all markdown files and images folders from PALEOocean/examples/ into a tree of pages
 ENV["PALEO_EXAMPLES"] = normpath(@__DIR__, "../examples") # make ENV["PALEO_EXAMPLES"] available in README.md etc
