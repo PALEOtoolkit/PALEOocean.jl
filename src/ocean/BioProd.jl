@@ -185,7 +185,7 @@ Ocean phytoplankton biological production.
 Configurable to represent oxygenic photosynthesizers with P, N limitation, nitrogen fixers, anoxygenic photosynthesis limited
 by electron donor availability.
 
-Production is represented as a combination of limiting factors:
+Export production or production is represented as a combination of limiting factors:
 
 `population_size x nutrient_limitation x light_limitation x temperature_limitation x electron_donor_limitation`
 
@@ -208,6 +208,8 @@ Set by `k_poptype` parameter:
 ## `nutrient_limitation` 
 Set by `k_nuttype` parameter:
 - `PO4MM`: `P_conc / (P_conc + k_KPO4)`
+- `PO4NMM`: P, N limited phytoplankton export production: cf GENIE `2N2T_PO4MM_NO3`, [Fennel2005](@cite)
+- `PO4NMMNfix`: P limited nitrogen-fixer export production: cf GENIE `2N2T_PO4MM_NO3`, [Fennel2005](@cite)
 
 ## `light_limitation`
 Set by `k_lightlim` parameter:
