@@ -308,6 +308,7 @@ The fraction of `Corg` buried is given by a burial efficiency function, with opt
 Parameter `burial_eff_function`:
 - `Prescribed`: Corg burial in cell `i` = Corg particulateflux * `BECorgNorm`*`Parameter BECorg[i]`
 - `Ozaki2011`:  Corg burial in cell `i` =  Corg particulateflux * `BECorgNorm`*`burialEffCorg_Ozaki2011(sedimentation_rate)`
+- `Dunne2007`: corg burial in cell `i` = Corg particulateflux * `BECorgNorm`*`burialEffCorg_Dunne2007(Corg particulateflux, Afloor)`
 - `ConstantBurialRate`: Corg burial in cell `i` = `BECorgNorm`*`Parameter BECorg[i]` (independent of Corg flux)
 
 It is also possible to set Parameter `FixedCorgBurialTotal`, in which case the ocean total Corg burial rate is fixed,
@@ -330,7 +331,7 @@ Base.@kwdef mutable struct ReactionBurialEffCorgP{P} <: PB.AbstractReaction
         PB.ParDouble("BECorgNorm", 1.0, units="",
             description="overall normalization factor for Corg burial (or total Corg burial for ConstantBurialRate)"),
         PB.ParString("burial_eff_function", "Prescribed",
-            allowed_values=["Prescribed", "Ozaki2011", "ConstantBurialRate"],
+            allowed_values=["Prescribed", "Ozaki2011", "Dunne2007", "ConstantBurialRate"],
             description="Corg burial efficiency parameterisation (or ConstantBurialRate)"),
         PB.ParDoubleVec("BECorg", Float64[], units="",
             description="prescribed fraction seafloor Corg flux buried (or per-cell fraction of total Corg for ConstantBurialRate)"),
@@ -382,12 +383,15 @@ function PB.register_methods!(rj::ReactionBurialEffCorgP)
         PB.VarProp("burial_eff_Corg",      "", "Corg burial efficiency"),
         PB.VarDep("(sedimentation_rate)",      "m yr-1", "sedimentation rate"),
         PB.VarDep("(ocean.oceanfloor.O2_conc)", "mol m-3", "O2 concentration"),
+        PB.VarDepStateIndep("(oceanfloor.Afloor)", "m^2",    "horizontal area of seafloor at base of box"),
     ]
 
     # Corg burial efficiency functions
     burial_eff_prescribed(pars, input_flux, vars, i) = pars.BECorgNorm[]*pars.BECorg[i]
-
+                                                                                            
     burial_eff_Ozaki2011(pars, input_flux, vars, i) = pars.BECorgNorm[]*burialEffCorg_Ozaki2011(vars.sedimentation_rate[i])
+
+    burial_eff_Dunne2007(pars, input_flux, vars, i) = pars.BECorgNorm[]*burialEffCorg_Dunne2007(input_flux.Corg[i], vars.Afloor[i])
 
     function burial_eff_forcedconstant(pars, input_flux, vars, i)
         forceconstCorg = pars.BECorgNorm[]*rj.pars.BECorg[i] # mol Corg yr-1 constant forced burial rate
@@ -398,7 +402,9 @@ function PB.register_methods!(rj::ReactionBurialEffCorgP)
     if rj.pars.burial_eff_function[] == "Prescribed"
         burial_eff_fn = burial_eff_prescribed
     elseif rj.pars.burial_eff_function[] == "Ozaki2011"
-        burial_eff_fn = burial_eff_Ozaki2011       
+        burial_eff_fn = burial_eff_Ozaki2011   
+    elseif rj.pars.burial_eff_function[] == "Dunne2007"
+        burial_eff_fn = burial_eff_Dunne2007        
     elseif rj.pars.burial_eff_function[] == "ConstantBurialRate"
         burial_eff_fn = burial_eff_forcedconstant
     else
@@ -522,6 +528,7 @@ function do_burial_eff_CorgP(
 
         # P burial from burial efficiency
         O2_conc = PB.get_if_available(vars.O2_conc, i, -1.0) # not needed if oxygen-independent
+        # @info "O2_conc = $(O2_conc), i = $(i)"
         BPorgCorg, BPFeCorg, BPauthCorg = rj.fPorgCorg(O2_conc), rj.fPFeCorg(O2_conc), rj.fPauthCorg(O2_conc)
         
         burial_Porg, burial_PFe, burial_Pauth = (BPorgCorg, BPFeCorg, BPauthCorg).*PB.get_total(burial_Corg)        
@@ -556,8 +563,38 @@ julia> round(PALEOocean.Oceanfloor.Burial.burialEffCorg_Ozaki2011(3.4152e-4), si
 """
 function burialEffCorg_Ozaki2011(sedimentation_rate)    
     # eqn (2) burial efficiency
+              # SR in cm/yr
     BECorg = (100.0*sedimentation_rate)^0.4/2.1
 
+    return BECorg
+end
+
+"""
+    burialEffCorg_Dunne2007 -> BECorg
+
+    %POC: percent organic carbon of surface sediments, 
+    use log linear reegression of the data compilation by [Gedges and Keil1995](@cite)
+
+    eqn(2) g cm^-2 a-1   g cm^-2 a-1
+    %POC = FPOC_burial / Fmass_accumulation_rate * 100 = 12.0 * Fmass_accumulation_rate ^ 0.4
+
+    To convert unit between sediment accumulation rates in velocity (cm/ka) to flux (g/cm a),
+    the sediment porosity (φ = 0.7), density (ρ = 2.7) are used.
+
+    BE = FPOC_burial/FPOC_bottom, the numerator is the POC burial flux, the denominator is flux of OC reeaching the sediments
+
+    BE = 0.013 + 0.53 * (FPOC_bottom/(7.0+FPOC_bottom)) ^2 # [Dunne2007](@cite) and [Romaniello and Derry](@cite)
+"""
+function burialEffCorg_Dunne2007(
+    Input_POC,  # mol/yr, could be a isotopelinear
+    Afloor,     # m^2
+    )
+    # eqn (3) burial efficiency
+    # the unit of FPOC_bottom (mol/yr) should be convert to (mmol C m^-2 d^-1)
+    FPOC_bottom = PB.get_total(Input_POC) * 1000 / 365.25 / Afloor
+
+    BECorg = 0.013 + 0.53 * (FPOC_bottom/(7.0+FPOC_bottom))^2
+    
     return BECorg
 end
 

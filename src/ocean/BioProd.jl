@@ -505,7 +505,10 @@ function do_bio_prod_MM_pop(
     return nothing
 end
 
-"Michaelis-Menton like resource limitation"
+"""
+Michaelis-Menton like resource limitation
+    lim_MM = P_conc/(P_conc+k_KPO4)
+"""
 @inline function lim_MM(val, halfmax)
     lim = max(PB.get_total(val), 0.0)/(max(PB.get_total(val), 0.0) + halfmax)
     return lim
@@ -527,6 +530,7 @@ function get_nuttype_function(nuttype::AbstractString)
    "P,N limited phytoplankton: GENIE 2N2T_PO4MM_NO3 (cf Fennel etal 2005)"
    function nut_PO4NMM(pars, vars, i)
         lim_Pfac = lim_MM(vars.P_conc[i], pars.k_KPO4[])
+        
         cTNH3 = max(vars.TNH3_conc[i], 0.0)
         cNO3 = max(vars.NO3_conc[i], 0.0)
         lim_Nfac = (cTNH3 + cNO3)/(cTNH3 + cNO3 + pars.k_KN[])
