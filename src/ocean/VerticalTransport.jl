@@ -6,7 +6,8 @@ import SparseArrays
 import PALEOboxes as PB
 using PALEOboxes.DocStrings
 
-# import Infiltrator
+import Infiltrator
+using Infiltrator
 
 
 """
@@ -551,6 +552,10 @@ function do_export_direct_column(
     export_function, ncomps_function = m.p
 
     Ncomps = ncomps_function(pars, rj.Ncomps)    
+
+    # @Infiltrator.infiltrate
+    # @info "Ziheng's test in VerticalTransport"
+    
     PB.check_parameter_sum(pars.input_frac, Ncomps, tol=1e-6) || 
         error("do_export_direct_column: input_frac does not have the correct number of components and sum to 1.0")
     length(components_input) == length(components_oceanremin) || 
