@@ -7,7 +7,7 @@ PALEOocean = "41de04b1-2efd-44ae-92ae-39d71a4fd99b"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 
 [compat]
-Documenter = "0.27"
+Documenter = "1.0"
 DocumenterCitations = "1.0"
 Revise = "3.1"
 julia = "1.6"
