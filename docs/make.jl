@@ -22,7 +22,8 @@ examples_pages, examples_includes = PB.collate_markdown(
 # include files that load modules etc from PALEOexamples folders
 include.(examples_includes)
 
-makedocs(bib, sitename="PALEOocean Documentation", 
+makedocs(;
+    sitename = "PALEOocean Documentation", 
     pages = [
         "index.md",
         "Examples and Tutorials" => examples_pages,
@@ -40,6 +41,7 @@ makedocs(bib, sitename="PALEOocean Documentation",
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true"
     ),
+    plugins = [bib],
 )
 
 @info "Local html documentation is available at $(joinpath(@__DIR__, "build/index.html"))"
