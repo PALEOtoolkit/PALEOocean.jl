@@ -1,7 +1,7 @@
 name = "PALEOocean"
 uuid = "41de04b1-2efd-44ae-92ae-39d71a4fd99b"
 authors = ["sd336 "]
-version = "0.4.3"
+version = "0.4.4"
 
 [deps]
 Infiltrator = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
@@ -22,9 +22,9 @@ TestEnv = "1e6cf692-eddd-4d53-88a5-2d735e33781b"
 [compat]
 DataFrames = "1.0"
 DiffEqBase = "6.0"
-Documenter = "0.27"
+Documenter = "0.27, 1"
 Infiltrator = "1"
-Interpolations = "0.13, 0.14"
+Interpolations = "0.13, 0.14, 0.15"
 MAT = "0.10.4"
 PALEOaqchem = "0.3.1"
 PALEOboxes = "0.20.4, 0.21"
