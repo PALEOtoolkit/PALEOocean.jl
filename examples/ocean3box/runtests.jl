@@ -107,9 +107,9 @@ end
 
     println("check values at end of run:")
     checkvals = [
-        ("ocean", "pHfree",  [8.38775021448627, 8.367024330312566, 8.107940989697116],   1e-4 ),
-        ("atm", "pCO2atm",  191.423e-6,                                                 1e-4),
-        ("atm",  "CO2_delta", -8.1965,                                                  1e-4),
+        ("ocean", "pHfree",  [8.389330, 8.368277, 8.107629],                            1e-4 ),
+        ("atm", "pCO2atm",  190.730e-6,                                                 1e-4),
+        ("atm",  "CO2_delta", -8.1952,                                                  1e-4),
         ("atm", "pO2atm",   0.2102,                                                     1e-4),
     ]    
     for (domname, varname, checkval, rtol) in checkvals

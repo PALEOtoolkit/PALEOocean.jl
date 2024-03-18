@@ -438,28 +438,12 @@ ocean3box_oaopencarb_base:
                     variable_links:
                         # defaults OK for B_conc, BOH4_conc, B_delta, BOH4_delta
                 
-                # [H+] primary species (as pHfree) for TAlk total
-                H_primary_species: 
-                    class: ReactionConstraintReservoir
-                    variable_links:
-                        Primary_pconc: pHfree
-                        Primary_conc: H_conc
-                        R*: TAlk*
-                    parameters:
-                        primary_total_stoich: 0.0 # ReactionCO2SYS adds H to TAlk_calc
-                        primary_variable: p_concentration # provide pHfree as state variable to solver
-                        constraint_variable: amount # provide TAlk_constraint (mol) as algebraic constraint to solver
-                    variable_attributes: 
-                        Primary_pconc%initial_value: 8.0
-                        Primary_pconc%norm_value: 1.0
-                        R_constraint%norm_value: 1.0
-
                 carbchem:
                     class: ReactionCO2SYS
                     parameters:
                         components: ["Ci", "B", "S", "F", "Omega", "H2S"]
                         defaultconcs: ["TF", "Ca"]
-                        solve_pH:   speciationTAlk # Hfree as DAE variable
+                        solve_pH:   constraint # Hfree as DAE variable
                         outputs:    ["pCO2", "xCO2dryinp", "CO2", "CO3", "OmegaCA", "OmegaAR", "BAlk", "TB"]
                     variable_links:
                         TCi_conc: DIC_conc

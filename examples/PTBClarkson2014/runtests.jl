@@ -55,7 +55,7 @@ skipped_testsets = [
 
     println("check values at end of run:")
     checkvals = [  
-        ("ocean",    "pHtot",        [7.4870, 7.4438, 7.1207],  1e-4 ),
+        ("ocean",    "pHtot",        [7.4870, 7.4435, 7.1186],  1e-4 ),
         ("atm",     "pCO2atm",      5926.39e-6,                 2.5e-3),
         ("atm",     "CO2_delta",    -7.0371,                    1e-4),
         ("ocean",   "P_total",      6.8448e15,                  1e-3),

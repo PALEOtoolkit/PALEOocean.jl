@@ -284,53 +284,6 @@ test_reminO2:
 
         oceanfloor:               
             reactions:    
-        
-test_carbchem:
-    parameters:
-        solve_pH: solve
-        CIsotope: IsotopeLinear
-    domains:
-        global:
-                        
-
-        ocean:
-            reactions:
-                transport3box:
-                    class: ReactionOceanTransport3box               
-                
-                reservoir_DIC:
-                    class: ReactionReservoirTotal
-                    parameters:
-                        field_data: external%CIsotope
-                    variable_links:
-                        R*: DIC*
-                    variable_attributes:                      
-                        R:initial_value:       2000.0e-3
-                        R:initial_delta:       -1.0
-
-                reservoir_TAlk:
-                    class: ReactionReservoirTotal              
-                    variable_links:
-                        R*: TAlk*
-                    variable_attributes:                      
-                        R:initial_value:       2000.0e-3  
-                
-                carbchem:
-                    class: ReactionCO2SYS
-                    parameters:
-                        components: ["Ci", "B", "S", "F", "Omega"]
-                        defaultconcs: ["TS", "TF", "TB", "Ca"]
-                        solve_pH:   external%solve_pH
-                        outputs:    ["pCO2", "xCO2dryinp", "CO3", "OmegaCA", "OmegaAR"]
-                    variable_links:
-                        TCi_conc: DIC_conc
-
-        oceansurface:
-
-
-        oceanfloor:               
-            reactions:    
-
 
 
 test_airsea_CO2:
@@ -404,12 +357,28 @@ test_airsea_CO2:
                     variable_attributes:                      
                         R:initial_value:       2000.0e-3  
                 
+                # [H+] primary species (as pHfree) for TAlk total
+                H_primary_species: 
+                    class: ReactionConstraintReservoir
+                    variable_links:
+                        Primary_pconc: pHfree
+                        Primary_conc: H_conc
+                        R*: TAlk*
+                    parameters:
+                        primary_total_stoich: 0.0 # ReactionCO2SYS adds H to TAlk_calc
+                        primary_variable: p_concentration # provide pHfree as state variable to solver
+                        constraint_variable: amount # provide TAlk_constraint (mol) as algebraic constraint to solver
+                    variable_attributes: 
+                        Primary_pconc%initial_value: 8.0
+                        Primary_pconc%norm_value: 1.0
+                        R_constraint%norm_value: 1.0
+
                 carbchem:
                     class: ReactionCO2SYS
                     parameters:
                         components: ["Ci", "B", "S", "F", "Omega"]
                         defaultconcs: ["TS", "TF", "TB", "Ca"]
-                        solve_pH:   constraint # Hfree as DAE variable
+                        solve_pH:   speciationTAlk # Hfree as DAE variable
                         outputs:    ["pCO2", "xCO2dryinp", "CO2", "CO3", "OmegaCA", "OmegaAR"]
                     variable_links:
                         TCi_conc: DIC_conc
