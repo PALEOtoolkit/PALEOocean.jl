@@ -4,3 +4,6 @@ LocalPreferences.toml
 /docs/src/collated_examples/
 .vscode
 *.jld2
+*.nc
+*.zip
+examples/shelf1D/S2P3_transport_20240614

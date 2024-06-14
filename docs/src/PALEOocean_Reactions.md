@@ -10,6 +10,7 @@ OceanNoTransport.ReactionOceanNoTransport
 OceanTransport3box.ReactionOceanTransport3box
 OceanTransport6box.ReactionOceanTransport6box
 OceanTransportTMM.ReactionOceanTransportTMM
+OceanTransportColumn.ReactionOceanTransportColumn
 ```
 
 ## Vertical Transport

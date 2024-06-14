@@ -1,0 +1,573 @@
+
+
+####################################
+# P, O2, S, CH4 shelf sed
+####################################
+shelf1D_P_O2_S_CH4_sed:
+    parameters:
+        CIsotope: ScalarData
+        SIsotope: ScalarData
+        phys_file:  S2P3_depth80_m2amp04_phys.nc
+        surf_file:  S2P3_depth80_m2amp04_surf.nc
+    domains:
+        global:
+            # scalar domain
+            
+            reactions:
+                total_O2eq:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.O2, ocean.O2_total, -138.0*ocean.phytP_total, -138.0*ocean.DOP_total, -138.0*ocean.POP_total,
+                                    -2*ocean.H2S_total, -2*ocean.CH4_total,
+                                    sediment.O2_total, -1.302*sediment.Corg_total, -2*sediment.H2S_total, -2*sediment.CH4_total] 
+                    variable_links:
+                        sum: total_O2eq
+
+                total_C:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [106.0*ocean.DOP_total, 106.0*ocean.POP_total, 106.0*ocean.phytP_total,
+                                      ocean.CH4_total, 
+                                      sediment.Corg_total, sediment.CH4_total]
+                    variable_links:
+                        sum: total_C
+
+                total_P:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [ocean.P_total, ocean.DOP_total, ocean.POP_total, ocean.phytP_total,
+                                     sediment.P_total, sediment.Porg_total]
+                    variable_links:
+                        sum: total_P
+
+                total_S:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [ocean.SO4_total, ocean.H2S_total, sediment.SO4_total, sediment.H2S_total]
+                    variable_links:
+                        sum: total_S
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2", "CO2::CIsotope"]
+
+
+        fluxOceanfloor:
+            reactions:
+                particulatefluxtarget:
+                    class: ReactionFluxTarget                    
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: ["Corg"] # ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"] 
+
+                solutefluxtarget:
+                    class: ReactionFluxTarget                    
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: ["DIC::CIsotope", "TAlk", "P", "O2", "SO4::SIsotope", "H2S::SIsotope", "CH4::CIsotope"]
+
+                transferpop:
+                    class: ReactionFluxToComponents
+                    parameters:
+                        outputflux_prefix: particulateflux_                  
+                        outputflux_names: ["Corg"] #, "N", "P"]
+                        outputflux_stoich: [106.0] # , 16.0, 1.0]   # must match bioprod stoich
+                    variable_links:
+                        inputflux:  sinkflux_POP
+
+
+        fluxOceanBurial:       
+            reactions:
+                target:
+                    class: ReactionFluxTarget
+                    parameters:
+                        fluxlist: ["Corg"]
+                    variable_links:
+                
+        atm:
+            
+
+            reactions:
+                reservoir_O2:
+                    class: ReactionReservoirAtm
+                    parameters:
+                        moles1atm:              1.77e6  # global Earth value 1.77e20 x scale 1e-14 for a ~1 m^2 column (numerical precision limitations for totals)
+                    variable_links:
+                        R*: O2*
+                        pRatm: pO2atm
+                        pRnorm: pO2PAL
+                    variable_attributes:
+                        R:norm_value:           3.7e5  # present-day atmospheric level
+                        R:initial_value:        3.7e5
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms   
+
+        oceansurface:
+            reactions:
+                airsea_O2:
+                   class: ReactionAirSeaO2
+                   parameters:
+                       # piston: 4.8 # m d-1
+                       piston_fixed: false
+
+                insol:
+                    class: ReactionForceInsolation
+                    parameters:
+                        latitude: [50.0]  # degrees N
+                    variable_links:
+                        insolation: surface_insol
+
+                open_area_fraction:
+                    class: ReactionConst
+                    parameters: 
+                        constnames: ["open_area_fraction"]
+                    variable_attributes:
+                        open_area_fraction%initial_value: 1.0
+
+                wind_speed:
+                    class: ReactionForceGrid
+                    parameters:
+                        netcdf_file: external%surf_file
+                        data_var: wspeedms
+                        time_var: time
+                        tidx_start: 1
+                        tidx_end: 365
+                        cycle_time: 1.0 # yr (periodic annual forcing)
+                    variable_links:
+                        F: wind_speed
+                
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        output_CO2:           ocean.oceansurface.DIC_sms
+
+        ocean:
+            reactions:
+                transport1D:
+                   class: ReactionOceanTransportColumn
+                   parameters:
+                       grid_file: external%phys_file
+
+                sal:
+                    class: ReactionConst
+                    parameters: 
+                        constnames: ["sal"]
+                    variable_attributes:
+                        sal%initial_value: 35.0
+
+                temp:
+                    class: ReactionForceGrid
+                    parameters:
+                        netcdf_file: external%phys_file
+                        data_var: temp
+                        constant_offset: 273.15  # convert deg C in netcdf file to K 
+                        time_var: time
+                        tidx_start: 1
+                        tidx_end: 8760
+                        cycle_time: 1.0 # yr (periodic annual forcing)
+                    variable_links:
+                        F: temp  # Kelvin, Ocean temperature
+
+                rho:
+                    class: ReactionForceGrid
+                    parameters:
+                        netcdf_file: external%phys_file
+                        data_var: sigmat
+                        constant_offset: 1000.0  # convert to kg m-3 ocean density
+                        time_var: time
+                        tidx_start: 1
+                        tidx_end: 8760
+                        cycle_time: 1.0 # yr (periodic annual forcing)
+                    variable_links:
+                        F: rho  # kg m-3, ocean density
+
+                Kz:
+                    class: ReactionForceGrid
+                    parameters:
+                        netcdf_file: external%phys_file
+                        data_var: Kz
+                        time_var: time
+                        tidx_start: 1
+                        tidx_end: 8760
+                        cycle_time: 1.0 # yr (periodic annual forcing)
+                    variable_links:
+                        F: Kz # m^2 s-1 eddy diffusivity on upper cell surfaces                       
+                        
+                sinkfloat:
+                    class: ReactionSinkFloat
+                    parameters:
+                        transportfloor: true
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+                reservoir_P:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:        2.208e-3  # concentration m-3 (1027 kg m-3 * 2.15e-6 mol/kg-sw)
+
+                reservoir_POP:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*: POP*
+                    variable_attributes:                      
+                        R:initial_value:        0.0 # concentration m-3
+                        R_conc:vertical_movement:    -100.0 # m d-1
+                        R_conc:advect:   true
+
+                reservoir_DOP:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*: DOP*
+                    variable_attributes:                      
+                        R:initial_value:        0.0 # concentration m-3
+                        R_conc:vertical_movement:    0.0 # -10.0 # m d-1
+                        R_conc:advect:   true
+                        R_conc:specific_light_extinction: 0.0 # 0.1  # m^2 mol-1
+
+                reservoir_SO4:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%SIsotope
+                    variable_links:
+                        R*: SO4*
+                    variable_attributes:                      
+                        R:initial_value:       28756.0e-3   # concentration mol m-3 ~ 28e-3 mol/kg * 1027 kg m-3
+                        R:initial_delta:       1.0
+                        R:norm_value:          1000.0e-3 # for scaling only
+
+                reservoir_H2S:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%SIsotope
+                        limit_delta_conc:  1e-6  # mol m-3 to limit delta **EXPERIMENTAL**
+                    variable_links:
+                        R*: H2S*
+                    variable_attributes:                      
+                        R:initial_value:       1e-6   # concentration mol m-3 ~ 1e-9 mol/kg * 1027 kg m-3
+                        R:initial_delta:       0.0
+                        R:norm_value:          1.0e-3 # for scaling only
+
+                reservoir_CH4:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%CIsotope
+                        limit_delta_conc:  1e-6  # mol m-3 to limit delta **EXPERIMENTAL**
+                    variable_links:
+                        R*: CH4*
+                    variable_attributes:                      
+                        R:initial_value:       1e-6   # concentration mol m-3 ~ 1e-9 mol/kg * 1027 kg m-3
+                        R:initial_delta:       0.0
+                        R:norm_value:          1.0e-3 # for scaling only
+
+
+                light:
+                   class: ReactionLightColumn
+                   parameters:
+                       background_opacity: 0.1  # m-1
+
+                bioprod:
+                    class: ReactionBioProdMMPop
+                    parameters:
+                        depthlimit:         -1e10  # all cells, controlled by light and nutrient availability
+
+                        rCorgPO4:           106.0
+                        rNPO4:              16.0
+                        rCcarbCorg:         0.0  # no inorganic carbon
+                        rCcarbCorg_fixed:   true
+
+                        nuDOM:              0.66   # fraction to DOM pool
+
+                        k_poptype:          Pop
+                        k_templim:          Eppley
+                        k_mu:               159.0  # yr-1 max growth rate at 0C   0.75*0.59*360
+                        k_grazeresprate:    43.2 # yr-1 background loss rate  0.12*360
+
+                        k_nuttype:         PO4MM    # nutrient limitation functional form
+                        k_KPO4:             0.1284e-3 # 0.125e-6 mol / kg-sw * 1027 kg m-3
+
+                        # k_lightlim:         MM  # saturating light-limited production       
+                        # k_Irel:             1.0
+                        # k_Ic:               30.0 # W m-2 saturating intensity
+                        # k_thetaChlC:        0.03 # mg Chl / mgC
+                        # k_epsilonChl:       0.012 # m^2/mg Chl
+
+                        k_Irel:             0.4 # multiplier to correct to PAR
+                        k_lightlim:         QE
+                        k_alphaQE:          3.5 # gC/gChl/Wpar m^-2/d-1
+                        k_thetaChlC:        0.02 # TODO require a low value for alphaQE*thetaChlC otherwise continuous growth through winter
+                    
+                    variable_links:
+                        domprod_P:  DOP_sms
+                        partprod_P: POP_sms
+                    variable_attributes:
+                        phytP:initial_value:   1e-6 # mol P m-3 (1 nM)
+                        phytP:norm_value:   1e-6
+
+
+                dopdecay:
+                    class: ReactionParticleDecay
+                    parameters:
+                        decay_timescale:     0.5  # yr                       
+                    variable_links:
+                        Particle*:       DOP
+                        decayflux:      PDOP_decay
+
+                popdecay:
+                    class: ReactionParticleDecay
+                    parameters:
+                        decay_timescale:     0.05  # yr                      
+                    variable_links:
+                        Particle*:       POP*
+                        decayflux:      PDOP_decay
+
+                pdopdecaycomponents:
+                    class: ReactionFluxToComponents
+                    parameters:
+                        outputflux_prefix: remin_                
+                        outputflux_names: ["Corg", "N", "P"]
+                        outputflux_stoich: [106.0, 16.0, 1.0]   # must match bioprod stoich
+                    variable_links:
+                        inputflux:  PDOP_decay
+
+                reminocean:
+                    class: ReactionReminO2_SO4_CH4
+
+                    parameters:
+                        SO4reminlimit:  1000.0e-3                
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+                        
+                redox_H2S_O2:
+                    class: ReactionRedoxH2S_O2
+
+                    parameters:           
+                        R_H2S_O2: 3.65e3 # (mol m-3) yr-1
+
+                redox_CH4_O2:
+                    class: ReactionRedoxCH4_O2
+
+                    parameters:                 
+                        R_CH4_O2: 10.0e3 # (mol m-3) yr-1
+
+                redox_CH4_SO4:
+                    class: ReactionRedoxCH4_SO4
+
+                    parameters:                 
+                        R_CH4_SO4: 10.0 # (mol m-3) yr-1
+
+        oceanfloor:               
+            reactions:
+                
+                floorstubphys: 
+                    class: ReactionConst
+                    parameters:
+                        constnames: ["phi", "w_accum", "zbio", "Dbio", "alpha"]
+                    variable_attributes:
+                        #                       Boudreau (1996) test cases
+                        #                       Shelf/slope 
+                        phi:initial_value:      0.8
+                        w_accum:initial_value:  0.03e-2
+                        zbio:initial_value:     0.1  # m, 10 cm bioturbation depth
+                        Dbio:initial_value:     1.35e-4 # m^2 yr-1
+                        alpha:initial_value:    0.0     # yr-1
+
+                        # TODO need to set norm_value so state variable norms are reasonable
+                        phi:norm_value:        0.8
+
+                transfer_particulatefluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity                       
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$                       
+                    variable_links:
+                        output_Corg: sediment.oceanfloor.Corg_sms  # single component of sediment organic matter
+
+                transfer_solutefluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms                       
+                    variable_links:      
+
+        sediment:
+            reactions:
+                bioratesed:
+                    class: ReactionSedimentBioRates
+
+                transportsed:
+                    class: ReactionSedimentTransport
+                    parameters:
+                        L:                             0.15  # 0.15m column with 60 bins
+                        ncellspercol:                  60
+                        f_grid:                         quadratic
+                        grid_eta:                       0.075
+                        zdbl:                           0.04e-2  # diffusive boundary layer at sediment-water interface
+                    variable_links:
+                        oceanfloor_temp:  ocean.oceanfloor.temp
+                        oceanfloor_sal:  ocean.oceanfloor.sal
+                        oceanfloor_*_conc:  ocean.oceanfloor.*_conc
+                        
+                       
+                reservoir_O2:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*:                             O2*
+                        volume:                         volume_solute
+                    variable_attributes:
+                        R_conc:vphase:                  VP_Solute                    
+                        R:initial_value:                0.0  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+                        R:norm_value:                   200e-3                        
+                        R_conc:diffusivity_speciesname: O2 # name species, or constant in cm^2 s-1
+
+                reservoir_SO4:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*:                             SO4*
+                        volume:                         volume_solute
+                    variable_attributes:
+                        R_conc:vphase:                  VP_Solute                    
+                        R:initial_value:                0.0  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+                        R:norm_value:                   20000e-3                        
+                        R_conc:diffusivity_speciesname: SO4
+
+                reservoir_H2S:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*:                             H2S*
+                        volume:                         volume_solute
+                    variable_attributes:
+                        R_conc:vphase:                  VP_Solute                    
+                        R:initial_value:                0.0  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+                        R:norm_value:                   200e-3                        
+                        R_conc:diffusivity_speciesname: H2S
+
+                reservoir_CH4:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*:                             CH4*
+                        volume:                         volume_solute
+                    variable_attributes:
+                        R_conc:vphase:                  VP_Solute                    
+                        R:initial_value:                0.0  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+                        R:norm_value:                   200e-3                        
+                        R_conc:diffusivity_speciesname: CH4
+
+                reservoir_P:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*:                             P*
+                        volume:                         volume_solute
+                    variable_attributes:
+                        R_conc:vphase:                  VP_Solute                    
+                        R:initial_value:                0.0  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+                        R:norm_value:                   2e-3                        
+                        R_conc:diffusivity_speciesname: PO4
+
+                reservoir_Corg:
+                    class: ReactionReservoirTotal            
+                    variable_links:
+                        R*:                             Corg*
+                        volume:                         volume_solid
+                    variable_attributes:
+                        R_conc:vphase:                  VP_Solid                        
+                        R:initial_value:                0.0  # concentration m-3 solid phase
+                                                             #  mol m-3              =  g cm-3            / (g mol-1) * m^3 cm-3
+                        R:norm_value:                   2083.3  # mol m-3 solid for 1% TOC  =  2.5  * (1 wt%/100) / 12 * 1e6
+
+                total_Porg:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [9.434e-3*Corg_total]
+                    variable_links:
+                        sum: Porg_total
+
+                pocdecay:
+                    class: ReactionParticleDecay
+                    parameters:
+                        decay_timescale:     1.6393  # yr,  0.61 yr-1                      
+                    variable_links:
+                        Particle*:       Corg*
+                        decayflux:       POC_decay
+
+
+                pocdecaycomponents:
+                    class: ReactionFluxToComponents
+                    parameters:
+                        outputflux_prefix: remin_                    
+                        outputflux_names: ["Corg", "N", "P"]
+                        #                  106/106 16/106  1/106
+                        outputflux_stoich: [1.0, 0.15094, 0.009434]   # must match input Corg stoich
+                    variable_links:
+                        inputflux:  POC_decay
+
+                reminsed:
+                    class: ReactionReminO2_SO4_CH4
+
+                    parameters:
+                        SO4reminlimit:  1000.0e-3                
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+                redox_H2S_O2:
+                    class: ReactionRedoxH2S_O2
+
+                    parameters:           
+                        R_H2S_O2: 3.0e5 #  (mol m-3) yr-1 Boudreau (1996) value
+                        # R_H2S_O2: 3.65e4 # 3.65e3 # (mol m-3) yr-1
+                        # R_H2S_O2: 7e3 # slow > 1e6 iters rate for numerical efficiency (mol m-3) yr-1
+                        # R_H2S_O2: 3.65e3 # fast reduce rate for numerical efficiency (mol m-3) yr-1
+
+                    variable_links:
+                        volume:                         volume_solute
+
+                redox_CH4_O2:
+                    class: ReactionRedoxCH4_O2
+
+                    parameters:                 
+                        # R_CH4_O2: 1e4 # reduce rate for numerical stability 
+                        R_CH4_O2: 1e7 # (mol m-3) yr-1 (1e10 mol/l yr-1) Boudreau (1997)
+
+                    variable_links:
+                        volume:                         volume_solute
+
+                redox_CH4_SO4:
+                    class: ReactionRedoxCH4_SO4
+
+                    parameters:                 
+                        R_CH4_SO4: 10.0 # (mol m-3) yr-1
+
+                    variable_links:
+                        volume:                         volume_solute
+    
+        sedimentfloor:
+            reactions:
+
+        sedcrust: # dummy Domain to suppress error from fluxOceanBurial
+            
