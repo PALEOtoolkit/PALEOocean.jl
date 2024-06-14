@@ -6,7 +6,7 @@ using PALEOboxes.DocStrings
 
 
 """
-    ReactionForceInsolation
+    ReactionForceInsolationModernEarth
  
 Calculate time and latitude dependent daily mean modern Earth surface solar insolation.
 
@@ -22,7 +22,7 @@ $(PARS)
 # Methods and Variables for default Parameters
 $(METHODS_DO)
 """
-Base.@kwdef mutable struct ReactionForceInsolation{P} <: PB.AbstractReaction
+Base.@kwdef mutable struct ReactionForceInsolationModernEarth{P} <: PB.AbstractReaction
     base::PB.ReactionBase
 
     pars::P = PB.ParametersTuple(
@@ -35,7 +35,7 @@ Base.@kwdef mutable struct ReactionForceInsolation{P} <: PB.AbstractReaction
     )
 end
 
-function PB.register_methods!(rj::ReactionForceInsolation)
+function PB.register_methods!(rj::ReactionForceInsolationModernEarth)
 
     vars = [
         PB.VarDepScalar("global.tforce", "yr",  "historical time at which to apply forcings, present = 0 yr"),
@@ -51,7 +51,7 @@ function PB.register_methods!(rj::ReactionForceInsolation)
 end
 
 
-function PB.check_configuration(rj::ReactionForceInsolation, model::PB.Model)
+function PB.check_configuration(rj::ReactionForceInsolationModernEarth, model::PB.Model)
     configok = true
     if !isempty(rj.pars.latitude) && !isnothing(rj.domain.grid)
         if rj.domain.grid.ncells != length(rj.pars.latitude)

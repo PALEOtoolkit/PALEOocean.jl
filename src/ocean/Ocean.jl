@@ -12,6 +12,8 @@ include("OceanTransport6box.jl")
 
 include("OceanTransportTMM.jl")
 
+include("OceanTransportColumn.jl")
+
 include("BioProd.jl")
 
 include("VerticalTransport.jl")
