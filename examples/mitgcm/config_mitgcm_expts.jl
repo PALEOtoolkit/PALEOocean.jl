@@ -5,7 +5,6 @@ import PALEOocean
 import PALEOmodel
 using Printf
 
-include("Insolation.jl")
 include("../atmreservoirreaction.jl") # temporary solution to make ReactionReservoirAtm available
 
 

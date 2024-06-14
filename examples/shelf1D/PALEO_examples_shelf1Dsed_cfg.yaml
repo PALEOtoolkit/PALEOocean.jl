@@ -123,7 +123,7 @@ shelf1D_P_O2_S_CH4_sed:
                        piston_fixed: false
 
                 insol:
-                    class: ReactionForceInsolation
+                    class: ReactionForceInsolationModernEarth
                     parameters:
                         latitude: [50.0]  # degrees N
                     variable_links:

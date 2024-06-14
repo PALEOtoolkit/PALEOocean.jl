@@ -148,7 +148,7 @@ shelf1D_abiotic_O2:
                        piston_fixed: false
 
                 insol:
-                    class: ReactionForceInsolation
+                    class: ReactionForceInsolationModernEarth
                     parameters:
                         latitude: [50.0]  # degrees N
                     variable_links:
@@ -278,7 +278,7 @@ shelf1D_P_O2:
                        piston_fixed: false
 
                 insol:
-                    class: ReactionForceInsolation
+                    class: ReactionForceInsolationModernEarth
                     parameters:
                         latitude: [50.0]  # degrees N
                     variable_links:
@@ -637,7 +637,7 @@ shelf1D_P_O2_S_CH4_carb:
                         # Xocean_delta: ocean.oceansurface.DIC_delta
 
                 insol:
-                    class: ReactionForceInsolation
+                    class: ReactionForceInsolationModernEarth
                     parameters:
                         latitude: [50.0]  # degrees N
                     variable_links:

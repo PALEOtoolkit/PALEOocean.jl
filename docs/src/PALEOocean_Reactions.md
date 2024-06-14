@@ -57,3 +57,12 @@ Burial.ReactionBurialEffCarb
 ```@docs
 Burial.ReactionBurialEffCorgP
 ```
+
+## Global
+```@meta
+CurrentModule = PALEOocean.Global
+```
+```@docs
+Insolation.ReactionForceInsolationModernEarth
+Insolation.insolMITgcmDIC
+```

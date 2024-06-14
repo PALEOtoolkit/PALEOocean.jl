@@ -5,7 +5,8 @@ These examples require netcdf files defining an annual cycle of physical variabl
 - water column eddy diffusivity Kz, temperature, density
 - surface windspeed
 
-The example configurations assume a zip file with an illustrative 80m deep seasonally-stratifying shelf
+The example configurations assume a zip file (available from <https://github.com/PALEOtoolkit/PALEOocean.jl/releases>)
+with an illustrative 80m deep seasonally-stratifying shelf
 (50N, Celtic sea) derived from the S2P3 model has been unpacked to subfolder `S2P3_transport_20240614`
 
 (this is collated output from the Windows 'Physics Biology Model' (s2p3.exe), http://pcwww.liv.ac.uk/~jons/model.htm

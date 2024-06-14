@@ -15,4 +15,6 @@ include("oceansurface/Oceansurface.jl")
 
 include("oceanfloor/Oceanfloor.jl")
 
+include("global/Global.jl")
+
 end # module PALEOocean

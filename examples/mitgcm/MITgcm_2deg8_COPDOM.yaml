@@ -203,7 +203,7 @@ PO4MMbase:
         oceansurface:
             reactions:
                 force_par:
-                    class: ReactionForceInsolation
+                    class: ReactionForceInsolationModernEarth
                     
                     variable_links:
                         insolation: surface_insol
@@ -618,7 +618,7 @@ PO4MMcarbSCH4:
         oceansurface:
             reactions:
                 force_par:
-                    class: ReactionForceInsolation
+                    class: ReactionForceInsolationModernEarth
                     
                     variable_links:
                         insolation: surface_insol            

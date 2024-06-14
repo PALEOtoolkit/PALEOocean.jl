@@ -14,7 +14,6 @@ global_logger(ConsoleLogger(stderr,Logging.Info))
 
 include("config_ocean_shelf1D_expts.jl")
 include("plot_shelf.jl")
-include("../mitgcm/Insolation.jl") # ReactionForceInsolation
 include("../atmreservoirreaction.jl") # ReactionReservoirAtm
 
 transport_dir = "S2P3_transport_20240614" # folder containing S2P3 physical variables output collated to netcdf files
