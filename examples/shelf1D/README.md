@@ -1,5 +1,9 @@
 # 1D shelf sea examples and test cases
 
+![Shelf Domains and Processes](images/shelf_domains_processes.svg)
+###### Figure 1
+*1D shelf configuration Domains and processes. Blue dots: tracers. Red arrows: circulation transport represented as eddy diffusivivity Kz, implmented by [`PALEOocean.Ocean.OceanTransportColumn.ReactionOceanTransportColumn`](@ref). Black arrow: vertical transport, implemented by [`PALEOocean.Ocean.VerticalTransport.ReactionSinkFloat`](@ref)*
+
 ## Installation and configuration
 These examples require netcdf files defining an annual cycle of physical variables: 
 - water column eddy diffusivity Kz, temperature, density
@@ -39,3 +43,7 @@ Oxygenic and anoxygenic phytoplankton populations, with sulphur + methane and ma
     julia> include("PALEO_examples_shelf1Dsed.jl")
 
 Coupled water-column - sediment configuration, with single phytoplankton population, sulphur + methane.
+
+## Reading output with python xarray
+
+`Test xarray netcdf.ipynb` demonstrates reading PALEO netcdf output using Python xarray.
