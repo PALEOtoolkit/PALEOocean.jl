@@ -3,22 +3,33 @@
 [![CI](https://github.com/PALEOtoolkit/PALEOocean.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/PALEOtoolkit/PALEOocean.jl/actions/workflows/CI.yml)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PALEOtoolkit.github.io/PALEOocean.jl/dev)
 
-Ocean components for the PALEO biogeochemical model. 
+Ocean components for the [PALEOtoolkit](https://github.com/PALEOtoolkit) biogeochemical model framework.
 
+The PALEOocean package provides:
+- a catalog of ocean circulation models, including low-dimensional box models and GCM transport-matrix representations of the global ocean at resolutions up to 1 deg.
+- air-sea exchange
+- vertical tracer and light transport
+- biological production
+- parameterisations of burial fluxes
 
-**NB: work-in-progress - this repo contains initial minimal examples only to test infrastructure.**
+## Documentation
 
-## Installation and running a minimal example
+Documentation is available online at https://paleotoolkit.github.io/PALEOocean.jl/
 
-### Installation
+## Installation
 
-NB: requires Julia 1.6 or later.  To check the Julia version:
+### Using PALEOocean Reactions from other models
 
-    julia> versioninfo()
+The PALEOocean Reactions are available to the [PALEOtoolkit](https://github.com/PALEOtoolkit) framework when the registered PALEOocean package is installed and loaded:
 
-Clone this github repository to local directory `PALEOocean`:
+    julia> Pkg.add("PALEOocean") #  install PALEOocean package in the currently active Julia environment
+    julia> import PALEOocean
 
-from a linux bash prompt or a Windows terminal,
+### Running PALEOocean examples
+
+To install and run the PALEOocean examples, clone this github repository to local directory `PALEOocean` and run the examples from the Julia REPL.
+
+Quickstart assuming a recent Julia installation: from a linux bash prompt or a Windows terminal,
 
     $ git clone https://github.com/PALEOtoolkit/PALEOocean.jl.git PALEOocean
 
@@ -28,20 +39,7 @@ Julia environment to use the local (downloaded) version of the PALEOocean packag
     julia> cd("PALEOocean/examples")
     julia> include("setup.jl") # use the local version of PALEOocean packages to allow local modifications
    
-### Running a minimal ocean transport example
-Start julia and navigate to the `PALEOocean` folder, then:
+Examples are in subfolders of `PALEOocean/examples/` and use the `PALEOocean/examples` Julia environment.
 
-    julia> cd("PALEOocean/examples")
-    julia> import Pkg
-    julia> Pkg.activate(".") # use the PALEOocean/examples environment
-
-    julia> cd("transport_examples")
-    julia> include("PALEO_examples_transport_advect.jl")
-
-
-## Using PALEOocean Reactions from other models
-
-The PALEOocean Reactions are available to the PALEO framework when the registered PALEOocean package is loaded (without downloading the repository), ie
-
-    julia> Pkg.add("PALEOocean")
-    julia> import PALEOocean
+See [Installation and getting started](https://paleotoolkit.github.io/PALEOtutorials.jl/dev/ExampleInstallConfig/)
+in the [PALEOtutorials](https://github.com/PALEOtoolkit/PALEOtutorials.jl) repository for more details including installation and configuration of Julia.
