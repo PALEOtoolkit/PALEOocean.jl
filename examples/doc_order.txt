@@ -1,6 +1,8 @@
 ocean3box
 PTBClarkson2014
 shelf1D
+blacksea
+romglb
 mitgcm
 skeleton_configuration
 transport_examples

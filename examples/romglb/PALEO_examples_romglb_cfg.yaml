@@ -1,0 +1,1045 @@
+####################################
+# Abiotic atmosphere/ocean, O2 only
+####################################
+romglb_abiotic_O2:
+    parameters:
+        # CIsotope: ScalarData
+        matdir: romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+    domains:
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2"]
+                    
+        global:
+            # scalar domain
+            
+            reactions:
+                total_O2:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.O2, ocean.O2]
+                    variable_links:
+                        sum: total_O2                    
+        atm:
+            
+
+            reactions:
+                reservoir_O2:
+                    class: ReactionReservoirAtm
+                   
+                    variable_links:
+                        R*: O2*
+                        pRatm: pO2atm
+                        pRnorm: pO2PAL
+                    variable_attributes:
+                        R:norm_value:           3.7e19  # present-day atmospheric level
+                        R:initial_value:        3.7e19
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms      
+
+        oceansurface:
+            reactions:
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston: 4.8 # m d-1
+
+                surface_insol:
+                    class: ReactionConst
+                    parameters:
+                        constnames: [surface_insol]
+                    variable_attributes: 
+                        surface_insol:initial_value: [70.0, 350.0, 350.0] # W m-2 downwelling radiative flux
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        # output_CO2:           ocean.oceansurface.DIC_sms
+
+        ocean:
+            reactions:
+                transportromglb:
+                    class: ReactionOceanTransportRomanielloICBM
+                    parameters:
+                        matdir: external%matdir
+                        circname: Global_79_Box
+                    
+                reservoir_O2:
+                    class: ReactionReservoir               
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+                reservoir_T:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: T*
+                    variable_attributes:                      
+                        R:initial_value:        1.0  # concentration m-3
+
+                light:
+                    class: ReactionLightColumn
+                    parameters:
+                        background_opacity: 0.04
+
+               
+
+        oceanfloor:               
+            reactions:
+
+#################################
+# Atmosphere/ocean, O2 and P only
+#################################
+
+romglb_P_O2:
+    parameters:
+        CIsotope: ScalarData
+        SIsotope: ScalarData
+        matdir: romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+    domains:
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2"]
+
+        fluxOceanfloor:
+            reactions:
+                particulatetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: ["Corg::CIsotope", "N", "P", "Ccarb::CIsotope"]
+                    
+                solutetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: ["DIC::CIsotope", "TAlk", "O2", "P"]
+
+        global:
+            # scalar domain
+            
+            reactions:
+                total_O2:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.O2, ocean.O2]
+                    variable_links:
+                        sum: total_O2
+        atm:
+            
+
+            reactions:
+                reservoir_O2:
+                    class: ReactionReservoirAtm
+                   
+                    variable_links:
+                        R*: O2*
+                        pRatm: pO2atm
+                        pRnorm: pO2PAL
+                    variable_attributes:
+                        R:norm_value:           3.7e19  # present-day atmospheric level
+                        R:initial_value:        3.7e19
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms      
+
+        oceansurface:
+            reactions:
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston: 4.8 # m d-1
+
+                surface_insol:
+                    class: ReactionConst
+                    parameters:
+                        constnames: [surface_insol]
+                    variable_attributes: 
+                        surface_insol:initial_value: [70.0, 350.0, 350.0] # W m-2 downwelling radiative flux
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        # output_CO2:           ocean.oceansurface.DIC_sms
+
+        ocean:
+            reactions:
+                transportromglb:
+                    class: ReactionOceanTransportRomanielloICBM
+                    parameters:
+                        matdir: external%matdir
+                        circname: Global_79_Box
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+                reservoir_P:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:        2.208e-3  # concentration m-3 (1027 kg m-3 * 2.15e-6 mol/kg-sw)
+
+                light:
+                    class: ReactionLightColumn
+                    parameters:
+                        background_opacity: 0.0  # zero opacity as we just want to prescribe insol in surface boxes
+
+                bioprod:
+                    class: ReactionBioProdMMPop
+                    parameters:
+                        depthlimit:         -10.0   # surface cells only
+
+                        rCorgPO4:           106.0
+                        rNPO4:              16.0
+                        rCcarbCorg:         0.25
+                        rCcarbCorg_fixed:   true
+
+                        nuDOM:              0.0   # no DOM pool
+
+                        k_poptype:            Constant
+                        k_uPO4:             2.615e-3  # 1.91e-6 mol / kg-sw / yr * 1027 kg m-3 * 4/3
+
+                        k_nuttype:         PO4MM                        
+                        k_KPO4:             0.21567e-3 # 0.21e-6 mol / kg-sw * 1027 kg m-3
+
+                        k_lightlim:         linear       
+                        k_Irel:             1.0
+
+                    variable_links:
+                        partprod_*: export_*
+
+                biopump:
+                    class: ReactionExportDirectColumn
+
+                    parameters:
+                        fluxlist:           ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"]
+                        transportfloor:     true
+                        exportfunction:     SumExp
+                        input_frac:         [0.9354,    0.0646]    # 2-G model of Ridgwell & Hargreaves (2007)
+                        sumexp_scale:       [550.5195,  1e6]
+
+                reminocean:
+                    class: ReactionReminO2
+
+                    parameters:                        
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+
+        oceanfloor:               
+            reactions:
+                
+                reminoceanfloor:
+                    class: ReactionReminO2
+
+                    parameters:
+                                
+                    variable_links:
+                        remin*:           particulateflux*                        
+                        soluteflux_*:     fluxOceanfloor.soluteflux_*
+
+                transferparticulate_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$
+
+                transfersolute_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms
+       
+        sedcrust:
+            
+
+####################################################################################################
+# Atmosphere/ocean, O2 and P only, open system with P and Corg burial
+# This is configured to run to a steady-state, with restoring fluxes balancing burial
+# Atmosphere O2 is restored to a constant value (so restoring flux will balance net O2 production from Corg burial)
+# Ocean P is restored to constant values (so restoring fluxe will balance P burial)
+#################################################################################################
+
+romglb_P_O2_open:
+    parameters:
+        CIsotope: ScalarData
+        SIsotope: ScalarData
+        matdir: romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+    domains:
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2"]
+
+        fluxRtoOcean:
+            
+            reactions:
+                transfer:
+                    class: ReactionFluxTarget
+                    parameters:
+                        fluxlist: ["P"]  # for restoring flux
+
+        fluxOceanfloor:
+            reactions:
+                particulatetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: ["Corg::CIsotope", "N", "P", "Ccarb::CIsotope"]
+                    
+                solutetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: ["DIC::CIsotope", "TAlk", "O2", "P"]
+
+        fluxOceanBurial:
+            reactions:
+                transfer:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["Corg::CIsotope", "P", "Pauth", "PFe", "Porg"]
+
+        global:
+            # scalar domain
+            
+            reactions:
+                total_O2:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.O2, ocean.O2]
+                    variable_links:
+                        sum: total_O2
+        atm:
+            
+            reactions:
+                reservoir_O2:
+                    class: ReactionReservoirAtm
+                   
+                    variable_links:
+                        R*: O2*
+                        pRatm: pO2atm
+                        pRnorm: pO2PAL
+                    variable_attributes:
+                        R:norm_value:           3.7e19  # present-day atmospheric level
+                        R:initial_value:        3.7e19
+
+                restoreO2:
+                    class: ReactionRestore
+
+                    parameters:
+                        RequiredLevel: 3.7e19  # PAL
+                        trestore:      100.0
+                        source_only:    false
+                    variable_links:
+                        WatchLevel:  O2
+                        RestoringFlux: O2_sms
+                        RestoringApplied: O2_restoring
+
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms      
+
+        oceansurface:
+            reactions:
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston: 4.8 # m d-1
+
+                surface_insol:
+                    class: ReactionConst
+                    parameters:
+                        constnames: [surface_insol]
+                    variable_attributes: 
+                        surface_insol:initial_value: [70.0, 350.0, 350.0] # W m-2 downwelling radiative flux
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        # output_CO2:           ocean.oceansurface.DIC_sms
+
+                transfer_RtoOcean:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:        Distribute
+                        input_fluxes:         fluxRtoOcean.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms
+
+        ocean:
+            reactions:
+                transportromglb:
+                    class: ReactionOceanTransportRomanielloICBM
+                    parameters:
+                        matdir: romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+                        circname: Global_79_Box
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+                reservoir_P:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:        2.208e-3  # concentration m-3 (1027 kg m-3 * 2.15e-6 mol/kg-sw)
+
+                light:
+                    class: ReactionLightColumn
+                    parameters:
+                        background_opacity: 0.0  # zero opacity as we just want to prescribe insol in surface boxes
+
+                bioprod:
+                    class: ReactionBioProdMMPop
+                    parameters:
+                        depthlimit:         -10.0   # surface cells only
+
+                        rCorgPO4:           106.0
+                        rNPO4:              16.0
+                        rCcarbCorg:         0.25
+                        rCcarbCorg_fixed:   true
+
+                        nuDOM:              0.0   # no DOM pool
+
+                        k_poptype:            Constant
+                        k_uPO4:             2.615e-3  # 1.91e-6 mol / kg-sw / yr * 1027 kg m-3 * 4/3
+
+                        k_nuttype:         PO4MM                        
+                        k_KPO4:             0.21567e-3 # 0.21e-6 mol / kg-sw * 1027 kg m-3
+
+                        k_lightlim:         linear       
+                        k_Irel:             1.0
+
+                    variable_links:
+                        partprod_*: export_*
+
+                biopump:
+                    class: ReactionExportDirectColumn
+
+                    parameters:
+                        fluxlist:           ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"]
+                        transportfloor:     true
+                        exportfunction:     SumExp
+                        input_frac:         [0.9354,    0.0646]    # 2-G model of Ridgwell & Hargreaves (2007)
+                        sumexp_scale:       [550.5195,  1e6]
+
+                reminocean:
+                    class: ReactionReminO2
+
+                    parameters:                        
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+                restoreP:
+                    class: ReactionRestore
+
+                    parameters:
+                        RequiredLevel: 3.466e15  # mol 1.570e18 m^3 * 2.208e-3 mol m-3
+                        trestore:      100.0
+                        source_only:    true 
+                    variable_links:
+                        WatchLevel:  P_total
+                        RestoringFlux: fluxRtoOcean.flux_P
+
+
+        oceanfloor:               
+            reactions:
+                
+                sedrate:
+                    class: ReactionSedimentationRate_dev
+                    parameters:
+                        sed_rate_function: Tromp1995
+
+                sedBEcorgP:
+                    class: ReactionBurialEffCorgP
+                    parameters:                       
+                        burial_eff_function: Ozaki2011
+
+                        # overall normalization for Corg burial to give 2.5e12 mol C yr-1
+                        BECorgNorm:   0.145   # 2.5e12/17.22e12
+                        
+                        # P:Corg burial ratios to give 4e+10 mol P yr-1
+                        BPorgCorg:     [4.0e-3]     # prescribed P:Corg
+                        BPFeCorg:      [4.0e-3]    # prescribed P:Corg
+                        BPauthCorg:    [8.0e-3]    # prescribed P:Corg
+                    variable_links:
+                        reminflux_Corg: remin_Corg # -> reminoceanfloor
+                        reminflux_N:    remin_N    # -> reminoceanfloor
+                        reminflux_P:    remin_P    # -> reminoceanfloor
+
+                reminoceanfloor:
+                    class: ReactionReminO2
+
+                    parameters:
+
+                    variable_links:
+                        remin_Corg:         remin_Corg
+                        remin_N:            remin_N
+                        remin_P:            remin_P
+                        remin_Ccarb:        particulateflux_Ccarb  # no burial Reaction, so remin everything
+
+                        soluteflux_*:     fluxOceanfloor.soluteflux_*
+
+                transferparticulate_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$
+
+                transfersolute_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms
+       
+        sedcrust:
+            
+
+
+################################################################################################
+# Atmosphere/ocean, Ccarb, Corg, and P burial
+# This is configured to run to a steady-state, with restoring fluxes balancing burial
+# Atmosphere O2 is restored to a constant value (so restoring flux will balance net O2 production from Corg burial)
+# Ocean P is restored to a constant value (so restoring fluxes will balance P burial)
+# No pyrite or gypsum burial fluxes (so ocean is a closed system to sulphur)
+# Ocean TAlk and atmosphere pCO2 are restored to constant values (so restoring fluxes will balance CaCO3 burial)
+###########################################################################################################
+
+romglb_P_O2_S_Carb_open:
+    parameters:
+        CIsotope: ScalarData
+        SIsotope: ScalarData
+        # Define the solution method for pH/TAlk
+        # Option 1: add pHfree, TAlk to state variables and apply constraint on TAlk      
+        TAlkStateExplicit: true
+        # Option 2: TAlk is an implicit variable, pHfree is a state variable
+        # TAlkStateExplicit: false
+
+        matdir: romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+    domains:
+      
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2", "CO2::CIsotope"]
+
+        fluxRtoOcean:
+            
+            reactions:
+                transfer:
+                    class: ReactionFluxTarget
+                    parameters:
+                        fluxlist: ["P", "TAlk", "SO4::SIsotope"]  # for restoring fluxes
+
+        fluxOceanfloor:
+            reactions:
+                particulatetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: ["Corg::CIsotope", "N", "P", "Ccarb::CIsotope"]
+                    
+                solutetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: ["DIC::CIsotope", "TAlk", "O2", "P", "SO4::SIsotope", "H2S::SIsotope"]
+        
+
+        fluxOceanBurial:
+            reactions:
+                transfer:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["Corg::CIsotope", "Ccarb::CIsotope", "GYP::SIsotope", "PYR::SIsotope", "P", "Pauth", "PFe", "Porg"]
+
+        global:
+            
+            reactions:
+                force_RHOSFW:  # constant 1.0
+                    class: ReactionForceInterp
+                    variable_links:
+                        F: RHOSFW
+
+                total_S:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [ocean.SO4_total, ocean.H2S_total]                        
+                    variable_links:
+                        sum: total_S
+      
+                total_O2:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [atm.O2, ocean.O2]
+                    variable_links:
+                        sum: total_O2
+
+        atm:
+            
+
+            reactions:
+                reservoir_O2:
+                    class: ReactionReservoirAtm
+                   
+                    variable_links:
+                        R*: O2*
+                        pRatm: pO2atm
+                        pRnorm: pO2PAL
+                    variable_attributes:
+                        R:norm_value:           3.7e19  # present-day atmospheric level
+                        R:initial_value:        3.7e19
+
+                reservoir_CO2:
+                    class: ReactionReservoirAtm
+                    parameters:
+                        field_data: external%CIsotope
+
+                    variable_links:
+                        R*: CO2*
+                        pRatm: pCO2atm
+                        pRnorm: pCO2PAL
+                    variable_attributes:
+                        R:norm_value:           4.956e16  # pre ind 280e-6
+                        R:initial_value:        4.956e16  # pre ind 280e-6
+
+                restoreO2:
+                    class: ReactionRestore
+
+                    parameters:
+                        RequiredLevel: 3.7e19  # PAL
+                        trestore:      100.0
+                        source_only:    false
+                    variable_links:
+                        WatchLevel:  O2
+                        RestoringFlux: O2_sms
+                        RestoringApplied: O2_restoring
+
+                restoreCO2:
+                    class: ReactionRestore
+
+                    parameters:
+                        RequiredLevel: 4.956e16  # pre ind 280e-6
+                        trestore:      100.0
+                        source_only:    true
+                    variable_links:
+                        WatchLevel:  CO2
+                        RestoringFlux: CO2_sms
+                        RestoringApplied: CO2_restoring
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        transfer_multiplier:  -1.0  
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        $fluxname$_sms      
+
+        oceansurface:
+            reactions:
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston: 4.8 # m d-1
+
+                airsea_CO2:
+                    class: ReactionAirSeaCO2
+                    parameters:                     
+                        piston: 4.8 # m d-1 
+                        
+
+                    variable_links:
+                        # Xatm_delta: atm.CO2_delta
+                        # Xocean_delta: ocean.oceansurface.DIC_delta
+
+                surface_insol:
+                    class: ReactionConst
+                    parameters:
+                        constnames: [surface_insol]
+                    variable_attributes: 
+                        surface_insol:initial_value: [70.0, 350.0, 350.0] # W m-2 downwelling radiative flux
+
+                transfer_RtoOcean:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:        Distribute
+                        input_fluxes:         fluxRtoOcean.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms
+
+                transfer_fluxAtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        output_CO2:           ocean.oceansurface.DIC_sms    
+
+        ocean:
+            reactions:
+                transportromglb:
+                    class: ReactionOceanTransportRomanielloICBM
+                    parameters:
+                        matdir: romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+                        circname: Global_79_Box
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+                reservoir_P:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:        2.208e-3  # concentration m-3 (1027 kg m-3 * 2.15e-6 mol/kg-sw)
+
+                reservoir_SO4:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%SIsotope
+                    variable_links:
+                        R*: SO4*
+                    variable_attributes:                      
+                        R:initial_value:       28756.0e-3   # concentration mol m-3 = 28e-3 mol/kg * 1027 kg m-3
+                        R:initial_delta:       0.0
+                        R:norm_value:          1000.0e-3 # for scaling only
+
+                reservoir_H2S:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%SIsotope
+                    variable_links:
+                        R*: H2S*
+                    variable_attributes:                      
+                        R:initial_value:       1e-6   # concentration mol m-3 ~ 1e-9 mol/kg * 1027 kg m-3
+                        R:initial_delta:       0.0
+                        R:norm_value:          1.0e-3 # for scaling only
+
+                reservoir_Ca:
+                    class: ReactionReservoirConst
+
+                    variable_links:
+                        R*: Ca* 
+
+                    variable_attributes:
+                        R_conc:initial_value:     10.56 # mol m-3 modern Ca  (10.28e-3*1027 kg m-3)
+
+                reservoir_DIC:
+                    class: ReactionReservoirTotal              
+                    parameters:
+                        field_data: external%CIsotope
+                    variable_links:
+                        R*: DIC*
+                    variable_attributes:                      
+                        R:initial_value:       2208.1e-3 # 2150e-6 mol kg-1 * 1027 kg m-3
+                        R:initial_delta:       -1.0
+                        R:norm_value:          1000.0e-3 # for scaling only
+
+                # TAlk / pHfree configuration:
+                # either:
+                # - reservoir_TAlk + TAlk_constraint_H_primary_species
+                # or
+                # - TAlk_total_H_primary_species
+                #                
+                reservoir_TAlk:
+                    enabled: external%TAlkStateExplicit
+                    class: ReactionReservoirTotal
+ 
+                    variable_links:
+                        R*: TAlk*                       
+                    variable_attributes:                      
+                        R:initial_value:       2403.2e-3   # 2340e-6 mol kg-1 * 1027 kg m-3
+                        R:norm_value:          1000.0e-3 # for scaling only
+                
+                # [H+] primary species (as pHfree) for algebraic constraint on TAlk
+                TAlk_constraint_H_primary_species:
+                    enabled: external%TAlkStateExplicit
+                    class: ReactionConstraintReservoir
+                    variable_links:
+                        Primary_pconc: pHfree
+                        Primary_conc: H_conc
+                        R*: TAlk*
+                    parameters:
+                        primary_total_stoich: 0.0 # ReactionCO2SYS adds H to TAlk_calc
+                        primary_variable: p_concentration # provide pHfree as state variable to solver
+                        constraint_variable: amount # provide TAlk_constraint (mol) as algebraic constraint to solver
+                    variable_attributes: 
+                        Primary_pconc%initial_value: 8.0
+                        Primary_pconc%norm_value: 1.0
+                        R_constraint%norm_value: 1.0
+
+                # TA as total and H (as pH) as primary species
+                TAlk_total_H_primary_species:
+                    disabled: external%TAlkStateExplicit
+                    class: ReactionImplicitReservoir
+                    variable_links:
+                        Primary_pconc: pHfree
+                        Primary_conc: H_conc
+                        R*: TAlk*
+                    parameters: 
+                        primary_total_stoich: 0.0 # ReactionCO2SYS adds H to TAlk_calc
+                        primary_variable: p_concentration # provide solver with -log10(H_conc)
+                        total_variable: amount # provide TAlk (mol) to solver
+                        total: true # add R_total = sum(R)
+                    variable_attributes:
+                        Primary_pconc%initial_value: 8.0
+                        Primary_pconc%norm_value: 1.0
+                        R_conc%norm_value: 1.0
+
+                carbchem:
+                    class: ReactionCO2SYS
+                    parameters:
+                        components: ["Ci", "B", "S", "F", "Omega", "H2S"]
+                        defaultconcs: ["TF", "TB"] #, "Ca"]
+                        solve_pH:   speciationTAlk
+                        outputs:    ["pCO2", "xCO2dryinp", "CO2", "CO3", "OmegaCA", "OmegaAR"]
+                    variable_links:
+                        TCi_conc: DIC_conc
+                        TS_conc: SO4_conc
+                        CO2:    CO2_conc
+                        CO3:    CO3_conc
+                        TH2S_conc: H2S_conc
+                        pCO2:   pCO2
+                        OmegaAR: OmegaAR       
+                        OmegaCA: OmegaCA  
+
+                light:
+                    class: ReactionLightColumn
+                    parameters:
+                        background_opacity: 0.0  # zero opacity as we just want to prescribe insol in surface boxes
+
+                bioprod:
+                    class: ReactionBioProdMMPop
+                    parameters:
+                        depthlimit:         -10.0   # surface cells only
+
+                        rCorgPO4:           106.0
+                        rNPO4:              16.0
+                        rCcarbCorg:         0.25
+                        rCcarbCorg_fixed:   true
+
+                        nuDOM:              0.0   # no DOM pool
+
+                        k_poptype:            Constant
+                        k_uPO4:             2.615e-3  # 1.91e-6 mol / kg-sw / yr * 1027 kg m-3 * 4/3
+
+                        k_nuttype:         PO4MM                        
+                        k_KPO4:             0.21567e-3 # 0.21e-6 mol / kg-sw * 1027 kg m-3
+
+                        k_lightlim:         linear       
+                        k_Irel:             1.0
+
+                    variable_links:
+                        Prod_Corg_total:    Prod_Corg_total
+                        Prod_Ccarb_total:   Prod_Ccarb_total
+                        partprod_*: export_*
+
+                biopumpCorg:
+                    class: ReactionExportDirectColumn
+
+                    parameters:
+                        fluxlist:           ["P", "N", "Corg::CIsotope"]
+                        transportfloor:     true
+                        exportfunction:     SumExp
+                        input_frac:         [0.9354,    0.0646]    # 2-G model of Ridgwell & Hargreaves (2007)
+                        sumexp_scale:       [550.5195,  1e6]
+
+                biopumpCcarb:
+                    class: ReactionExportDirectColumn
+
+                    parameters:
+                        fluxlist:           ["Ccarb::CIsotope"]
+                        transportfloor:     true
+                        exportfunction:     SumExp
+                        input_frac:         [1.0]    # single inorganic carbon fraction
+                        sumexp_scale:       [2000.0]
+
+                remin:
+                    class: ReactionReminO2_SO4               
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+                redox_H2S_O2:
+                    class: ReactionRedoxH2S_O2
+
+                    parameters:                     
+                        R_H2S_O2: 3.65e3 # (mol m-3) yr-1
+
+                restoreP:
+                    class: ReactionRestore
+
+                    parameters:
+                        RequiredLevel: 3.466e15  # mol 1.570e18 m^3 * 2.208e-3 mol m-3
+                        trestore:      100.0
+                        source_only:    true 
+                    variable_links:
+                        WatchLevel:  P_total
+                        RestoringFlux: fluxRtoOcean.flux_P
+
+                restoreTAlk:
+                    class: ReactionRestore
+
+                    parameters:
+                        RequiredLevel: 3.773e18  # mol 1.570e18 m^3 * 2403.2e-3 mol m-3 
+                        trestore:      100.0
+                        source_only:    false 
+                    variable_links:
+                        WatchLevel:  TAlk_total
+                        RestoringFlux: fluxRtoOcean.flux_TAlk
+               
+
+        oceanfloor:               
+            reactions:
+                sedrate:
+                    class: ReactionSedimentationRate_dev
+                    parameters:
+                        sed_rate_function: Tromp1995
+
+                sedBEcorgP:
+                    class: ReactionBurialEffCorgP
+                    parameters:                       
+                        burial_eff_function: Ozaki2011
+
+                        # overall normalization for Corg burial to give 2.5e12 mol C yr-1
+                        BECorgNorm:   0.145   # 2.5e12/17.22e12
+                        
+                        # P:Corg burial ratios to give 4e+10 mol P yr-1
+                        BPorgCorg:     [4.0e-3]     # prescribed P:Corg
+                        BPFeCorg:      [4.0e-3]    # prescribed P:Corg
+                        BPauthCorg:    [8.0e-3]    # prescribed P:Corg
+                    variable_links:
+                        reminflux_Corg: remin_Corg # -> reminoceanfloor
+                        reminflux_N:    remin_N    # -> reminoceanfloor
+                        reminflux_P:    remin_P    # -> reminoceanfloor                
+
+                shelfcarb:
+                    class: ReactionShelfCarb
+                    parameters:
+                        shelfareanorm:  [.NaN]  # requires configuration to set only low lat surface box
+                        carbsedshallow:   0.987e12  # for 6.66e12 mol C yr-1
+
+                deepcarb:
+                    class: ReactionBurialEffCarb
+                    parameters:
+                        burial_eff_function: OmegaCA
+                        hascarbseddeep:  [false]  # requires configuration to set deep boxes
+                        m0:         2.0
+                        m1:         1.8             # guesses to get 12.77e12 mol C yr-1
+                    variable_links:
+                        particulateflux_Ccarb: particulateflux_Ccarb
+       
+
+                reminoceanfloor:
+                    class: ReactionReminO2_SO4
+
+                    parameters:
+                                
+                    variable_links:
+                        # remin_Ccarb:      particulateflux_Ccarb  # handled by deepcarb
+
+                        O2_conc:          ocean.oceanfloor.O2_conc
+                        # SO4_delta:        ocean.oceanfloor.SO4_delta           
+
+                        soluteflux_*:     fluxOceanfloor.soluteflux_*
+
+                sfw:
+                    class:              ReactionSeafloorWeathering
+
+                    parameters:
+                        k_sfw                   : 3e12              # mol yr-1 rate normalisation
+                        f_sfw_force             : None          # tectonic forcing
+                        f_sfw_opt               : sfw_noT        # 
+                        sfw_distribution_method : Depth
+                        sfw_depthrange:          [-3000.0, -1000.0] # guess depth range to distribute sfw flux
+
+                transferparticulate_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$
+
+                transfersolute_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms
+       
+        sedcrust:
+            
+

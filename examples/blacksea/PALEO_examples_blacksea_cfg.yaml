@@ -1,0 +1,543 @@
+####################################
+# Abiotic atmosphere/ocean, O2 only
+# Bosphorus outflow is added back to oceansurface to form a closed system
+####################################
+blacksea_abiotic_O2:
+    parameters:
+        # CIsotope: ScalarData
+        matdir: ../romglb/romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+    domains:
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2"]
+
+        fluxBosphorusOutflow:
+            # scalar domain
+            reactions:
+                outflowtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        fluxlist: ["T", "O2"]
+                    
+        global:
+            # scalar domain
+            
+            reactions:
+                             
+        atm:
+            
+
+            reactions:
+                constant_pO2:
+                    class: ReactionConst
+
+                    parameters:
+                        constnames: ["pO2atm"]  
+                    variable_attributes:        
+                        pO2atm:initial_value:  [0.21]  # mol/mol
+
+        oceansurface:
+            reactions:
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston: 4.8 # m d-1
+
+                surface_insol:
+                    class: ReactionConst
+                    parameters:
+                        constnames: [surface_insol]
+                    variable_attributes: 
+                        surface_insol:initial_value: [350.0] # W m-2 downwelling radiative flux
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        # output_CO2:           ocean.oceansurface.DIC_sms
+
+                transfer_BosphorusOutflow:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Distribute
+                        input_fluxes:         fluxBosphorusOutflow.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+            
+        ocean:
+            reactions:
+                transportromblacksea:
+                    class: ReactionOceanTransportRomanielloICBM
+                    parameters:
+                        matdir: external%matdir
+                        circname: Black_Sea
+                        bosph_outflow: 6.04e11  # m^3 yr^-1
+                        bosph_inflow: 3.05e11
+                    variable_links:
+                        # the easy way to create a closed system: add back Bosphorus outflow to surface ocean
+                        # bosph_outflow_*: ocean.oceansurface.*_sms
+                        # source Bosphorus inflow from surface ocean to create closed system
+                        bosph_inflow_*_conc: ocean.oceansurface.*_conc
+                        bosph_inflow_*_sms: ocean.oceansurface.*_sms
+                    
+                reservoir_O2:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+                reservoir_T: # passive test tracer to check conservation
+                    class: ReactionReservoirTotal           
+                    variable_links:
+                        R*: T*
+                    variable_attributes:                      
+                        R:initial_value:        1.0  # concentration m-3
+
+                light:
+                    class: ReactionLightColumn
+                    parameters:
+                        background_opacity: 0.04
+
+
+        oceanfloor:               
+            reactions:
+
+#################################
+# Atmosphere/ocean, O2 and P only
+# Closed system (outflow -> surface box, and surface box -> inflow)
+#################################
+
+blacksea_P_O2:
+    parameters:
+        CIsotope: ScalarData
+        SIsotope: ScalarData
+        matdir: ../romglb/romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+    domains:
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2"]
+
+        fluxOceanfloor:
+            reactions:
+                particulatetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: ["Corg::CIsotope", "N", "P", "Ccarb::CIsotope"]
+                    
+                solutetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: ["DIC::CIsotope", "TAlk", "O2", "P"]
+
+        global:
+            # scalar domain
+            
+            reactions:
+                total_O2:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [ocean.O2]
+                    variable_links:
+                        sum: total_O2
+        atm:
+            
+
+            reactions:
+                constant_pO2:
+                    class: ReactionConst
+
+                    parameters:
+                        constnames: ["pO2atm"]  
+                    variable_attributes:        
+                        pO2atm:initial_value:  [0.21]  # mol/mol
+
+        oceansurface:
+            reactions:
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston: 4.8 # m d-1
+
+                surface_insol:
+                    class: ReactionConst
+                    parameters:
+                        constnames: [surface_insol]
+                    variable_attributes: 
+                        surface_insol:initial_value: [350.0] # W m-2 downwelling radiative flux
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        # output_CO2:           ocean.oceansurface.DIC_sms
+
+        ocean:
+            reactions:
+                transportromglb:
+                    class: ReactionOceanTransportRomanielloICBM
+                    parameters:
+                        matdir: external%matdir
+                        circname: Black_Sea
+                        bosph_outflow: 6.04e11  # m^3 yr^-1
+                        bosph_inflow: 3.05e11
+                    variable_links:
+                        # add back Bosphorus outflow to surface ocean to create a closed system
+                        bosph_outflow_*: ocean.oceansurface.*_sms
+                        # source Bosphorus inflow from surface ocean to create closed system
+                        bosph_inflow_*_conc: ocean.oceansurface.*_conc
+                        bosph_inflow_*_sms: ocean.oceansurface.*_sms
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal             
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+                reservoir_P:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:        2.208e-3  # concentration m-3 (1027 kg m-3 * 2.15e-6 mol/kg-sw)
+
+                reservoir_T: # passive test tracer to check conservation
+                    class: ReactionReservoirTotal           
+                    variable_links:
+                        R*: T*
+                    variable_attributes:                      
+                        R:initial_value:        1.0  # concentration m-3
+
+                light:
+                    class: ReactionLightColumn
+                    parameters:
+                        background_opacity: 0.0  # zero opacity as we just want to prescribe insol in surface boxes
+
+                bioprod:
+                    class: ReactionBioProdMMPop
+                    parameters:
+                        depthlimit:         -10.0   # surface cells only
+
+                        rCorgPO4:           106.0
+                        rNPO4:              16.0
+                        rCcarbCorg:         0.25
+                        rCcarbCorg_fixed:   true
+
+                        nuDOM:              0.0   # no DOM pool
+
+                        k_poptype:            Constant
+                        k_uPO4:             2.615e-3  # 1.91e-6 mol / kg-sw / yr * 1027 kg m-3 * 4/3
+
+                        k_nuttype:         PO4MM                        
+                        k_KPO4:             0.21567e-3 # 0.21e-6 mol / kg-sw * 1027 kg m-3
+
+                        k_lightlim:         linear       
+                        k_Irel:             1.0
+
+                    variable_links:
+                        partprod_*: export_*
+
+                biopump:
+                    class: ReactionExportDirectColumn
+
+                    parameters:
+                        fluxlist:           ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"]
+                        transportfloor:     true
+                        exportfunction:     SumExp
+                        input_frac:         [0.9354,    0.0646]    # 2-G model of Ridgwell & Hargreaves (2007)
+                        sumexp_scale:       [550.5195,  1e6]
+
+                reminocean:
+                    class: ReactionReminO2
+
+                    parameters:                        
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+
+        oceanfloor:               
+            reactions:
+                
+                reminoceanfloor:
+                    class: ReactionReminO2
+
+                    parameters:
+                                
+                    variable_links:
+                        remin*:           particulateflux*
+                        
+                        soluteflux_*:     fluxOceanfloor.soluteflux_*
+                       
+                transferparticulate_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$
+
+                transfersolute_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms
+       
+        sedcrust:
+            
+
+#################################
+# Atmosphere/ocean, O2, SO4/H2S and P only
+#################################
+
+blacksea_P_O2_SO4:
+    parameters:
+        CIsotope: ScalarData
+        SIsotope: ScalarData
+        matdir: ../romglb/romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+    domains:
+     
+        fluxAtmtoOceansurface:            
+            reactions:
+                fluxtarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        fluxlist: ["O2"]
+
+        fluxOceanfloor:
+            reactions:
+                particulatetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: particulateflux_
+                        fluxlist: ["Corg::CIsotope", "N", "P", "Ccarb::CIsotope"]
+                    
+                solutetarget:
+                    class: ReactionFluxTarget
+                    parameters:
+                        flux_totals: true
+                        target_prefix: soluteflux_
+                        fluxlist: ["O2", "P", "SO4", "H2S"]
+
+        
+
+        global:
+            # scalar domain
+            
+            reactions:
+                total_O2:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [ocean.O2_total]
+                    variable_links:
+                        sum: total_O2
+
+                total_S:
+                    class: ReactionSum
+                    parameters:
+                        vars_to_add: [ocean.SO4_total, ocean.H2S_total]
+                    variable_links:
+                        sum: total_S
+
+        atm:
+            
+
+            reactions:
+                constant_pO2:
+                    class: ReactionConst
+
+                    parameters:
+                        constnames: ["pO2atm"]  
+                    variable_attributes:        
+                        pO2atm:initial_value:  [0.21]  # mol/mol
+
+        oceansurface:
+            reactions:
+                airsea_O2:
+                    class: ReactionAirSeaO2
+                    parameters:
+                        piston: 4.8 # m d-1
+
+                surface_insol:
+                    class: ReactionConst
+                    parameters:
+                        constnames: [surface_insol]
+                    variable_attributes: 
+                        surface_insol:initial_value: [350.0] # W m-2 downwelling radiative flux
+
+                transfer_AtmtoOceansurface:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
+                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
+                    variable_links:                        
+                        # output_CO2:           ocean.oceansurface.DIC_sms
+
+        ocean:
+            reactions:
+                transportromglb:
+                    class: ReactionOceanTransportRomanielloICBM
+                    parameters:
+                        matdir: external%matdir
+                        circname: Black_Sea
+                        bosph_outflow: 6.04e11  # m^3 yr^-1
+                        bosph_inflow: 3.05e11
+                    variable_links:
+                        # add back Bosphorus outflow to surface ocean to create a closed system
+                        bosph_outflow_*: ocean.oceansurface.*_sms
+                        # source Bosphorus inflow from surface ocean to create closed system
+                        bosph_inflow_*_conc: ocean.oceansurface.*_conc
+                        bosph_inflow_*_sms: ocean.oceansurface.*_sms
+
+                reservoir_O2:
+                    class: ReactionReservoirTotal             
+                    variable_links:
+                        R*: O2*
+                    variable_attributes:                      
+                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
+
+                reservoir_SO4:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%SIsotope
+                    variable_links:
+                        R*: SO4*
+                    variable_attributes:                      
+                        R:initial_value:       28756.0e-3   # concentration mol m-3 = 28e-3 mol/kg * 1027 kg m-3
+                        R:norm_value:          1000.0e-3 # for scaling only
+
+                reservoir_H2S:
+                    class: ReactionReservoirTotal
+                    parameters:
+                        field_data: external%SIsotope
+                    variable_links:
+                        R*: H2S*
+                    variable_attributes:                      
+                        R:initial_value:       1e-6   # concentration mol m-3 ~ 1e-9 mol/kg * 1027 kg m-3
+                        R:norm_value:          1.0e-3 # for scaling only
+
+                reservoir_P:
+                    class: ReactionReservoirTotal               
+                    variable_links:
+                        R*: P*
+                    variable_attributes:                      
+                        R:initial_value:        2.208e-3  # concentration m-3 (1027 kg m-3 * 2.15e-6 mol/kg-sw)
+
+                reservoir_T: # passive test tracer to check conservation
+                    class: ReactionReservoirTotal           
+                    variable_links:
+                        R*: T*
+                    variable_attributes:                      
+                        R:initial_value:        1.0  # concentration m-3
+
+                light:
+                    class: ReactionLightColumn
+                    parameters:
+                        background_opacity: 0.0  # zero opacity as we just want to prescribe insol in surface boxes
+
+                bioprod:
+                    class: ReactionBioProdMMPop
+                    parameters:
+                        depthlimit:         -10.0   # surface cells only
+
+                        rCorgPO4:           106.0
+                        rNPO4:              16.0
+                        rCcarbCorg:         0.25
+                        rCcarbCorg_fixed:   true
+
+                        nuDOM:              0.0   # no DOM pool
+
+                        k_poptype:            Constant
+                        k_uPO4:             2.615e-3  # 1.91e-6 mol / kg-sw / yr * 1027 kg m-3 * 4/3
+
+                        k_nuttype:         PO4MM                        
+                        k_KPO4:             0.21567e-3 # 0.21e-6 mol / kg-sw * 1027 kg m-3
+
+                        k_lightlim:         linear       
+                        k_Irel:             1.0
+
+                    variable_links:
+                        partprod_*: export_*
+
+                biopump:
+                    class: ReactionExportDirectColumn
+
+                    parameters:
+                        fluxlist:           ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"]
+                        transportfloor:     true
+                        exportfunction:     SumExp
+                        input_frac:         [0.9354,    0.0646]    # 2-G model of Ridgwell & Hargreaves (2007)
+                        sumexp_scale:       [550.5195,  1e6]
+
+                reminocean:
+                    class: ReactionReminO2_SO4
+
+                    parameters:                        
+
+                    variable_links:
+                        soluteflux_*:   "*_sms"
+
+                redox_H2S_O2:
+                    class: ReactionRedoxH2S_O2
+
+                    parameters:                     
+                        R_H2S_O2: 3.65e3 # (mol m-3) yr-1
+
+
+        oceanfloor:               
+            reactions:
+                
+                reminoceanfloor:
+                    class: ReactionReminO2_SO4
+
+                    parameters:
+                                
+                    variable_links:
+                        remin*:           particulateflux*
+                        
+                        O2_conc:        ocean.oceanfloor.O2_conc
+                        
+                        soluteflux_*:     fluxOceanfloor.soluteflux_*
+
+                transferparticulate_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
+                        output_fluxes:        particulateflux_$fluxname$
+
+                transfersolute_fluxOceanfloor:
+                    class: ReactionFluxTransfer
+                    parameters:
+                        transfer_matrix:      Identity
+                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
+                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms
+       
+        sedcrust:
+            
+
+
+
