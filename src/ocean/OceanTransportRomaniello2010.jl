@@ -230,7 +230,7 @@ function PB.register_methods!(rj::ReactionOceanTransportRomanielloICBM)
     if rj.pars.set_temp[]
         tempvars = [
             PB.VarDepScalar("(global.TEMP)",            "K",        "global mean temperature"),
-            PB.VarProp("temp",                          "Kelvin",   "Ocean temperature"),
+            PB.VarProp("temp",                          "K",        "Ocean temperature"),
         ]
 
         PB.add_method_do!(

@@ -7,7 +7,7 @@ using Plots
 
 import PALEOboxes as PB
 import PALEOmodel
-import PALEOreactions
+import PALEOocean
 import PALEOcopse
 
 
@@ -16,14 +16,23 @@ global_logger(ConsoleLogger(stderr,Logging.Info))
 include("config_PTB3box_expts.jl")
 include("../ocean3box/plot_ocean_3box.jl")
 
-# model = config_PTB3box_expts("Co2HOmLWCpp", ["baseline"]); tspan=(-260e6,-240e6) # tspan=(-10e6,10e6) 
-# model = config_PTB3box_expts("Co2LOmHWC4pp", ["baseline"]); tspan=(-260e6,-240e6) # tspan=(-10e6,10e6) 
+# model = create_PTB3box_model("Co2HOmLWCpp", ["baseline"])
+# config_PTB3box_expts(model, ["baseline"])
+# tspan=(-260e6,-240e6) # tspan=(-10e6,10e6) 
+
+# model = create_PTB3box_model("Co2LOmHWC4pp")
+# config_PTB3box_expts(model, ["baseline"])
+# tspan=(-260e6,-240e6) # tspan=(-10e6,10e6) 
 
 # Clarkson etal (2015) CO2LO scenario
-model = config_PTB3box_expts("Co2LOmHWC4pp", ["Sw_2Ts", "Pp_PEes", "Lk_2", "Cia_s2", "Cib_1"]); tspan=(-260e6,-240e6) # tspan=(-10e6,10e6) 
+model = create_PTB3box_model("Co2LOmHWC4pp")
+config_PTB3box_expts(model, ["Sw_2Ts", "Pp_PEes", "Lk_2", "Cia_s2", "Cib_1"])
+tspan=(-260e6,-240e6) # tspan=(-10e6,10e6) 
 
 # Clarkson etal (2015) CO2LO + kill marine biota at EP2
-# model = config_PTB3box_expts("Co2LOmHWC4pp", ["Sw_2Ts", "Pp_PEes", "Lk_2", "Cia_s2", "Cib_1", "killbioEP2"]); tspan=(-260e6,-240e6)
+# model = create_PTB3box_model("Co2LOmHWC4pp")
+# config_PTB3box_expts(model, ["Sw_2Ts", "Pp_PEes", "Lk_2", "Cia_s2", "Cib_1", "killbioEP2"])
+# tspan=(-260e6,-240e6)
 
 
 initial_state, modeldata = PALEOmodel.initialize!(model)
@@ -63,7 +72,7 @@ PALEOmodel.ODE.integrateDAEForwardDiff(
 # assemble plots onto screens with 6 subplots
 gr(size=(1200, 900))
 
-pager=PALEOmodel.PlotPager((2, 3), (xlim=(-252.15e6, -251.80e6), xflip=true, legend_background_color=nothing, ))
+pager=PALEOmodel.PlotPager((2, 3), (xlim=(-252.15e6, -251.80e6), xflip=true, legend_background_color=nothing, margin=(5, :mm)))
 
 plot_totals(paleorun.output; species=["C", "TAlk", "TAlkerror", "S", "P"], pager=pager)
 plot_ocean_tracers(

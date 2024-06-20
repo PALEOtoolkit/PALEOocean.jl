@@ -65,7 +65,7 @@ PALEOmodel.ODE.integrateDAEForwardDiff(
 
 # assemble plots onto screens with 6 subplots
 gr(size=(1200, 900))
-pager=PALEOmodel.PlotPager((2, 3), (legend_background_color=nothing, ))
+pager=PALEOmodel.PlotPager((2, 3), (legend_background_color=nothing, margin=(5, :mm)))
 
 plot_totals(paleorun.output; species=["C", "TAlk", "TAlkerror", "O2", "S", "P"], pager=pager)
 plot_ocean_tracers(

@@ -13,7 +13,14 @@ The Matlab datafiles are available as a zip file from <https://github.com/PALEOt
 generated from the Matlab model code available as Supplementary Information to [Romaniello2010](@cite).
 
 The examples assume the zip file has been downloaded and unpacked to subfolder `../romglb/romaniello2010_transport`
-(NB: a subfolder of `romglb`, not this folder `blacksea`, as the zip file contains both global and Black sea data files)
+(NB: a subfolder of `romglb`, not this folder `blacksea`, as the zip file contains both global and Black sea data files).
+The script `download_data_files.jl` provides a function to do this:
+
+    include("../romglob/download_romaniello2010_files")
+
+    download_romaniello2010_files()  # download and unzip
+
+
 
 ## O2 only air-sea exchange and transport test
 

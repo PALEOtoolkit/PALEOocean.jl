@@ -1,7 +1,6 @@
 include("../atmreservoirreaction.jl") # temporary solution to make ReactionReservoirAtm available
 
-"test cases and examples for 3 box ocean"
-function config_PTB3box_expts(baseconfig, expts)
+function create_PTB3box_model(baseconfig)
 
     if  baseconfig=="Co2HOmLWCpp"
         # Clarkson (2014) CO2Hi
@@ -45,8 +44,14 @@ function config_PTB3box_expts(baseconfig, expts)
         error("unrecognized baseconfig='$(baseconfig)'")
     end
 
+    return model
+end
+
+"test cases and examples for 3 box ocean"
+function config_PTB3box_expts(model, expts)
+
     ###########################
-    # configure expt
+    # configure expts
     ############################
 
     for expt in expts        

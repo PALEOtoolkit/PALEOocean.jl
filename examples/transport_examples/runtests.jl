@@ -20,7 +20,7 @@ skipped_testsets = [
         joinpath(@__DIR__, "TransportExamples_cfg.yaml"), "example_advect"
     )
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
 
     # bodge an updated initial_state for testing
     ocean_T = PB.get_data(PB.get_variable(model, "ocean.T"), modeldata) # model data array for tracer T
@@ -54,7 +54,7 @@ end
         joinpath(@__DIR__, "TransportExamples_cfg.yaml"), "example_diffuse"
     )
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
 
     # bodge an updated initial_state for testing
     ocean_T = PB.get_data(PB.get_variable(model, "ocean.T"), modeldata) # model data array for tracer T

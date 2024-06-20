@@ -11,7 +11,12 @@ These examples require netcdf files defining an annual cycle of physical variabl
 
 The example configurations assume a zip file (available from <https://github.com/PALEOtoolkit/PALEOocean.jl/releases>)
 with an illustrative 80m deep seasonally-stratifying shelf
-(50N, Celtic sea) derived from the S2P3 model has been unpacked to subfolder `S2P3_transport_20240614`
+(50N, Celtic sea) derived from the S2P3 model has been unpacked to subfolder `S2P3_transport_20240614`,  the script
+`download_S2P3_files.jl` provides a function to do this:
+
+    include("download_S2P3_files")
+
+    download_romaniello_S2P3_files()  # download and unzip
 
 (this is collated output from the Windows 'Physics Biology Model' (s2p3.exe), http://pcwww.liv.ac.uk/~jons/model.htm
 see 'Introduction to the Physical and Biological Oceanography of Shelf Seas', Simpson & Sharples (2012), CUP)

@@ -27,7 +27,7 @@ configfile = joinpath(@__DIR__, "configocean3box.yaml")
 
     model = PB.create_model_from_config(configfile, "test_airsea_CO2")
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
 
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
     # DAE with ForwardDiff sparse Jacobian
@@ -82,7 +82,7 @@ end
     ocean_domain = PB.get_domain(model, "ocean")
     @test PB.get_length(ocean_domain) == 3    
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
 
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
@@ -156,7 +156,7 @@ end
     ocean_domain = PB.get_domain(model, "ocean")
     @test PB.get_length(ocean_domain) == 3
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
 
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
@@ -207,7 +207,7 @@ end
     ocean_domain = PB.get_domain(model, "ocean")
     @test PB.get_length(ocean_domain) == 3
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
 
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
@@ -275,7 +275,7 @@ end
     
     # test OceanBase variables
     
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
 
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 

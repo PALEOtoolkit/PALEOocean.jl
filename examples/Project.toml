@@ -2,6 +2,7 @@
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 Infiltrator = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
@@ -19,6 +20,7 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 Sundials = "c3572dad-4567-51f8-b174-8c6c989267f4"
 UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
+ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [compat]
 PALEOmodel = "0.15.8"

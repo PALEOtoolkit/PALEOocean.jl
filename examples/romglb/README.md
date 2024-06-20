@@ -12,7 +12,13 @@ These examples use `ReactionOceanTransportRomanielloICBM` to read Matlab data fi
 The Matlab datafiles are available as a zip file from <https://github.com/PALEOtoolkit/PALEOocean.jl/releases>,
 generated from the Matlab model code available as Supplementary Information to [Romaniello2010](@cite).
 
-The examples assume the zip file has been downloaded and unpacked to subfolder `romaniello2010_transport`
+The examples assume the zip file has been downloaded and unpacked to subfolder `romaniello2010_transport`, the script
+`download_romaniello2010_files.jl` provides a function to do this:
+
+    include("download_romaniello2010_files")
+
+    download_romaniello2010_files()  # download and unzip
+
 
 ## O2 only air-sea exchange and transport test
 
