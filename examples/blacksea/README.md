@@ -16,7 +16,7 @@ The examples assume the zip file has been downloaded and unpacked to subfolder `
 (NB: a subfolder of `romglb`, not this folder `blacksea`, as the zip file contains both global and Black sea data files).
 The script `download_data_files.jl` provides a function to do this:
 
-    include("../romglob/download_romaniello2010_files")
+    include("../romglob/download_romaniello2010_files.jl")
 
     download_romaniello2010_files()  # download and unzip
 
