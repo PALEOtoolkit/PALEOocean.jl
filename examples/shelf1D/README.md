@@ -14,7 +14,7 @@ with an illustrative 80m deep seasonally-stratifying shelf
 (50N, Celtic sea) derived from the S2P3 model has been unpacked to subfolder `S2P3_transport_20240614`,  the script
 `download_S2P3_files.jl` provides a function to do this:
 
-    include("download_S2P3_files")
+    include("download_S2P3_files.jl")
 
     download_romaniello_S2P3_files()  # download and unzip
 
