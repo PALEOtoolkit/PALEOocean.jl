@@ -729,12 +729,12 @@ function PB.register_dynamic_methods!(rj::ReactionSinkFloat)
 
     rj.var_rootnames = _find_sinkfloat_rootnames(rj.domain)
    
-    vars_conc = [PB.VarDep(rn*"_conc", "", "") for rn in rj.var_rootnames]
-    vars_sms = [PB.VarContrib(rn*"_sms", "", "") for rn in rj.var_rootnames]
-    vars_w = [PB.VarDep("("*rn*"_w)", "", "") for rn in rj.var_rootnames]
+    vars_conc = [PB.VarDep(rn*"_conc", "mol m-3", "") for rn in rj.var_rootnames]
+    vars_sms = [PB.VarContrib(rn*"_sms", "mol yr-1", "") for rn in rj.var_rootnames]
+    vars_w = [PB.VarDep("("*rn*"_w)", "m d-1", "") for rn in rj.var_rootnames]
     PB.setfrozen!(rj.pars.transportfloor)
     vars_fluxOceanfloor = if rj.pars.transportfloor[]
-        [PB.VarContrib("fluxOceanfloor.sinkflux_$(rn)", "", ""; attributes=(:check_length=>false,)) for rn in rj.var_rootnames] 
+        [PB.VarContrib("fluxOceanfloor.sinkflux_$(rn)", "mol yr-1", ""; attributes=(:check_length=>false,)) for rn in rj.var_rootnames] 
     else 
         []
     end
