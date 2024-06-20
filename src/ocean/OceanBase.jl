@@ -123,13 +123,13 @@ function find_transport_vars(
       
         # add local Variables to link to _conc and _sms (matching on name)
         # default :field_data to link to any ScalarData, IsotopeLinear etc
-        push!(sms_vars, PB.VarContrib(rootname*"_sms", "", ""))
-        push!(conc_vars, PB.VarDep(rootname*"_conc", "", ""))
+        push!(sms_vars, PB.VarContrib(rootname*"_sms", "mol yr-1", ""))
+        push!(conc_vars, PB.VarDep(rootname*"_conc", "mol m-3", ""))
     
         # optionally, calculate transport input into each cell
         # VarProp so need to set :field_data
         if add_transport_input_vars
-            push!(input_vars, PB.VarProp(rootname*"_transport_input", "", "", attributes=(:field_data=>PB.get_attribute(v, :field_data),)))
+            push!(input_vars, PB.VarProp(rootname*"_transport_input", "mol yr-1", "", attributes=(:field_data=>PB.get_attribute(v, :field_data),)))
         end
 
         # count components
