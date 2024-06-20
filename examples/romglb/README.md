@@ -15,7 +15,7 @@ generated from the Matlab model code available as Supplementary Information to [
 The examples assume the zip file has been downloaded and unpacked to subfolder `romaniello2010_transport`, the script
 `download_romaniello2010_files.jl` provides a function to do this:
 
-    include("download_romaniello2010_files")
+    include("download_romaniello2010_files.jl")
 
     download_romaniello2010_files()  # download and unzip
 
