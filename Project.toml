@@ -39,6 +39,7 @@ SnoopPrecompile = "1.0"
 SpecialFunctions = "1.0, 2.0"
 Sundials = "4.0"
 TestEnv = "1.0"
+ZipFile = "0.10"
 julia = "1.6"
 
 [extras]
@@ -51,6 +52,7 @@ PALEOmodel = "bf7b4fbe-ccb1-42c5-83c2-e6e9378b660c"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Sundials = "c3572dad-4567-51f8-b174-8c6c989267f4"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [targets]
 test = ["DataFrames", "DiffEqBase", "Documenter", "Logging", "PALEOcopse", "PALEOmodel", "Plots", "Sundials", "Test"]
