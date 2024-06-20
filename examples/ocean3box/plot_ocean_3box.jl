@@ -14,7 +14,7 @@ function plot_totals(
         pager(plot(title="Total TAlk", output, ["ocean.TAlk_total"], ylabel="TAlk (mol)",))
     end
     if "TAlkerror" in species
-        pager(plot(title="Ocean TAlk error", output, ["ocean.pHfree_constraint"], (cell=[:s, :h, :d], ), ylabel="TAlk error (mol)",))
+        pager(plot(title="Ocean TAlk error", output, ["ocean.TAlk_constraint"], (cell=[:s, :h, :d], ), ylabel="TAlk error (mol)",))
     end
     if "P" in species
         pager(plot(title="Total P", output, ["ocean.P_total"], ylabel="P (mol)",))

@@ -73,7 +73,7 @@ colT=collect(range(tspan[1], stop=tspan[end], step=0.5))
 
 # assemble plots onto screens with 6 subplots
 gr(size=(1600, 900))
-pager=PALEOmodel.PlotPager((2, 3), (legend_background_color=nothing, ))
+pager=PALEOmodel.PlotPager((2, 3), (legend_background_color=nothing, margin=(5, :mm)))
 
 plot_shelf_phys(paleorun.output; pager=pager)
 plot_totals_S(paleorun.output; pager=pager)

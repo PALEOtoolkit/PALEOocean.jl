@@ -427,7 +427,7 @@ romglb_P_O2_open:
                 transportromglb:
                     class: ReactionOceanTransportRomanielloICBM
                     parameters:
-                        matdir: romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+                        matdir: external%matdir  # folder with data files from Romaniello (2010) GGG
                         circname: Global_79_Box
 
                 reservoir_O2:
@@ -749,7 +749,7 @@ romglb_P_O2_S_Carb_open:
                 transportromglb:
                     class: ReactionOceanTransportRomanielloICBM
                     parameters:
-                        matdir: romaniello2010_transport  # folder with data files from Romaniello (2010) GGG
+                        matdir: external%matdir  # folder with data files from Romaniello (2010) GGG
                         circname: Global_79_Box
 
                 reservoir_O2:

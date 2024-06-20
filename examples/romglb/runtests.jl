@@ -8,6 +8,7 @@ import PALEOboxes as PB
 
 import PALEOocean
 import PALEOmodel
+import PALEOcopse
 
 
 @testset "romglb examples" begin
@@ -20,6 +21,11 @@ skipped_testsets = [
 ]
 
 matdir = joinpath(@__DIR__, "romaniello2010_transport") # assume zip file has been downloaded and unpacked in this subfolder
+
+if !isdir(matdir)
+    include("download_romaniello2010_files.jl")
+    download_romaniello2010_files()
+end
 
 include("../atmreservoirreaction.jl")
 include("SedimentationRate_dev.jl")
@@ -36,7 +42,7 @@ include("config_ocean_romglb_expts.jl")
     )
     tspan=(0,1e5)
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
     PALEOmodel.ODE.integrateForwardDiff(
@@ -76,7 +82,7 @@ end
     )
     tspan=(0,1e5)
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
     PALEOmodel.ODE.integrateForwardDiff(
@@ -112,7 +118,7 @@ end
     model = PB.create_model_from_config(
         joinpath(@__DIR__, "PALEO_examples_romglb_cfg.yaml"), "romglb_P_O2_S_Carb_open";
         modelpars=Dict(
-            "matdir"=>joinpath(@__DIR__, "romaniello2010_transport"), # assume zip file has been downloaded and unpacked in this subfolder
+            "matdir"=>matdir, # assume zip file has been downloaded and unpacked in this subfolder
             # Option 1: add pHfree, TAlk to state variables and apply constraint on TAlk      
             "TAlkStateExplicit"=>true,
             # Option 2: TAlk is an implicit variable, pHfree is a state variable
@@ -130,11 +136,11 @@ end
 
     tspan=(0,1e5)
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
-    run = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
+    paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
     PALEOmodel.ODE.integrateDAEForwardDiff(
-        run, initial_state, modeldata, tspan, 
+        paleorun, initial_state, modeldata, tspan, 
         solvekwargs=(reltol=1e-6,)
         # solvekwargs=(reltol=1e-5,)
     )
@@ -167,7 +173,7 @@ end
     model = PB.create_model_from_config(
         joinpath(@__DIR__, "PALEO_examples_romglb_cfg.yaml"), "romglb_P_O2_S_Carb_open";
         modelpars=Dict(
-            "matdir"=>joinpath(@__DIR__, "romaniello2010_transport"), # assume zip file has been downloaded and unpacked in this subfolder
+            "matdir"=>matdir, # assume zip file has been downloaded and unpacked in this subfolder
             # Option 1: add pHfree, TAlk to state variables and apply constraint on TAlk      
             # "TAlkStateExplicit"=>true,
             # Option 2: TAlk is an implicit variable, pHfree is a state variable
@@ -185,11 +191,11 @@ end
 
     tspan=(0,1e5)
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
-    run = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
+    paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
     PALEOmodel.ODE.integrateDAEForwardDiff(
-        run, initial_state, modeldata, tspan, solvekwargs=(reltol=1e-5,)
+        paleorun, initial_state, modeldata, tspan, solvekwargs=(reltol=1e-5,)
     )
 
     println("check values at end of run:")
@@ -201,7 +207,7 @@ end
         ("fluxOceanBurial", "flux_total_Ccarb", 2.3240e13,      1e-4),
     ]    
     for (domname, varname, checkval, rtol) in checkvals
-        outputval = PB.get_data(run.output, domname*"."*varname)[end]
+        outputval = PB.get_data(paleorun.output, domname*"."*varname)[end]
         println("  check $domname.$varname $outputval $checkval $rtol")
         @test isapprox(outputval, checkval, rtol=rtol)
     end

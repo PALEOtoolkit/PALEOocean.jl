@@ -52,7 +52,7 @@ PALEOmodel.ODE.integrateForwardDiff(
 
 # assemble plots onto screens with 6 subplots
 gr(size=(1200, 900))
-pager=PALEOmodel.PlotPager((2, 3), (legend_background_color=nothing, ))
+pager=PALEOmodel.PlotPager((2, 3), (legend_background_color=nothing, margin=(5, :mm)))
 
 # total
 pager(plot(title="Total T", paleorun.output, ["ocean.T_total"]; ylabel="T (mol)",))
@@ -69,7 +69,7 @@ end
 pager(:newpage)
 
 # heatmaps vs time
-pager=PALEOmodel.PlotPager((2, 1), (legend_background_color=nothing, ))
+pager=PALEOmodel.PlotPager((2, 1), (legend_background_color=nothing, margin=(5, :mm)))
 for col in columns
     pager(
         heatmap(title="Ocean T_conc column :$col", paleorun.output, "ocean.T_conc", (column=col,);

@@ -20,6 +20,12 @@ skipped_testsets = [
 
 matdir = joinpath(@__DIR__, "../romglb/romaniello2010_transport") # assume zip file has been downloaded and unpacked in this subfolder
 
+
+if !isdir(matdir)
+    include("../romglb/download_romaniello2010_files.jl")
+    download_romaniello2010_files()
+end
+
 include("config_ocean_blacksea_expts.jl")
 
 
@@ -34,7 +40,7 @@ include("config_ocean_blacksea_expts.jl")
 
     tspan=(0, 1e5)
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
     PALEOmodel.ODE.integrateForwardDiff(
@@ -73,7 +79,7 @@ end
 
     tspan=(0, 1e5)
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
     paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
 
     PALEOmodel.ODE.integrateForwardDiff(

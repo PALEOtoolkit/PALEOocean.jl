@@ -22,10 +22,11 @@ skipped_testsets = [
     include("config_PTB3box_expts.jl")
 
     # Clarkson etal (2015) CO2LO scenario
-    model = config_PTB3box_expts("Co2LOmHWC4pp", ["Sw_2Ts", "Pp_PEes", "Lk_2", "Cia_s2", "Cib_1"])
+    model = create_PTB3box_model("Co2LOmHWC4pp")
+    config_PTB3box_expts(model, ["Sw_2Ts", "Pp_PEes", "Lk_2", "Cia_s2", "Cib_1"])
     tspan=(-260e6, -251.88e6) # stop just after second C pulse # (-260e6,-240e6) 
 
-    initial_state, modeldata = PALEOmodel.initialize!(model)
+    initial_state, modeldata = PALEOmodel.initialize!(model; check_units_opt=:error)
     paleorun = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
 
     sol = PALEOmodel.ODE.integrateDAEForwardDiff(

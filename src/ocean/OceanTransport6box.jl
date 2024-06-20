@@ -143,7 +143,7 @@ function PB.register_methods!(rj::ReactionOceanTransport6box)
 
     tempvars = [
         PB.VarDepScalar("(global.TEMP)",            "K",        "global mean temperature"),
-        PB.VarProp("temp",                          "Kelvin",   "Ocean temperature"),
+        PB.VarProp("temp",                          "K",        "Ocean temperature"),
     ]
 
     PB.add_method_do!(

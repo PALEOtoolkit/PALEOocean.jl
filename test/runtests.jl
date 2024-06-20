@@ -21,6 +21,10 @@ include("../examples/ocean3box/runtests.jl")
 
 include("../examples/PTBClarkson2014/runtests.jl")
 
+include("../examples/romglb/runtests.jl")
+
+include("../examples/blacksea/runtests.jl")
+
 end
 
 doctest(PALEOocean; manual=false)  

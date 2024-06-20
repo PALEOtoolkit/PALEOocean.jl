@@ -89,7 +89,7 @@ println()
 
 # multiple plots per screen
 gr(size=(1200, 900))
-pager = PALEOmodel.PlotPager((2,2), (legend_background_color=nothing, ))
+pager = PALEOmodel.PlotPager((2,2), (legend_background_color=nothing, margin=(5, :mm)))
 
 plot_forcings(paleorun.output, pager=pager)
 pager(:newpage)
