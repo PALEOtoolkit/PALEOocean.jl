@@ -3,6 +3,8 @@ using Logging
 using DiffEqBase
 using Sundials
 import DataFrames
+import SparseArrays
+import SparseDiffTools
 
 import PALEOboxes as PB
 
@@ -14,6 +16,7 @@ import PALEOcopse
 @testset "romglb examples" begin
 
 skipped_testsets = [
+    # "airsea_O2",
     # "O2_only", 
     # "P_O2",
     # "P_O2_S_Carb_open",
@@ -31,6 +34,81 @@ include("../atmreservoirreaction.jl")
 include("SedimentationRate_dev.jl")
 
 include("config_ocean_romglb_expts.jl")
+
+!("airsea_O2" in skipped_testsets) && @testset "airsea_O2" begin
+
+    model = PB.create_model_from_config(
+        joinpath(@__DIR__, "PALEO_examples_romglb_cfg.yaml"), "romglb_abiotic_O2";
+        modelpars=Dict(
+            "matdir"=>matdir,
+        )
+    )
+
+    # Test OceanBase domain configuration
+    @test PB.get_num_domains(model) == 6
+
+    global_domain = PB.get_domain(model, "global")
+    @test PB.get_length(global_domain) == 1
+
+    ocean_domain = PB.get_domain(model, "ocean")
+    @test PB.get_length(ocean_domain) == 79
+
+    
+    # test OceanBase variables
+
+    initial_state, modeldata = PALEOmodel.initialize!(model)
+
+    ocean_modelcreated_vars_dict = Dict([(var.name, var) for var in PB.get_variables(ocean_domain, hostdep=false)])
+    
+    println("ocean  model created variables after initialize!:")
+    for (name, var ) in ocean_modelcreated_vars_dict
+        println("\t", PB.fullname(var), " = ", PB.get_data(var, modeldata))
+    end
+
+    # bodge a test for ocean tracer with single non-zero cell
+    ocean_T_data = PB.get_data(PB.get_variable(ocean_domain,"T"), modeldata)
+    ocean_T_data .= 0.0
+    ocean_T_data[1] = 1.0
+    # update initial_state with our bodged values
+    initial_state = PALEOmodel.get_statevar(modeldata.solver_view_all)
+     
+    # Check model derivative
+    
+    PB.do_deriv(modeldata.dispatchlists_all)
+
+    println("state, sms variables after check model derivative:")
+    for (state_var, sms_var) in PB.IteratorUtils.zipstrict(PB.get_vars(modeldata.solver_view_all.stateexplicit), 
+                                    PB.get_vars(modeldata.solver_view_all.stateexplicit_deriv))
+        println(PB.fullname(state_var), " ", PB.get_data(state_var, modeldata))
+        println(PB.fullname(sms_var), " ", PB.get_data(sms_var, modeldata))
+    end
+
+    # check conservation
+    ocean_T_sms_data = PB.get_data(PB.get_variable(ocean_domain,"T_sms"), modeldata)
+    sum_T_sms = sum(ocean_T_sms_data)
+    println("check conservation: sum(Tracer_sms)=",sum_T_sms)
+    @test abs(sum_T_sms) < 1e-15
+
+    # check jacobian sparsity calculation
+    jac_prototype = PALEOmodel.JacobianAD.calcJacobianSparsitySparsityTracing!(model, modeldata, initial_state, 0.0)
+    @test SparseArrays.nnz(jac_prototype) == 819
+    jac_proto_fill = PALEOmodel.SparseUtils.fill_sparse_jac(jac_prototype)
+    colors = SparseDiffTools.matrix_colors(copy(jac_proto_fill))
+    @test maximum(colors) == 23  
+
+    # integrate to approx steady state
+    paleorun = PALEOmodel.Run(model=model, output = PALEOmodel.OutputWriters.OutputMemory())
+    PALEOmodel.ODE.integrateForwardDiff(paleorun, initial_state, modeldata, (0, 1e5), solvekwargs=(reltol=1e-5,))  # first run includes JIT time
+    
+    # check conservation
+    T_total = PB.get_data(paleorun.output, "ocean.T_total")
+    @test abs(T_total[1] - 1.0) < 1e-16
+    @test abs(T_total[end] - T_total[1]) < 1e-4
+
+    total_O2 = PB.get_data(paleorun.output, "global.total_O2")
+    @test abs(total_O2[end] - total_O2[1]) < 1e-7*total_O2[1]
+
+end
 
 !("O2_only" in skipped_testsets) && @testset "O2_only" begin
 
@@ -216,3 +294,5 @@ end
 
 
 end
+
+nothing # so no output printed when run from REPL
