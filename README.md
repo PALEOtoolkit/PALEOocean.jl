@@ -3,14 +3,14 @@
 [![CI](https://github.com/PALEOtoolkit/PALEOocean.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/PALEOtoolkit/PALEOocean.jl/actions/workflows/CI.yml)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PALEOtoolkit.github.io/PALEOocean.jl/dev)
 
-Ocean components for the [PALEOtoolkit](https://github.com/PALEOtoolkit) biogeochemical model framework.
-
-The PALEOocean package provides:
+The PALEOocean Julia package provides:
 - a catalog of ocean circulation models, including low-dimensional box models and GCM transport-matrix representations of the global ocean at resolutions up to 1 deg.
 - air-sea exchange
 - vertical tracer and light transport
 - biological production
 - parameterisations of burial fluxes
+
+It can be used to create standalone ocean models, or combined with other components in the [PALEOtoolkit](https://github.com/PALEOtoolkit) biogeochemical model framework to create coupled Earth and exo-Earth system models.
 
 ## Documentation
 
