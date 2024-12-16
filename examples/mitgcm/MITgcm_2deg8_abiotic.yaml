@@ -1,7 +1,8 @@
 # MITgcm 2.8deg O2-only atmosphere-ocean test configuration
 abiotic_O2:
     parameters:
-        CIsotope: ScalarData  
+        CIsotope: ScalarData
+        threadsafe: false 
     domains:
         global:
             # scalar domain

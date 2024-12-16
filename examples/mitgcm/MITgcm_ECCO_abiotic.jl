@@ -13,7 +13,11 @@ include("plot_mitgcm.jl")
 use_threads = true
 do_benchmarks = false
 
-model = config_mitgcm_expts("PO4MMbaseECCO", ""); toutputs_relative = [0.0, 1.0, 10.0, 100.0]
+model = PB.create_model_from_config(
+    joinpath(@__DIR__, "MITgcm_ECCO_COPDOM.yaml"), "PO4MMbase";
+    modelpars=Dict("threadsafe"=>use_threads),
+)
+toutputs_relative = [0.0, 1.0, 10.0, 100.0]
 
 transportMITgcm = PB.get_reaction(model, "ocean", "transportMITgcm")
 tstep = transportMITgcm.par_Aimp_deltat[]/PB.Constants.k_secpyr
@@ -25,17 +29,27 @@ num_segments = 20
 outfile_root = "MITgcm_PO4MMbaseECCO_100yr_20210130"
 
 toutputs=[]
+
+if use_threads
+    method_barrier = PB.reaction_method_thread_barrier(
+        PALEOmodel.ThreadBarriers.ThreadBarrierAtomic("the barrier"),
+        PALEOmodel.ThreadBarriers.wait_barrier
+    )
+else
+    method_barrier = nothing
+end
+
 for iseg in 1:num_segments
 # for iseg in 13:num_segments
     if iseg > 1
         pickup_filename = build_outfilename(outfile_root, iseg-1)
-        pickup_output = PALEOmodel.OutputWriters.load_jld2!(PALEOmodel.OutputWriters.OutputMemory(), pickup_filename)
+        pickup_output = PALEOmodel.OutputWriters.load_netcdf!(PALEOmodel.OutputWriters.OutputMemory(), pickup_filename)
         tstart = PB.get_data(pickup_output, "ocean.tmodel")[end]
     else
         pickup_output = nothing
         tstart = 0.0
     end
-    initial_state, modeldata = PALEOmodel.initialize!(model, threadsafe=use_threads, pickup_output=pickup_output)  
+    initial_state, modeldata = PALEOmodel.initialize!(model; method_barrier, pickup_output)  
     pickup_output = nothing
 
     toutputs = toutputs_relative .+ tstart
@@ -59,7 +73,7 @@ for iseg in 1:num_segments
     end
 
     output_filename = build_outfilename(outfile_root, iseg)
-    PALEOmodel.OutputWriters.save_jld2(paleorun.output, output_filename)
+    PALEOmodel.OutputWriters.save_netcdf(paleorun.output, output_filename)
 end
 
 
