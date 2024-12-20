@@ -14,7 +14,8 @@ use_threads = false
 
 
 model = PB.create_model_from_config(
-    joinpath(@__DIR__, "MITgcm_2deg8_abiotic.yaml"), "abiotic_O2"
+    joinpath(@__DIR__, "MITgcm_2deg8_abiotic.yaml"), "abiotic_O2";
+    modelpars=Dict("threadsafe"=>use_threads),
 )
 
 toutputs_relative = [0, 0.25, 0.5, 0.75, 1.0] #, 10.0]
@@ -31,11 +32,20 @@ outfile_root = ""
 
 toutputs = []
 
+if use_threads
+    method_barrier = PB.reaction_method_thread_barrier(
+        PALEOmodel.ThreadBarriers.ThreadBarrierAtomic("the barrier"),
+        PALEOmodel.ThreadBarriers.wait_barrier
+    )
+else
+    method_barrier = nothing
+end
+
 for iseg in 1:num_segments
     if iseg > 1
         !isempty(outfile_root) || error("outfile_root is empty")
         pickup_filename = build_outfilename(outfile_root, iseg-1)
-        pickup_output = PALEOmodel.OutputWriters.load_jld2!(PALEOmodel.OutputWriters.OutputMemory(), pickup_filename)
+        pickup_output = PALEOmodel.OutputWriters.load_netcdf!(PALEOmodel.OutputWriters.OutputMemory(), pickup_filename)
        
         tstart = PB.get_data(pickup_output, "ocean.tmodel")[end] 
     
@@ -48,7 +58,7 @@ for iseg in 1:num_segments
     global modeldata
     global toutputs
 
-    initial_state, modeldata = PALEOmodel.initialize!(model, threadsafe=use_threads, pickup_output=pickup_output) 
+    initial_state, modeldata = PALEOmodel.initialize!(model; method_barrier, pickup_output) 
     pickup_output = nothing
 
     toutputs = toutputs_relative .+ tstart
@@ -72,7 +82,7 @@ for iseg in 1:num_segments
 
     if !isempty(outfile_root)
         output_filename = build_outfilename(outfile_root, iseg)
-        PALEOmodel.OutputWriters.save_jld2(paleorun.output, output_filename)
+        PALEOmodel.OutputWriters.save_netcdf(paleorun.output, output_filename)
     end
 end
 

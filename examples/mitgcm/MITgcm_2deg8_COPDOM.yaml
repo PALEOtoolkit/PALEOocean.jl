@@ -3,6 +3,7 @@ PO4MMbase:
     parameters:
         CIsotope: ScalarData 
         SIsotope: ScalarData  
+        threadsafe: false
     domains:
         global:
             # scalar domain
@@ -285,6 +286,7 @@ PO4MMcarbSCH4:
     parameters:
         CIsotope: IsotopeLinear # ScalarData
         SIsotope: IsotopeLinear
+        threadsafe: false
 
     domains:
         global:

@@ -4,7 +4,8 @@
 PO4MMbase:
     parameters:
         CIsotope: ScalarData 
-        SIsotope: ScalarData  
+        SIsotope: ScalarData
+        threadsafe: false 
     domains:
         global:
             # scalar domain
