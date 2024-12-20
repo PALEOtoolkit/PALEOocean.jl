@@ -420,19 +420,43 @@ shelf1D_P_O2_S_CH4_sed:
                 bioratesed:
                     class: ReactionSedimentBioRates
 
-                transportsed:
-                    class: ReactionSedimentTransport
+                # transportsed:
+                #     class: ReactionSedimentTransport
+                #     parameters:
+                #         L:                             0.15  # 0.15m column with 60 bins
+                #         ncellspercol:                  60
+                #         f_grid:                         quadratic
+                #         grid_eta:                       0.075
+                #         zdbl:                           0.04e-2  # diffusive boundary layer at sediment-water interface
+                #     variable_links:
+                #         oceanfloor_temp:  ocean.oceanfloor.temp
+                #         oceanfloor_sal:  ocean.oceanfloor.sal
+                #         oceanfloor_*_conc:  ocean.oceanfloor.*_conc
+
+                gridsed:
+                    class: ReactionSedimentGridn1D
                     parameters:
-                        L:                             0.15  # 0.15m column with 60 bins
+                        L:                             0.15  # 0.15m column
                         ncellspercol:                  60
-                        f_grid:                         quadratic
-                        grid_eta:                       0.075
-                        zdbl:                           0.04e-2  # diffusive boundary layer at sediment-water interface
+                        f_grid:                        quadratic
+                        grid_eta:                      0.075
+                        
+                physsed:
+                    class: ReactionSedimentPhys
+
                     variable_links:
                         oceanfloor_temp:  ocean.oceanfloor.temp
                         oceanfloor_sal:  ocean.oceanfloor.sal
-                        oceanfloor_*_conc:  ocean.oceanfloor.*_conc
-                        
+
+                transportsedsolid:
+                    class: ReactionSedimentTransportSolid
+
+                transportsedsolute:
+                    class: ReactionSedimentTransportSolute
+                    parameters:                        
+                        zdbl:                           0.04e-2  # diffusive boundary layer at sediment-water interface
+                    variable_links:
+                        oceanfloor_*_conc:  ocean.oceanfloor.*_conc    
                        
                 reservoir_O2:
                     class: ReactionReservoirTotal            
