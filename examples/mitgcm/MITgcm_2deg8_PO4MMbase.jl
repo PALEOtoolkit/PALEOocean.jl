@@ -17,7 +17,8 @@ n_inner = 2
 # model = config_mitgcm_expts("PO4MMbase", ""); toutputs = [0.0, 1.0, 10.0, 100.0, 995,0, 1000.0, 1999.5, 2000.0, 2999.5, 3000.0] #, 1000.0, 1000.5]
 
 model = PB.create_model_from_config(
-    joinpath(@__DIR__, "MITgcm_2deg8_COPDOM.yaml"), "PO4MMbase"
+    joinpath(@__DIR__, "MITgcm_2deg8_COPDOM.yaml"), "PO4MMbase";
+    modelpars=Dict("threadsafe"=>use_threads),
 )
 
 toutputs = [0.0, 0.25, 0.5, 0.75, 1.0, 10.0] 
@@ -30,8 +31,17 @@ tstep_imp = transportMITgcm.pars.Aimp_deltat[]/PB.Constants.k_secpyr
 output_filename = ""
 # output_filename = "MITgcm_PO4MMbase2deg8_3000yr_20210202"
 
+if use_threads
+    method_barrier = PB.reaction_method_thread_barrier(
+        PALEOmodel.ThreadBarriers.ThreadBarrierAtomic("the barrier"),
+        PALEOmodel.ThreadBarriers.wait_barrier
+    )
+else
+    method_barrier = nothing
+end
+
 pickup_output = nothing
-initial_state, modeldata = PALEOmodel.initialize!(model, threadsafe=use_threads, pickup_output=pickup_output)  
+initial_state, modeldata = PALEOmodel.initialize!(model; method_barrier, pickup_output)  
 pickup_output = nothing
 
 paleorun = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
@@ -74,7 +84,7 @@ else
 end
 
 
-isempty(output_filename) || PALEOmodel.OutputWriters.save_jld2(paleorun.output, output_filename)
+isempty(output_filename) || PALEOmodel.OutputWriters.save_netcdf(paleorun.output, output_filename)
 
 
 show(PB.show_variables(paleorun.model), allrows=true)

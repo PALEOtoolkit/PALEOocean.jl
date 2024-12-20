@@ -14,7 +14,8 @@ use_threads = true
 do_benchmarks = false
 
 model = PB.create_model_from_config(
-    joinpath(@__DIR__, "MITgcm_ECCO_COPDOM.yaml"), "PO4MMbase"
+    joinpath(@__DIR__, "MITgcm_ECCO_COPDOM.yaml"), "PO4MMbase";
+    modelpars=Dict("threadsafe"=>use_threads),
 )
 
 toutputs = [0.0, 1.0] # , 10.0, 100.0]
@@ -27,8 +28,17 @@ transportMITgcm = nothing
 
 output_filename = ""
 
+if use_threads
+    method_barrier = PB.reaction_method_thread_barrier(
+        PALEOmodel.ThreadBarriers.ThreadBarrierAtomic("the barrier"),
+        PALEOmodel.ThreadBarriers.wait_barrier
+    )
+else
+    method_barrier = nothing
+end
+
 pickup_output = nothing
-initial_state, modeldata = PALEOmodel.initialize!(model, threadsafe=use_threads, pickup_output=pickup_output)  
+initial_state, modeldata = PALEOmodel.initialize!(model; method_barrier, pickup_output)  
 pickup_output = nothing
 
 paleorun = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
@@ -70,7 +80,7 @@ else
     @time PALEOmodel.ODEfixed.integrateEulerthreads(paleorun, initial_state, modeldata, cellranges, toutputs , tstep)
 end
 
-isempty(output_filename) || PALEOmodel.OutputWriters.save_jld2(paleorun.output, output_filename)
+isempty(output_filename) || PALEOmodel.OutputWriters.save_netcdf(paleorun.output, output_filename)
 
 
 show(PB.show_variables(paleorun.model), allrows=true)

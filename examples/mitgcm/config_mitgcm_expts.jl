@@ -8,38 +8,6 @@ using Printf
 include("../atmreservoirreaction.jl") # temporary solution to make ReactionReservoirAtm available
 
 
-function config_mitgcm_expts(baseconfig, expt, extrapars=Dict())
-
-
-    if baseconfig == "abiotic_O2"
-
-        model = PB.create_model_from_config(
-            joinpath(@__DIR__, "MITgcm_2deg8_abiotic.yaml"), "abiotic_O2", modelpars=extrapars)
-
-    elseif baseconfig == "PO4MMbase"
-
-            model = PB.create_model_from_config(
-                joinpath(@__DIR__, "MITgcm_2deg8_COPDOM.yaml"), "PO4MMbase", modelpars=extrapars)
-    
-    elseif baseconfig == "PO4MMbaseECCO"
-
-            model = PB.create_model_from_config(
-                joinpath(@__DIR__, "MITgcm_ECCO_COPDOM.yaml"), "PO4MMbase", modelpars=extrapars)
-
-    elseif baseconfig == "PO4MMcarbSCH4"
-            model = PB.create_model_from_config(
-                    joinpath(@__DIR__, "MITgcm_2deg8_COPDOM.yaml"), "PO4MMcarbSCH4", modelpars=extrapars)
-        
-    else
-        error("unrecognized baseconfig='$(baseconfig)'")
-    end
-
-    return model
-end
-
-
-
-
 function build_outfilename(outfileroot, segment_number)
     return outfileroot*@sprintf("_%04i", segment_number)
 end

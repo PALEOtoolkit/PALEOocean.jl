@@ -11,11 +11,23 @@ include("config_mitgcm_expts.jl")
 
 use_threads = true
 
-# model = config_mitgcm_expts("abiotic_O2", ""); toutputs = [0, 0.25, 0.5, 0.75, 1.0] #, 10.0]
+# model = PB.create_model_from_config(
+#     joinpath(@__DIR__, "MITgcm_2deg8_abiotic.yaml"), "abiotic_O2"
+# )
+# toutputs = [0, 0.25, 0.5, 0.75, 1.0] #, 10.0]
 
-# model = config_mitgcm_expts("PO4MMbase", ""); toutputs = [0, 0.25, 0.5, 0.75, 1.0] #, 10.0, 99.5, 100.0] #, 1000.0, 1000.5]
 
-model = config_mitgcm_expts("PO4MMcarbSCH4", ""); toutputs = [0, 1.0] # , 10.0, 100.0, 1000.0, 1999.5, 2000.0, 2999.5, 3000.0]
+# model = PB.create_model_from_config(
+#     joinpath(@__DIR__, "MITgcm_2deg8_COPDOM.yaml"), "PO4MMbase"
+# )
+# toutputs = [0, 0.25, 0.5, 0.75, 1.0] #, 10.0, 99.5, 100.0] #, 1000.0, 1000.5]
+
+
+model = PB.create_model_from_config(
+    joinpath(@__DIR__, "MITgcm_2deg8_COPDOM.yaml"), "PO4MMcarbSCH4";
+    modelpars=Dict("threadsafe"=>use_threads),
+)
+toutputs = [0, 1.0] # , 10.0, 100.0, 1000.0, 1999.5, 2000.0, 2999.5, 3000.0]
 # start with low oxygen to test marine sulphur system
 PB.set_variable_attribute!(model, "atm", "O2", :initial_value, 0.1*3.71e19)
 PB.set_variable_attribute!(model, "ocean", "O2", :initial_value, 0.1*0.2054)
@@ -26,8 +38,16 @@ tstep = transportMITgcm.par_Aimp_deltat[]/PB.Constants.k_secpyr
 
 @info "using tstep=$tstep yr"
 
+if use_threads
+    method_barrier = PB.reaction_method_thread_barrier(
+        PALEOmodel.ThreadBarriers.ThreadBarrierAtomic("the barrier"),
+        PALEOmodel.ThreadBarriers.wait_barrier
+    )
+else
+    method_barrier = nothing
+end
 
-initial_state, modeldata = PALEOmodel.initialize!(model, threadsafe=use_threads)  
+initial_state, modeldata = PALEOmodel.initialize!(model; method_barrier)  
     
 run = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
 
