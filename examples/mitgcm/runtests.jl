@@ -20,19 +20,24 @@ skipped_testsets = [
     include("config_mitgcm_expts.jl")
 
     model = PB.create_model_from_config(
-        joinpath(@__DIR__, "MITgcm_2deg8_COPDOM.yaml"), "PO4MMbase"
+        joinpath(@__DIR__, "MITgcm_2deg8_PO4MMbase.yaml"), "PO4MMbase"
     )
     toutputs = [0.0, 0.25, 0.5, 0.75, 1.0]
 
+    tstep_explicit_s::Int = 86400 # s timestep to use for explicit transport
+    tstep_implicit_s::Int = tstep_explicit_s
+    tstep_explicit_yr = tstep_explicit_s/PB.Constants.k_secpyr # yr
+    @info "using timesteps tstep_implicit_s $tstep_implicit_s tstep_explicit_s $tstep_explicit_s tstep_explicit_yr $tstep_explicit_yr"
     transportMITgcm = PB.get_reaction(model, "ocean", "transportMITgcm")
-    tstep_imp = transportMITgcm.pars.Aimp_deltat[]/PB.Constants.k_secpyr
+    PB.setvalue!(transportMITgcm.pars.Aimp_deltat, tstep_implicit_s)
+    transportMITgcm = nothing # holds large transport matrix arrays !
+
 
     initial_state, modeldata = PALEOmodel.initialize!(model)
     
     paleorun = PALEOmodel.Run(model=model, output=PALEOmodel.OutputWriters.OutputMemory())
 
-    @info "using tstep=$tstep_imp yr"
-    @time PALEOmodel.ODEfixed.integrateEuler(paleorun, initial_state, modeldata, toutputs, tstep_imp)
+    @time PALEOmodel.ODEfixed.integrateEuler(paleorun, initial_state, modeldata, toutputs, tstep_explicit_yr)
 
     println("conservation checks:")
     conschecks = [

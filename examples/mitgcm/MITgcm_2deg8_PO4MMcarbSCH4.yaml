@@ -1,284 +1,3 @@
-# MITgcm 2.8deg P, O atmosphere-ocean test configuration
-PO4MMbase:
-    parameters:
-        CIsotope: ScalarData 
-        SIsotope: ScalarData  
-        threadsafe: false
-    domains:
-        global:
-            # scalar domain
-            
-            reactions:
-                total_O2:
-                    class: ReactionSum
-                    parameters:
-                        vars_to_add: [atm.O2, ocean.O2_total, -138.0*ocean.DOP_total]  # DOP O2eq = 106.0 + 2 * 16.0
-                    variable_links:
-                        sum: total_O2
-
-                total_P:
-                    class: ReactionSum
-                    parameters:
-                        vars_to_add: [ocean.P_total, ocean.DOP_total]
-                    variable_links:
-                        sum: total_P
-     
-        fluxAtmtoOceansurface:            
-            reactions:
-                fluxtarget:
-                    class: ReactionFluxTarget
-                    
-                    parameters:
-                        flux_totals: true
-                        fluxlist: ["O2"]
-
-        fluxOceanfloor:
-            reactions:
-                particulatefluxtarget:
-                    class: ReactionFluxTarget
-                    operatorID: [1, 2]                   
-                    parameters:                        
-                        flux_totals: true
-                        target_prefix: particulateflux_
-                        fluxlist: ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"] # fluxlist_BioParticulate
-
-                solutefluxtarget:
-                    class: ReactionFluxTarget 
-                    operatorID: [1, 2]                   
-                    parameters:                        
-                        flux_totals: true
-                        target_prefix: soluteflux_
-                        fluxlist: ["P", "O2"] #, "DIC::CIsotope", "TAlk", "SO4::SIsotope", "H2S::SIsotope", "CH4::CIsotope"] # fluxlist_Solute
-                        
-        atm:
-            
-
-            reactions:
-                reservoir_O2:
-                    class: ReactionReservoirAtm
-                   
-                    variable_links:
-                        R*: O2*
-                        pRatm: pO2atm
-                        pRnorm: pO2PAL
-                    variable_attributes:
-                        R:norm_value:           3.7e19  # present-day atmospheric level
-                        R:initial_value:        3.7e19
-
-                transfer_AtmtoOceansurface:
-                    class: ReactionFluxTransfer
-                    parameters:
-                        transfer_matrix:      Distribute
-                        transfer_multiplier:  -1.0  
-                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
-                        output_fluxes:        $fluxname$_sms
-
-        ocean:
-            reactions:
-                force_temperature:
-                    class: ReactionForceGrid
-                    parameters:
-                        matlab_file: $TMMDir$/MITgcm_2.8deg/GCM/Theta_gcm.mat
-                        data_var: Tgcm
-                        time_var: ""
-                        tidx_start: 1
-                        tidx_end:   12
-                        cycle_time: 1.0
-                        constant_offset: 273.15  # convert C -> Kelvin
-                    variable_links:
-                        F: temp
-
-                force_salinity:
-                    class: ReactionForceGrid
-                    parameters:
-                        matlab_file: $TMMDir$/MITgcm_2.8deg/GCM/Salt_gcm.mat
-                        data_var: Sgcm
-                        time_var: ""
-                        tidx_start: 1
-                        tidx_end:   12
-                        cycle_time: 1.0                        
-                    variable_links:
-                        F: sal
-
-                reservoir_P:
-                    class: ReactionReservoirTotal
-                    operatorID: [1, 2]             
-                    variable_links:
-                        R*: P*
-                    variable_attributes:                      
-                        R:initial_value:        2.208e-3  # concentration m-3 (1027 kg m-3 * 2.15e-6 mol/kg-sw)
-
-                reservoir_O2:
-                    class: ReactionReservoirTotal 
-                    operatorID: [1, 2]              
-                    variable_links:
-                        R*: O2*
-                    variable_attributes:                      
-                        R:initial_value:        0.2054  # concentration m-3 (1027 kg m-3 * 200e-6 mol/kg-sw)
-
-                reservoir_DOP:
-                    class: ReactionReservoirTotal
-                    operatorID: [1, 2]              
-                    variable_links:
-                        R*: DOP*
-                    variable_attributes:                      
-                        R:initial_value:        0.0e-3  # concentration m-3 
-    
-
-                transportMITgcm:
-                    class: ReactionOceanTransportTMM
-                    operatorID: [1, 2]
-                    parameters:
-                        base_path:  $TMMDir$/MITgcm_2.8deg
-                        TMfpsize:     64
-                        pack_chunk_width:  4                     
-               
-                light:
-                    class: ReactionLightColumn
-                    parameters:
-                        background_opacity: 0.02 
-
-                bioprod:
-                    class: ReactionBioProdMMPop
-                    operatorID: [2]
-                    parameters:
-                        depthlimit:         -119.0   # first two layers only (top of layer 3 is -120.0m)
-
-                        rCorgPO4:           106.0
-                        rNPO4:              16.0
-                        rCcarbCorg:         0.25
-                        rCcarbCorg_fixed:   true
-
-                        nuDOM:              0.67 
-
-                        k_poptype:          Constant
-                        k_uPO4:             2.0e-3   # mol m-3 yr-1
-
-                        k_nuttype:         PO4MM                        
-                        k_KPO4:             0.5e-3  # mol m-3 0.5 uM
-
-                        k_lightlim:         MM
-                        k_Ic:               30.0      
-                        k_Irel:             1.0
-
-                    variable_links:
-                        partprod_*: export_*
-                        domprod_P: DOP_sms 
-
-                dopdecay:
-                    class: ReactionParticleDecay
-                    operatorID: [2]
-                    parameters:
-                        decay_timescale:     0.5  # yr                     
-                    variable_links:
-                        Particle*:       DOP*
-                        decayflux:      DOP_decay
-                dopdecaycomponents:
-                    class: ReactionFluxToComponents
-                    operatorID: [2]
-                    parameters:
-                        outputflux_prefix: remin_                  
-                        outputflux_names: ["Corg", "N", "P"]
-                        outputflux_stoich: [106.0, 16.0, 1.0]   # must match bioprod stoich
-                    variable_links:
-                        inputflux:  DOP_decay
-
-                biopump:
-                    class: ReactionExportDirectColumn
-                    operatorID: [2]
-                    parameters:
-                        fluxlist:           ["P", "N", "Corg::CIsotope", "Ccarb::CIsotope"]
-                        transportfloor:     true
-                        exportfunction:     Martin
-                        martin_rovera:      0.858
-                        martin_depthmin:    120.0  # base of second layer
-
-                reminocean:
-                    class: ReactionReminO2
-                    operatorID: [2]
-                    parameters:                        
-
-                    variable_links:
-                        soluteflux_*:   "*_sms"
-               
-        oceansurface:
-            reactions:
-                force_par:
-                    class: ReactionForceInsolationModernEarth
-                    
-                    variable_links:
-                        insolation: surface_insol
-                        
-                force_wind_speed:
-                    class: ReactionForceGrid
-                    parameters:
-                        matlab_file: $TMMDir$/MITgcm_2.8deg/BiogeochemData/wind_speed.mat
-                        data_var: windspeed
-                        time_var: ""
-                        tidx_start: 1
-                        tidx_end:   12
-                        cycle_time: 1.0
-                    variable_links:
-                        F: wind_speed
-
-
-                force_open_area_fraction:
-                    class: ReactionForceGrid
-                    parameters:
-                        matlab_file: $TMMDir$/MITgcm_2.8deg/BiogeochemData/ice_fraction.mat
-                        data_var: Fice
-                        time_var: ""
-                        tidx_start: 1
-                        tidx_end:   12
-                        cycle_time: 1.0
-                        scale:              -1.0  # convert sea ice fraction to open area (0 - 1)
-                        constant_offset:    1.0
-                    variable_links:
-                        F: open_area_fraction
-                
-
-                airsea_O2:
-                    class: ReactionAirSeaO2
-                    parameters:
-                        piston_fixed: false
-
-                transfer_fluxAtmtoOceansurface:
-                    class: ReactionFluxTransfer
-                    parameters:
-                        transfer_matrix:      Identity
-                        input_fluxes:         fluxAtmtoOceansurface.flux_$fluxname$
-                        output_fluxes:        ocean.oceansurface.$fluxname$_sms                       
-                    variable_links:                        
-                        # output_CO2:           ocean.oceansurface.DIC_sms    
-        oceanfloor:               
-            reactions:
-                reminoceanfloor:
-                    class: ReactionReminO2
-                    operatorID: [2]
-                    parameters:
-                                
-                    variable_links:
-                        remin*:           particulateflux*
-                        soluteflux_*:     fluxOceanfloor.soluteflux_*
-
-                transfer_particulatefluxOceanfloor:
-                    class: ReactionFluxTransfer
-                    operatorID: [1, 2]
-                    parameters:
-                        transfer_matrix:      Identity                       
-                        input_fluxes:         fluxOceanfloor.particulateflux_$fluxname$
-                        output_fluxes:        particulateflux_$fluxname$                       
-                    variable_links:                        
-
-                transfer_solutefluxOceanfloor:
-                    class: ReactionFluxTransfer
-                    operatorID: [1, 2]
-                    parameters:
-                        transfer_matrix:      Identity
-                        input_fluxes:         fluxOceanfloor.soluteflux_$fluxname$
-                        output_fluxes:        ocean.oceanfloor.$fluxname$_sms                       
-                    variable_links:      
-
 ############################################################
 # MITgcm 2.8deg P, O with Cinorg, S, CH4
 ############################################################
@@ -287,6 +6,8 @@ PO4MMcarbSCH4:
         CIsotope: IsotopeLinear # ScalarData
         SIsotope: IsotopeLinear
         threadsafe: false
+        carbchem_simd_width: "1"  # "1" (no SIMD optimization) FP32P8 FP64P4
+        transport_pack_chunk_width: 0 # 0 (no SIMD optimization), 4, 8
 
     domains:
         global:
@@ -415,14 +136,16 @@ PO4MMcarbSCH4:
 
 
                 reservoir_P:
-                    class: ReactionReservoirTotal               
+                    class: ReactionReservoirTotal
+                    operatorID: [1, 2]          
                     variable_links:
                         R*: P*
                     variable_attributes:                      
                         R:initial_value:        2.208e-3  # concentration m-3 (1027 kg m-3 * 2.15e-6 mol/kg-sw)
 
                 reservoir_O2:
-                    class: ReactionReservoirTotal               
+                    class: ReactionReservoirTotal
+                    operatorID: [1, 2]            
                     variable_links:
                         R*: O2*
                     variable_attributes:                      
@@ -430,6 +153,7 @@ PO4MMcarbSCH4:
 
                 reservoir_DIC:
                     class: ReactionReservoirTotal
+                    operatorID: [1, 2] 
                     parameters:
                         field_data: external%CIsotope
                     variable_links:
@@ -441,6 +165,7 @@ PO4MMcarbSCH4:
 
                 reservoir_DOC:
                     class: ReactionReservoirTotal
+                    operatorID: [1, 2] 
                     parameters:
                         field_data: external%CIsotope             
                     variable_links:
@@ -451,7 +176,8 @@ PO4MMcarbSCH4:
                         R:norm_value:          1.0e-3 # for scaling only                
 
                 reservoir_TAlk:
-                    class: ReactionReservoirTotal              
+                    class: ReactionReservoirTotal
+                    operatorID: [1, 2]        
                     variable_links:
                         R*: TAlk*
                     variable_attributes:                      
@@ -460,6 +186,7 @@ PO4MMcarbSCH4:
 
                 reservoir_SO4:
                     class: ReactionReservoirTotal
+                    operatorID: [1, 2] 
                     parameters:
                         field_data: external%SIsotope
                     variable_links:
@@ -471,6 +198,7 @@ PO4MMcarbSCH4:
 
                 reservoir_H2S:
                     class: ReactionReservoirTotal
+                    operatorID: [1, 2] 
                     parameters:
                         field_data: external%SIsotope
                         limit_delta_conc:  1e-6  # mol m-3 to limit delta **EXPERIMENTAL**
@@ -483,6 +211,7 @@ PO4MMcarbSCH4:
 
                 reservoir_CH4:
                     class: ReactionReservoirTotal
+                    operatorID: [1, 2] 
                     parameters:
                         field_data: external%CIsotope
                         limit_delta_conc:  1e-6  # mol m-3 to limit delta **EXPERIMENTAL**
@@ -495,12 +224,13 @@ PO4MMcarbSCH4:
 
                 carbchem:
                     class: ReactionCO2SYS
+                    operatorID: [1, 2] 
                     parameters:
                         components: ["Ci", "B", "S", "F", "Omega", "H2S"]
                         defaultconcs: ["TF", "TB", "Ca"]
                         solve_pH:   solve # solve for Hfree iteratively
                         outputs:    ["pCO2", "xCO2dryinp", "CO2", "CO3", "OmegaCA", "OmegaAR"]
-                        simd_width: FP32P8 # FP64P4
+                        simd_width: external%carbchem_simd_width #  SIMD optimization
                         pHtol:  1.2e-5  # 100*eps(Float32)
                     variable_links:
                         TCi_conc: DIC_conc
@@ -512,10 +242,12 @@ PO4MMcarbSCH4:
 
                 transportMITgcm:
                     class: ReactionOceanTransportTMM
+                    operatorID: [1, 2] 
                     parameters:
                         base_path:  $TMMDir$/MITgcm_2.8deg
+                        Aimp_deltat: 86400 # s 24 x 3600
                         TMfpsize:           64 # 32
-                        pack_chunk_width:   4 # 8                  
+                        pack_chunk_width:   external%transport_pack_chunk_width
                
                 light:
                     class: ReactionLightColumn
@@ -532,6 +264,7 @@ PO4MMcarbSCH4:
 
                 bioprod:
                     class: ReactionBioProdMMPop
+                    operatorID: [2]
                     parameters:
                         depthlimit:         -60.0   # surface cells only
 
@@ -560,6 +293,7 @@ PO4MMcarbSCH4:
 
                 docdecay:
                     class: ReactionParticleDecay
+                    operatorID: [2]
                     parameters:
                         decay_timescale:     0.5  # yr 
                         field_data:    external%CIsotope                      
@@ -568,6 +302,7 @@ PO4MMcarbSCH4:
                         decayflux:      DOC_decay
                 docdecaycomponents:
                     class: ReactionFluxToComponents
+                    operatorID: [2]
                     parameters:
                         outputflux_prefix: remin_               
                         outputflux_names: ["Corg::Isotope", "N", "P"]
@@ -578,7 +313,7 @@ PO4MMcarbSCH4:
 
                 biopumporg:
                     class: ReactionExportDirectColumn
-
+                    operatorID: [2]
                     parameters:
                         fluxlist:           ["P", "N", "Corg::CIsotope"]
                         transportfloor:     true
@@ -588,7 +323,7 @@ PO4MMcarbSCH4:
 
                 biopumpcarb:
                     class: ReactionExportDirectColumn
-
+                    operatorID: [2]
                     parameters:
                         fluxlist:           ["Ccarb::CIsotope"]
                         transportfloor:     true
@@ -598,7 +333,7 @@ PO4MMcarbSCH4:
 
                 reminocean:
                     class: ReactionReminO2_SO4_CH4
-
+                    operatorID: [2]
                     parameters:
                         SO4reminlimit:  1000.0e-3                
 
@@ -607,13 +342,13 @@ PO4MMcarbSCH4:
 
                 redox_H2S_O2:
                     class: ReactionRedoxH2S_O2
-
+                    operatorID: [2]
                     parameters:           
                         R_H2S_O2: 3.65e2 # 3.65e3 # (mol m-3) yr-1
 
                 redox_CH4_O2:
                     class: ReactionRedoxCH4_O2
-
+                    operatorID: [2]
                     parameters:                 
                         R_CH4_O2: 1.0e2 # 10.0e3 # (mol m-3) yr-1
                
@@ -681,7 +416,7 @@ PO4MMcarbSCH4:
             reactions:
                 reminoceanfloor:
                     class: ReactionReminO2_SO4_CH4
-
+                    operatorID: [2]
                     parameters:
                         SO4reminlimit:  1000.0e-3      
                                 

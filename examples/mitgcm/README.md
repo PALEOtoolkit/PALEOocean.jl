@@ -16,7 +16,7 @@ Tracers: atmosphere O2, ocean O2
 
     julia> include("MITgcm_2deg8_abiotic.jl")
 
-Wallclock time: 10.3 s core-1 (model yr)-1  with default timestep = 86400 s (1 day)
+Wallclock time: 2.3 s (model yr)-1 using 1 core,  with default timestep = 86400 s (1 day)
 
 ## 2.8 degree P, O2 
 
@@ -26,7 +26,7 @@ Tracers: atmosphere O2, ocean O2, P, DOP
 
     julia> include("MITgcm_2deg8_PO4MMbase.jl")
 
-Wallclock time: 10.0 s core-1 (model yr)-1  with default timestep = 86400 s (1 day)
+Wallclock time: 1.4 s (model yr)-1 using 4 cores, with default timestep = 86400 s (1 day)
 
 ## 2.8 degree P, O2, S, DIC/TAlk
 
@@ -38,7 +38,7 @@ Tracers: atmosphere O2, CO2(x2), ocean O2, P, DOC(x2), H2S(x2), SO4(x2), CH4(x2)
 
     julia> include("MITgcm_2deg8_PO4MMcarbSCH4.jl")
 
-Wallclock time: 27.2 s core-1 (model yr)-1  with default timestep = 86400 s (1 day)
+Wallclock time: 2.8 s (model yr)-1 using 4 cores, with default timestep = 86400 s (1 day)
 
 
 ![Surface P](images/surface_P_2deg8_PO4MMcarbSCH4_2000yr.svg)
@@ -50,3 +50,12 @@ Wallclock time: 27.2 s core-1 (model yr)-1  with default timestep = 86400 s (1 d
 ###### Figure 2
 *H2S concentration at 2000yr, sections at longitudes corresponding to red lines in Figure 1*
 
+## ECCO (~1 degree) P, O2 
+
+Minimal test case for biotic ocean.
+
+Tracers: atmosphere O2, ocean O2, P
+
+    julia> include("MITgcm_ECCO_PO4MMbase.jl")
+
+Wallclock time: 50.0 s (model yr)-1 using 4 cores, with default timestep = 43200 s (1 day)
