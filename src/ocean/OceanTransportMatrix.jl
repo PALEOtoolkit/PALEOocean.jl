@@ -406,7 +406,9 @@ struct PackedBuffer{pack_eltype, pack_datatype, pack_chunk_width, num_components
         packed_conc_array = zeros(pack_eltype, packed_conc_pad_width, ncells)
         packed_conc_vec = vec(packed_conc_array)
            
-        buffer = [Vector{pack_datatype}(undef, num_chunks) for t in 1:Threads.nthreads()]
+        # buffer = [Vector{pack_datatype}(undef, num_chunks) for t in 1:Threads.nthreads()]
+        # julia 1.11.2 workaround: enforce 64-byte alignment by creating large arrays
+        buffer = [Vector{pack_datatype}(undef, num_chunks + 256) for t in 1:Threads.nthreads()]
         
         return new{pack_eltype, pack_datatype, pack_chunk_width, num_components, num_chunks, packed_conc_pad_width}(
             packed_conc_array,
@@ -480,8 +482,13 @@ function _kernel_transport_tr_packed(
             tm = (nzval1[idx]*wt1 + nzval2[idx]*wt2)*volume[jcol]
             irow = rowval[idx]
             conc_vec_idx = packed_conc_pad_width*(irow-1) + 1
-            for cidx in 1:num_chunks        
-                pack_sms_buffer[cidx] += SIMD.vload(pack_datatype, packed_conc_vec, conc_vec_idx)*tm
+            for cidx in 1:num_chunks
+                # slow on julia 1.11
+                # pack_sms_buffer[cidx] += SIMD.vload(pack_datatype, packed_conc_vec, conc_vec_idx)*tm
+                # needs buffer alignment fix on julia 1.11.2
+                x = SIMD.vload(pack_datatype, packed_conc_vec, conc_vec_idx)*tm
+                y = pack_sms_buffer[cidx]
+                pack_sms_buffer[cidx] = x + y
                 conc_vec_idx += pack_chunk_width                
             end
         end

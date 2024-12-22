@@ -173,6 +173,7 @@ function _read_grids(rj::ReactionOceanTransportTMM)
         (rj.index_perm, rj.index_perm_inverse) = PB.Grids.linear_kji_order(rj.grid_ocean, v_i, v_j, v_k)
         v_i = v_i[rj.index_perm]; v_j = v_j[rj.index_perm]; v_k = v_k[rj.index_perm]
     end
+    PB.setfrozen!(rj.pars.kji_order)
 
     PB.Grids.set_linear_index(rj.grid_ocean, v_i, v_j, v_k)
     @info "  set ocean linear <--> cartesian mapping for $(rj.grid_ocean.ncells) cells"
@@ -217,6 +218,12 @@ function PB.register_methods!(rj::ReactionOceanTransportTMM)
         rj,
         setup_grid_TMM,
         (PB.VarList_namedtuple(PALEOocean.Ocean.grid_vars_all),)
+    )
+
+    PB.add_method_setup!(
+        rj,
+        setup_transport_TMM, # reads transport matrices
+        (),
     )
 
     return nothing
@@ -301,7 +308,7 @@ function PB.register_dynamic_methods!(rj::ReactionOceanTransportTMM)
                 PB.VarList_components(transport_sms_vars),
                 PB.VarList_nothing(), # not using input_vars
             ),
-            preparefn=prepare_do_transport_TMM, # read matrices, add buffer
+            preparefn=PALEOocean.Ocean.prepare_transport, # add buffer
             operatorID=[rj.operatorID[1]],
             p=:trspt_dAexp_tr # field name in rj to use
         )
@@ -342,8 +349,7 @@ function PB.register_dynamic_methods!(rj::ReactionOceanTransportTMM)
             (                
                 PB.VarList_components(transport_conc_vars),
                 PB.VarList_single(sequencer_var),
-            ),
-            preparefn=prepare_do_transport_TMM_packed, # read matrices          
+            ),  
             p=packed_buffer,
         )
         # Aexp  operatorID[1]
@@ -373,28 +379,26 @@ function PB.register_dynamic_methods!(rj::ReactionOceanTransportTMM)
 
     end
 
+    PB.setfrozen!(rj.pars.TMfpsize, rj.pars.pack_chunk_width)
+
     return nothing
 end
 
 
-function prepare_do_transport_TMM(m::PB.ReactionMethod, vardata)
+function setup_transport_TMM(
+    m::PB.ReactionMethod,
+    (),
+    cellrange::PB.AbstractCellRange,
+    attribute_name,
+)
+    attribute_name == :setup || return
+
     rj = m.reaction
 
-    # read matrix data in prepare so it is deferred until initialize
     _read_matrix_data(rj)
 
-    return PALEOocean.Ocean.prepare_transport(m, vardata)
+    return nothing
 end
-
-function prepare_do_transport_TMM_packed(m::PB.ReactionMethod, vardata)
-    rj = m.reaction
-
-    # read matrix data in prepare so it is deferred until initialize
-    _read_matrix_data(rj)
-
-    return vardata
-end
-
 
 function _read_matrix_data(rj::ReactionOceanTransportTMM)
 
@@ -415,9 +419,7 @@ function _read_matrix_data(rj::ReactionOceanTransportTMM)
         )                
         rj.matrix_tinterp = PB.LinInterp(rj.matrix_times, 1.0)
     end
-
-    tmp_Aexp_tr= []
-    tmp_Aimp_tr = []
+    PB.setfrozen!(rj.pars.use_annualmean, rj.pars.num_seasonal)
 
     # transpose, convert datatype, optionally permute
     function permute_indices_transpose(A)
@@ -450,39 +452,27 @@ function _read_matrix_data(rj::ReactionOceanTransportTMM)
         ]
         Aimp_name = "Aimp"
     end
-
-    tmp_Aexp_tr = Vector{Any}(nothing, rj.pars.num_seasonal[])
-    tmp_Aimp_tr = Vector{Any}(nothing, rj.pars.num_seasonal[])
-        
+            
     # work out upscaling factor for implicit matrix
     deltaT = rj.grid["deltaT"]
     rj.pars.Aimp_deltat[] % deltaT == 0 ||
         error("requested Aimp_deltat $(rj.pars.Aimp_deltat[]) is not a multiple of matrix deltaT = $deltaT")
     rj.Aimp_mult = rj.pars.Aimp_deltat[]/deltaT
     Aimp_deltat_yr = rj.pars.Aimp_deltat[]/PB.Constants.k_secpyr
+    PB.setfrozen!(rj.pars.Aimp_deltat)
 
     # For large (1 deg) matrices, attempt to minimise memory use
     # NB: the underlying hdf5 library is not thread safe so we can't use threads without 
     # adding a lot of complexity / using a lot of memory
-    # tlock = ReentrantLock()
-    # Threads.@threads
+
+    tmp_Aexp_tr = Vector{Any}(nothing, rj.pars.num_seasonal[])
     for i in 1:num_matrices
-        matAexp = nothing
-        matAimp = nothing
-        # @Base.lock tlock begin # serialize disk reads to avoid hammering the disk
-            Aexp_path = Aexp_paths[i]
-            @info "  reading explicit matrix data from $Aexp_path"  
-            file = MAT.matopen(Aexp_path)
-            matAexp = MAT.read(file, Aexp_name)
-            close(file)
-
-            Aimp_path = Aimp_paths[i]
-            @info "  reading implicit matrix data from $Aimp_path"  
-            file = MAT.matopen(Aimp_path)
-            matAimp = MAT.read(file, Aimp_name)
-            close(file)
-        # end
-
+        Aexp_path = Aexp_paths[i]
+        @info "  reading explicit matrix data from $Aexp_path"  
+        file = MAT.matopen(Aexp_path)
+        matAexp = MAT.read(file, Aexp_name)
+        close(file)
+        
         tmp_Aexp_tr[i] = permute_indices_transpose(matAexp)
         matAexp = nothing       
         if rj.pars.sal_norm[]
@@ -491,6 +481,22 @@ function _read_matrix_data(rj::ReactionOceanTransportTMM)
         end
         # Aexp is already in differential form, convert s-1 to yr-1
         tmp_Aexp_tr[i] .= PB.Constants.k_secpyr.*tmp_Aexp_tr[i]  
+    end
+    # convert to CSR format with common sparsity pattern for fast multiply x vector
+    rj.trspt_dAexp_tr = PALEOocean.Ocean.create_common_sparsity_tr!(
+        tmp_Aexp_tr, 
+        do_transpose=false,
+        TMeltype=rj.TMeltype
+    )
+    tmp_Aexp_tr = []
+
+    tmp_Aimp_tr = Vector{Any}(nothing, rj.pars.num_seasonal[])
+    for i in 1:num_matrices
+        Aimp_path = Aimp_paths[i]
+        @info "  reading implicit matrix data from $Aimp_path"  
+        file = MAT.matopen(Aimp_path)
+        matAimp = MAT.read(file, Aimp_name)
+        close(file)
 
         # convert implicit matrix
         tmp_Aimp_tr[i] = permute_indices_transpose(matAimp)
@@ -507,15 +513,6 @@ function _read_matrix_data(rj::ReactionOceanTransportTMM)
         tmp_Aimp_tr[i] = (tmp_Aimp_tr[i]^rj.Aimp_mult - LinearAlgebra.I)./Aimp_deltat_yr
        
     end
-
-    # convert to CSR format with common sparsity pattern for fast multiply x vector
-    rj.trspt_dAexp_tr = PALEOocean.Ocean.create_common_sparsity_tr!(
-        tmp_Aexp_tr, 
-        do_transpose=false,
-        TMeltype=rj.TMeltype
-    )
-    tmp_Aexp_tr = []
-
     # convert to CSR format with common sparsity pattern for fast multiply x vector
     rj.trspt_dAimp_tr = PALEOocean.Ocean.create_common_sparsity_tr!(
         tmp_Aimp_tr,
@@ -523,9 +520,12 @@ function _read_matrix_data(rj::ReactionOceanTransportTMM)
         TMeltype=rj.TMeltype
     )
     tmp_Aimp_tr = []
-    
+
+    PB.setfrozen!(rj.pars.sal_norm)    
+
     return nothing
 end
+
 
 function do_transport_TMM(
     m::PB.ReactionMethod,
@@ -568,6 +568,7 @@ function do_transport_TMM_pack_conc(
 
     return nothing
 end
+
 
 function do_transport_TMM_packed(
     m::PB.ReactionMethod,

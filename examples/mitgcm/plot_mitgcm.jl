@@ -71,9 +71,15 @@ function plot_PO4MMbase(
         )
     end
 
-    pager(
-        plot(title="P total", output, ["global.total_P"], ylabel="total (mol)",),
-    )
+    if PB.has_variable(output, "global.total_P")
+        pager(
+            plot(title="P total", output, ["global.total_P"], ylabel="total (mol)",),
+        )
+    elseif PB.has_variable(output, "ocean.P_total")
+        pager(
+            plot(title="P total", output, ["ocean.P_total"], ylabel="total (mol)",),
+        )
+    end
 
     for t in tbioprod
         pager(
