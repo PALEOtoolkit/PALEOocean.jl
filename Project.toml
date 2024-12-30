@@ -1,7 +1,7 @@
 name = "PALEOocean"
 uuid = "41de04b1-2efd-44ae-92ae-39d71a4fd99b"
 authors = ["sd336 "]
-version = "0.4.8"
+version = "0.4.9"
 
 [deps]
 Infiltrator = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
