@@ -68,7 +68,9 @@ Base.@kwdef mutable struct ReactionOceanTransportTMM{P} <: PB.AbstractReaction
     index_perm_inverse  = nothing
 
     grid_ocean          = nothing
+    domain_oceansurface = nothing
     grid_oceansurface   = nothing
+    domain_oceanfloor   = nothing
     grid_oceanfloor     = nothing
    
 
@@ -89,6 +91,7 @@ Base.@kwdef mutable struct ReactionOceanTransportTMM{P} <: PB.AbstractReaction
 
     config_data                 = nothing  # raw config_data from .mat file
     grid                        = nothing
+    grid_coordinates            = nothing
     boxes                       = nothing
 
     matrix_name::String         = ""
@@ -102,6 +105,13 @@ end
    
 # Provide a custom create_reaction implementation so we can set default operatorID
 function PB.create_reaction(::Type{ReactionOceanTransportTMM}, base::PB.ReactionBase)
+
+    # test PALEOboxes version (if possible)
+    if isdefined(Base, :pkgversion) # pkgversion available since Julia 1.9
+        pkgversion(PB) >= v"0.22" ||
+            error("ReactionOceanTransportTMM requires PALEOboxes version >= 0.22, current version is $(pkgversion(PB))")
+    end
+
     rj = ReactionOceanTransportTMM(base=base)
     rj.base.operatorID = [1, 2]
     return rj
@@ -117,7 +127,10 @@ function PB.set_model_geometry(rj::ReactionOceanTransportTMM, model::PB.Model)
 
     _read_grids(rj)
 
-    PALEOocean.Ocean.set_model_domains(model, rj.grid_ocean, rj.grid_oceansurface, rj.grid_oceanfloor)    
+    PALEOocean.Ocean.set_model_domains(model, rj.grid_ocean, rj.grid_oceansurface, rj.grid_oceanfloor)
+
+    rj.domain_oceansurface = PB.get_domain(model, "oceansurface")
+    rj.domain_oceanfloor = PB.get_domain(model, "oceanfloor")
     
     return nothing
 end
@@ -144,18 +157,32 @@ function _read_grids(rj::ReactionOceanTransportTMM)
     lonedges[1:end-1] = rj.grid["x"][:,1] - rj.grid["dphi"][:,1]/2
     lonedges[end] = rj.grid["x"][end,1] + rj.grid["dphi"][end,1]/2
 
+    # save values to use to setup coordinate variables
+    rj.grid_coordinates = (; zmid, zedges, lat, latedges, lon, lonedges)
+    # rj.grid_ocean = PB.Grids.CartesianGrid(
+    #     PB.Grids.CartesianLinearGrid,
+    #     ["lon", "lat", "zt"], [length(lon), length(lat), length(zmid)], [lon, lat, zmid], [lonedges, latedges, zedges];
+    #     zdim=3,
+    #     zidxsurface=1,
+    #     ztoheight=1.0
+    # )     
+
+    grid_ocean_dimensions = [
+        PB.NamedDimension(name, size) 
+        for (name, size) in zip(["lon", "lat", "zt"], [length(lon), length(lat), length(zmid)])
+    ]
     rj.grid_ocean = PB.Grids.CartesianGrid(
         PB.Grids.CartesianLinearGrid,
-        ["lon", "lat", "zt"], [length(lon), length(lat), length(zmid)], [lon, lat, zmid], [lonedges, latedges, zedges];
+        grid_ocean_dimensions;
         zdim=3,
         zidxsurface=1,
         ztoheight=1.0
-    )     
+    )
      
     rj.grid_oceansurface = PB.Grids.CartesianGrid(
         PB.Grids.CartesianLinearGrid,
-        ["lon", "lat"], [length(lon), length(lat)], [lon, lat], [lonedges, latedges]
-    ) 
+        grid_ocean_dimensions[1:2],
+    )
 
     rj.grid_oceanfloor   = deepcopy(rj.grid_oceansurface)
 
@@ -214,10 +241,37 @@ end
 
 function PB.register_methods!(rj::ReactionOceanTransportTMM)
 
+    coordinate_vars_2d = [
+        PB.VarPropScalarStateIndep("lon",  "degrees_east",  "cell centre coordinate variable"; 
+            attributes=(:field_data=>PB.ArrayScalarData, :data_dims=>("lon",), :axis=>"X", :standard_name=>"longitude", :bounds=>"lon_bnds")),
+        PB.VarPropScalarStateIndep("lat",  "degrees_north",  "cell centre coordinate variable"; 
+            attributes=(:field_data=>PB.ArrayScalarData, :data_dims=>("lat",), :axis=>"Y", :standard_name=>"latitude", :bounds=>"lat_bnds")),
+        PB.VarPropScalarStateIndep("lon_bnds",  "degrees_east",  "cell boundary coordinate variable"; 
+            attributes=(:field_data=>PB.ArrayScalarData, :data_dims=>("bnds", "lon",), )),
+        PB.VarPropScalarStateIndep("lat_bnds",  "degrees_north",  "cell boundary coordinate variable"; 
+            attributes=(:field_data=>PB.ArrayScalarData, :data_dims=>("bnds", "lat",))),
+    ]
+
+    coordinate_vars_z = [
+        PB.VarPropScalarStateIndep("zt",  "meters",  "cell centre coordinate variable"; 
+            attributes=(:field_data=>PB.ArrayScalarData, :data_dims=>("zt",), :axis=>"Z", :positive=>"up", :bounds=>"zt_bnds")),
+        PB.VarPropScalarStateIndep("zt_bnds",  "meters",  "cell boundary coordinate variable"; 
+            attributes=(:field_data=>PB.ArrayScalarData, :data_dims=>("bnds", "zt",))),
+    ]
+
+    for domain in (rj.domain, rj.domain_oceansurface, rj.domain_oceanfloor)
+        PB.add_method_setup!(
+            rj,
+            setup_coords2d_TMM,
+            (PB.VarList_namedtuple(coordinate_vars_2d),);
+            domain,
+        )
+    end
+
     PB.add_method_setup!(
         rj,
         setup_grid_TMM,
-        (PB.VarList_namedtuple(PALEOocean.Ocean.grid_vars_all),)
+        (PB.VarList_namedtuple(PALEOocean.Ocean.grid_vars_all), PB.VarList_namedtuple(coordinate_vars_z))
     )
 
     PB.add_method_setup!(
@@ -229,9 +283,33 @@ function PB.register_methods!(rj::ReactionOceanTransportTMM)
     return nothing
 end
 
+function setup_coords2d_TMM(
+    m::PB.ReactionMethod,
+    (coordinate_vars_2d, ),
+    cellrange::PB.AbstractCellRange,
+    attribute_name
+)
+    attribute_name == :setup || return
+
+    rj = m.reaction
+    coordinate_vars_2d.lat .= rj.grid_coordinates.lat
+    coordinate_vars_2d.lat_bnds[1, :] .= rj.grid_coordinates.latedges[1:end-1]
+    coordinate_vars_2d.lat_bnds[2, :] .= rj.grid_coordinates.latedges[2:end]
+    coordinate_vars_2d.lon .= rj.grid_coordinates.lon
+    coordinate_vars_2d.lon_bnds[1, :] .= rj.grid_coordinates.lonedges[1:end-1]
+    coordinate_vars_2d.lon_bnds[2, :] .= rj.grid_coordinates.lonedges[2:end]
+
+    # attach coordinates to grid for output visualisation etc. NB: method Domain, not Reaction domain !
+    PB.set_coordinates!(m.domain.grid, "lat", ["lat", "lat_bnds"])
+    PB.set_coordinates!(m.domain.grid, "lon", ["lon", "lon_bnds"])
+    
+    return nothing
+end
+
+
 function setup_grid_TMM(
     m::PB.ReactionMethod,
-    (grid_vars, ),
+    (grid_vars, coordinate_vars_z),
     cellrange::PB.AbstractCellRange,
     attribute_name
 )
@@ -239,8 +317,15 @@ function setup_grid_TMM(
 
     rj = m.reaction
 
-    z_coord = rj.grid_ocean.coords[3]
-    z_coord_edges = rj.grid_ocean.coords_edges[3]
+    # set up z coordinates - lon, lat handled by setup_coords2d_TMM
+    z_coord = rj.grid_coordinates.zmid
+    z_coord_edges = rj.grid_coordinates.zedges
+
+    coordinate_vars_z.zt .= z_coord
+    coordinate_vars_z.zt_bnds[1, :] .= z_coord_edges[1:end-1]
+    coordinate_vars_z.zt_bnds[2, :] .= z_coord_edges[2:end]
+    # attach coordinates to grid for output visualisation etc
+    PB.set_coordinates!(rj.domain.grid, "zt", ["zt", "zt_bnds"])
 
     da = rj.grid["da"]
     dv = rj.grid["dv"]
