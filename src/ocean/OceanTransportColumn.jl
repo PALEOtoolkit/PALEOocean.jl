@@ -112,10 +112,14 @@ function setup_grid(
         grid_vars.zmid          .= nc_phys["zmid"][:]
 
         # attach coordinates to grid for output visualisation etc
-        empty!(rj.domain.grid.z_coords)
-        push!(rj.domain.grid.z_coords, PB.FixedCoord("zmid", grid_vars.zmid, PB.get_variable(m, "zmid").attributes))
-        push!(rj.domain.grid.z_coords, PB.FixedCoord("zlower", grid_vars.zlower, PB.get_variable(m, "zlower").attributes))
-        push!(rj.domain.grid.z_coords, PB.FixedCoord("zupper", grid_vars.zupper, PB.get_variable(m, "zupper").attributes))
+        if isdefined(PB, :set_coordinates!) # PALEOboxes >= 0.22
+            PB.set_coordinates!(rj.domain.grid, "cells", ["zmid", "zlower", "zupper"])
+        else
+            empty!(rj.domain.grid.z_coords)
+            push!(rj.domain.grid.z_coords, PB.FixedCoord("zmid", grid_vars.zmid, PB.get_variable(m, "zmid").attributes))
+            push!(rj.domain.grid.z_coords, PB.FixedCoord("zlower", grid_vars.zlower, PB.get_variable(m, "zlower").attributes))
+            push!(rj.domain.grid.z_coords, PB.FixedCoord("zupper", grid_vars.zupper, PB.get_variable(m, "zupper").attributes))
+        end
 
         grid_vars.volume        .= pars.column_area[].*(grid_vars.zupper .- grid_vars.zlower)
         grid_vars.volume_total[]= sum(grid_vars.volume)

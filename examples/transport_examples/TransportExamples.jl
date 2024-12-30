@@ -365,10 +365,14 @@ function do_setup_grid(m::PB.ReactionMethod, (grid_vars, ), cellrange::PB.Abstra
     grid_vars.Afloor_total[] = sum(grid_vars.Afloor)
     
     # attach coordinates to grid for output visualisation etc
-    empty!(rj.domain.grid.z_coords)
-    push!(rj.domain.grid.z_coords, PB.FixedCoord("zmid", grid_vars.zmid, PB.get_variable(m, "zmid").attributes))
-    push!(rj.domain.grid.z_coords, PB.FixedCoord("zlower", grid_vars.zlower, PB.get_variable(m, "zlower").attributes))
-    push!(rj.domain.grid.z_coords, PB.FixedCoord("zupper", grid_vars.zupper, PB.get_variable(m, "zupper").attributes))
+    if isdefined(PB, :set_coordinates!) # PALEOboxes >= 0.22
+        PB.set_coordinates!(rj.domain.grid, "cells", ["zmid", "zlower", "zupper"])
+    else
+        empty!(rj.domain.grid.z_coords)
+        push!(rj.domain.grid.z_coords, PB.FixedCoord("zmid", grid_vars.zmid, PB.get_variable(m, "zmid").attributes))
+        push!(rj.domain.grid.z_coords, PB.FixedCoord("zlower", grid_vars.zlower, PB.get_variable(m, "zlower").attributes))
+        push!(rj.domain.grid.z_coords, PB.FixedCoord("zupper", grid_vars.zupper, PB.get_variable(m, "zupper").attributes))
+    end
 
     # constant density
     grid_vars.rho_ref       .= 1027

@@ -41,6 +41,12 @@ function PB.register_methods!(rj::ReactionForceInsolationModernEarth)
         PB.VarDepScalar("global.tforce", "yr",  "historical time at which to apply forcings, present = 0 yr"),
         PB.VarProp("insolation", "W m-2", "daily mean surface insolation"),
     ]
+    if isempty(rj.pars.latitude.v)
+        push!(vars, 
+            PB.VarDepScalar("lat",  "",  "coordinate variable"; 
+                attributes=(:field_data=>PB.ArrayScalarData, :data_dims=>("lat",),))
+        )
+    end
 
     PB.add_method_do!(
         rj,
@@ -68,9 +74,9 @@ function do_force_insolation(m::PB.ReactionMethod, pars, (vars, ), cellrange::PB
     
     tforce = PB.value_ad(vars.tforce[])
 
-    @inbounds for i in cellrange.indices
+    for i in cellrange.indices
         if isempty(pars.latitude)
-            lat = PB.Grids.get_lat(grid, i)
+            lat = vars.lat[PB.Grids.get_lat_idx(grid, i)]
         else
             lat = pars.latitude[i]
         end

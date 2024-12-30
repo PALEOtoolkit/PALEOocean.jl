@@ -2,27 +2,27 @@
 function plot_forcings(
     output; 
     pager=PALEOmodel.DefaultPlotPager(),
-    lonidx=71, # 2.8 Pac   200 ECCO
+    lon=200.0, # Pac
 )
 
     for t in [0.0, 0.5]
         pager(
-            heatmap(output, "oceansurface.wind_speed", (tmodel=t,), swap_xy=true),
-            heatmap(output, "oceansurface.open_area_fraction", (tmodel=t,), swap_xy=true),
+            heatmap(output, "oceansurface.wind_speed", (tmodel=t, expand_cartesian=true), swap_xy=true),
+            heatmap(output, "oceansurface.open_area_fraction", (tmodel=t, expand_cartesian=true), swap_xy=true),
         )     
     end
     for t in [0.0, 0.5]
-        pager(heatmap(output, "oceansurface.surface_insol", (tmodel=t,), swap_xy=true))
+        pager(heatmap(output, "oceansurface.surface_insol", (tmodel=t, expand_cartesian=true), swap_xy=true))
     end
 
     pager(
-        heatmap(output, "ocean.insol", (tmodel=0.0, i=lonidx), swap_xy=true),
-        heatmap(output, "ocean.insol", (tmodel=0.0, i=lonidx), swap_xy=true, ylim=(-500.0, 0)), 
+        heatmap(output, "ocean.insol", (tmodel=0.0, lon=lon, expand_cartesian=true), swap_xy=true),
+        heatmap(output, "ocean.insol", (tmodel=0.0, lon=lon, expand_cartesian=true), swap_xy=true, ylim=(-500.0, 0)), 
     )
 
     for t in [0.0, 0.5]
         pager(
-            heatmap(output, "ocean.temp", (tmodel=t, k=1), swap_xy=true),
+            heatmap(output, "ocean.temp", (tmodel=t, zt_isel=1, expand_cartesian=true), swap_xy=true),
         )
     end
      
@@ -33,13 +33,13 @@ function plot_abiotic_O2(
     output;
     toutputs=[0.0, 1.0, 10.0, 100.0, 1000.0],
     pager=PALEOmodel.DefaultPlotPager(),
-    lonidx1=71, # 2.8 Pac   200 ECCO
-    lonidx2=121, # 2.8 Atl  340 ECCO
+    lon1=200.0, # Pac
+    lon2=340.0, # Atl
 )
     for t in toutputs
         pager(
-            heatmap(output, "ocean.O2_conc", (tmodel=t, i=lonidx1), swap_xy=true),
-            heatmap(output, "ocean.O2_conc", (tmodel=t, i=lonidx2), swap_xy=true), 
+            heatmap(output, "ocean.O2_conc", (tmodel=t, lon=lon1, expand_cartesian=true), swap_xy=true),
+            heatmap(output, "ocean.O2_conc", (tmodel=t, lon=lon2, expand_cartesian=true), swap_xy=true), 
         )
     end
     
@@ -60,13 +60,13 @@ function plot_PO4MMbase(
 
     for t in toutputs
         pager(
-            heatmap(output, "ocean.P_conc", (tmodel=t, k=1), swap_xy=true,),
+            heatmap(output, "ocean.P_conc", (tmodel=t, zt_isel=1, expand_cartesian=true), swap_xy=true,),
         )
     end
 
     if PB.has_variable(output, "ocean.DOP_conc")
         pager(
-            heatmap(output, "ocean.DOP_conc", (tmodel=toutputs[end], k=1), swap_xy=true,),
+            heatmap(output, "ocean.DOP_conc", (tmodel=toutputs[end], zt_isel=1, expand_cartesian=true), swap_xy=true,),
             plot(title="P total", output, ["global.total_P", "ocean.P_total", "ocean.DOP_total"], ylabel="total (mol)",),
         )
     end
@@ -83,8 +83,8 @@ function plot_PO4MMbase(
 
     for t in tbioprod
         pager(
-            heatmap(output, "ocean.bioprod/Prod_Corg", (tmodel=t, k=1), swap_xy=true,),
-            heatmap(output, "ocean.bioprod/Prod_Corg", (tmodel=t, k=2), swap_xy=true,),
+            heatmap(output, "ocean.bioprod/Prod_Corg", (tmodel=t, zt_isel=1, expand_cartesian=true), swap_xy=true,),
+            heatmap(output, "ocean.bioprod/Prod_Corg", (tmodel=t, zt_isel=2, expand_cartesian=true), swap_xy=true,),
         )
     end
 
@@ -124,16 +124,16 @@ function plot_tracers(
     tracers=["SO4_conc", "H2S_conc", "CH4_conc", "SO4_delta", "H2S_delta", "CH4_delta", "TAlk_conc", "DIC_conc", "DIC_delta"],
     toutputs=[1e12],
     pager=PALEOmodel.DefaultPlotPager(),
-    lonidx1=71, # 2.8 Pac   200 ECCO
-    lonidx2=121, # 2.8 Atl  340 ECCO
+    lon1=200.0, # Pac
+    lon2=340.0, # Atl
 )
 
     for tr in tracers
         for t in toutputs
             pager(
-                heatmap(output, "ocean.$tr", (tmodel=t, i=lonidx1), swap_xy=true),
-                heatmap(output, "ocean.$tr", (tmodel=t, i=lonidx2), swap_xy=true), 
-                heatmap(output, "ocean.$tr", (tmodel=t, k=1), swap_xy=true),
+                heatmap(output, "ocean.$tr", (tmodel=t, lon=lon1, expand_cartesian=true), swap_xy=true),
+                heatmap(output, "ocean.$tr", (tmodel=t, lon=lon2, expand_cartesian=true), swap_xy=true), 
+                heatmap(output, "ocean.$tr", (tmodel=t, zt_isel=1, expand_cartesian=true), swap_xy=true),
                 :skip,
             )
         end
