@@ -56,7 +56,7 @@ end
 initial_state, modeldata = PALEOmodel.initialize!(model; method_barrier) 
 
 for iseg in 1:num_segments
-# for iseg in 9:num_segments
+# for iseg in 20:num_segments
 # iseg = 1
 # if true
     @info """
@@ -119,9 +119,9 @@ println()
 gr(size=(1200, 900))
 pager = PALEOmodel.PlotPager((2,2), (legend_background_color=nothing, margin=(5, :mm)))
 
-plot_forcings(paleorun.output, pager=pager, lonidx=200)
+plot_forcings(paleorun.output, pager=pager, lon=200.0)
 pager(:newpage)
-plot_abiotic_O2(paleorun.output, toutputs=toutputs, pager=pager, lonidx1=200, lonidx2=340)
+plot_abiotic_O2(paleorun.output, toutputs=toutputs, pager=pager, lon1=200.0, lon2=340.0)
 pager(:newpage)
 plot_PO4MMbase(
     paleorun.output,

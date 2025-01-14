@@ -1,58 +1,59 @@
 
-# gr(size=(1200, 900))
-
-
+using Plots
 using Printf
 
-# produce figures for ./images
+"""
+    make_images(output)
+
+Produce single-panel svg figures for ./images
+
+Defaults and titles are for `output` produced by `examples/mitgcm/MITgcm_2deg8_PO4MMcarbSCH4.jl`
+"""
 function make_images(
     output;
-    lonidx1=71, # 2.8 Pac   200 ECCO
-    lonidx2=121, # 2.8 Atl  340 ECCO
+    lon1=198.28, # Pac cell centre for 2.8 deg
+    lon2=338.91, # Atl cell centre for 2.8 deg
+    toutput = 1e12, # last timestep
+    show_sections=true,
+    lon_lims = (0.0, 360.0),
+    lat_lims = (-90.0, 90.0),
 )
-    toutput = 1e12 # last timestep
     tmodel = last(PALEOmodel.get_array(output, "ocean.tmodel").values)
     println("using tmodel $tmodel (yr)")
 
-
-    # get lon, lat coords from surface P
-    P_conc = PALEOmodel.get_array(output, "ocean.P_conc", (k=1, tmodel=toutput))
-    lon, lon_lower, lon_upper = P_conc.dims[1].coords
-    lat, lat_lower, lat_upper = P_conc.dims[2].coords
-    lon1 = lon.values[lonidx1]
-    lon2 = lon.values[lonidx2]
-    println("longitudes for sections $lonidx1 = $lon1 (deg), $lonidx2 = $lon2 (deg)")    
-    # lat_lims = (first(lat_lower.values), last(lat_upper.values))
-    lat_lims = (-90.0, 90.0)
-    println("lat limits $lat_lims")
-
+    println("longitudes for sections $lon1 (deg), $lon2 (deg)")
+       
+    println("lon limits $lon_lims, lat limits $lat_lims")
  
     gr(size=(700, 500))
     p = heatmap(
-        title=@sprintf("Surface P (mol m-3) at %.2f yr", tmodel), output, "ocean.P_conc", (tmodel=toutput, k=1); 
-        swap_xy=true, xlabel="lon (deg)", ylabel="lat (deg)", margin=(5, :mm), ylims=lat_lims,
+        title=@sprintf("Surface P (mol m-3) at %.2f yr", tmodel), 
+        output, "ocean.P_conc", (tmodel=toutput, zt_isel=1, expand_cartesian=true); 
+        swap_xy=true, xlabel="lon (deg)", ylabel="lat (deg)", margin=(5, :mm), xlims=lon_lims, ylims=lat_lims,
     )
-    plot!(p, [lon1, lon1],  [-90, 90], linecolor=:red, linewidth=2, label=nothing)
-    plot!(p, [lon2, lon2],  [-90, 90], linecolor=:red, linewidth=2, label=nothing)
+    if show_sections
+        plot!(p, [lon1, lon1],  [-90, 90], linecolor=:red, linewidth=2, label=nothing)
+        plot!(p, [lon2, lon2],  [-90, 90], linecolor=:red, linewidth=2, label=nothing)
+    end
     display(p)
     savefig(p, "surface_P_2deg8_PO4MMcarbSCH4_2000yr.svg")
 
     gr(size=(800, 400))
     p = heatmap(
-        title=@sprintf("H2S (mol m-3) lon %.2f at %.2f yr", lon1, tmodel), output, "ocean.H2S_conc", (tmodel=toutput, i=lonidx1);
+        title=@sprintf("H2S (mol m-3) lon %.2f at %.2f yr", lon1, tmodel),
+        output, "ocean.H2S_conc", (tmodel=toutput, lon=lon1, expand_cartesian=true);
         swap_xy=true, xlabel="lat (deg)", ylabel="depth (m)", clims=(0.0, 0.11), margin=(5, :mm),
     )
     display(p)
     savefig(p, "H2S_lon1_2deg8_PO4MMcarbSCH4_2000yr.svg")
 
     p = heatmap(
-        title=@sprintf("H2S (mol m-3) lon %.2f at %.2f yr", lon2, tmodel), output, "ocean.H2S_conc", (tmodel=toutput, i=lonidx2);
+        title=@sprintf("H2S (mol m-3) lon %.2f at %.2f yr", lon2, tmodel), 
+        output, "ocean.H2S_conc", (tmodel=toutput, lon=lon2, expand_cartesian=true);
         swap_xy=true, xlabel="lat (deg)", ylabel="depth (m)", clims=(0.0, 0.11), margin=(5, :mm),
     ) 
     display(p)
     savefig(p, "H2S_lon2_2deg8_PO4MMcarbSCH4_2000yr.svg")
-
-    # heatmap(output, "ocean.$tr", (tmodel=t, i=lonidx2), swap_xy=true), 
 
     return nothing
 end
